@@ -1,6 +1,6 @@
 # Clipcat OpenClaw Skill
 
-This skill enables Claude Code to interact with Clipcat.ai's API for TikTok e-commerce video creation.
+This skill enables OpenClaw & Claude Code to interact with Clipcat.ai's API for TikTok e-commerce video creation.
 
 ## Features
 
