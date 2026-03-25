@@ -1,6 +1,6 @@
 ---
-name: clipcat
-description: Clipcat - TikTok e-commerce video creation skill. Video analysis, viral replication, product-to-video generation, and video download via Clipcat.ai API.
+name: openclaw-support
+description: Clipcat - TikTok e-commerce video creation skill. Video search, social media insights, video analysis, viral replication, product-to-video generation, and video download via Clipcat.ai API.
 user-invocable: true
 metadata:
   {
@@ -15,7 +15,7 @@ metadata:
 
 # Clipcat - TikTok E-commerce Video Creation
 
-Create TikTok e-commerce videos using AI. Analyze viral videos, replicate successful patterns, and generate product videos.
+Create TikTok e-commerce videos using AI. Video search, social media insights, analyze viral videos, replicate successful patterns, and generate product videos.
 
 Get your API key at: https://clipcat.ai/workspace?modal=settings&tab=apikeys
 
@@ -23,6 +23,7 @@ Get your API key at: https://clipcat.ai/workspace?modal=settings&tab=apikeys
 
 | API Endpoint             | Description                                                  | Task Type |
 | ------------------------ | ------------------------------------------------------------ | --------- |
+| `/search`                | Search for viral TikTok videos by keyword                    | Sync      |
 | `/replicate_from_social` | One-click replication from TikTok/Douyin links (Recommended) | Async     |
 | `/replicate`             | Replicate from direct video URL                              | Async     |
 | `/product_video`         | Generate video from product images                           | Async     |
@@ -30,7 +31,92 @@ Get your API key at: https://clipcat.ai/workspace?modal=settings&tab=apikeys
 | `/task`                  | Query task status (unified endpoint)                         | Sync      |
 | `/download`              | Download TikTok/Douyin videos                                | Sync      |
 
-**Async task flow:** Submit task → Get `taskId` → Poll `/task` endpoint until completion
+**Async task flow:** Submit task -> Get `taskId` -> Poll `/task` endpoint until completion
+
+---
+
+## Search Viral Videos
+
+Search for viral TikTok videos by keyword. Returns video metadata including engagement metrics, author info, and direct video links.
+
+**Search videos:**
+
+```bash
+curl "https://clipcat.ai/api/openclaw/search?query=fashion&limit=10&sort_by=likes&time_range=week&region_code=US" \
+  -H "Authorization: Bearer $CLIPCAT_API_KEY"
+```
+
+**Parameters:**
+
+- `query` (required): Search keyword
+- `limit` (optional): Number of results, default `10`, must be an integer from `1` to `20`
+- `sort_by` (optional): Sort method
+  - `relevance` - By relevance (default)
+  - `likes` - By most likes
+  - Any other value returns an error
+- `time_range` (optional): Time range filter
+  - `any` - No limit (default)
+  - `day` - Last 24 hours
+  - `week` - Last 7 days
+  - `month` - Last 30 days
+  - `quarter` - Last 90 days
+  - `half_year` - Last 180 days
+  - Any other value returns an error
+- `region_code` (optional): Region code, default `US`
+  - Common regions: `US`, `GB`, `FR`, `DE`, `JP`, `KR`, `TH`, `VN`, `ID`, `PH`
+
+**Response:**
+
+```json
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "status": "success",
+    "analyzed_count": 1,
+    "videos": [
+      {
+        "video_id": "7123456789",
+        "video_url": "https://v16m.tiktokcdn-us.com/...",
+        "tiktok_url": "https://tiktok.com/@fashionuser123/video/7123456789",
+        "create_time": "2024-03-15T00:00:00.000Z",
+        "duration_seconds": 15,
+        "content": {
+          "desc": "Check out this amazing product! #fashion #trending",
+          "tags": ["fashion", "trending", "ootd"],
+          "bgm_type": "original_sound"
+        },
+        "performance": {
+          "play_count": 500000,
+          "like_count": 25000,
+          "share_count": 3500,
+          "collect_count": 8000
+        },
+        "agent_metrics": {
+          "like_rate": 0.05,
+          "viral_multiplier": 3.33,
+          "is_paid_traffic": false
+        },
+        "author": {
+          "nickname": "FashionInfluencer",
+          "uid": "7123000000000000000",
+          "follower_count": 150000
+        },
+        "ecommerce_anchor": {
+          "has_anchor": false,
+          "product_id": null,
+          "product_title": null,
+          "category": null,
+          "price_usd": null
+        }
+      }
+    ]
+  }
+}
+```
+- When quota is exceeded, the API returns an error
+
+---
 
 ## Available Models
 
@@ -38,8 +124,8 @@ Get your API key at: https://clipcat.ai/workspace?modal=settings&tab=apikeys
 | -------------------- | ---------------- | ---------- |
 | `sora2`              | 10s, 15s         | 720p       |
 | `sora2_pro`          | 15s, 25s         | 720p       |
-| `sora2_official`     | 4s, 8s, 12s      | 720p       |
 | `sora2_official_exp` | 4s, 8s, 12s      | 720p       |
+| `sora2_official`     | 4s, 8s, 12s      | 720p       |
 | `veo3.1fast`         | 8s               | 720p, 4K   |
 
 **Language options:** `zh`, `en`, `fr`, `de`, `vi`, `th`, `ja`, `ko`, `id`, `fil`
@@ -51,6 +137,7 @@ Get your API key at: https://clipcat.ai/workspace?modal=settings&tab=apikeys
 One-click replication from TikTok/Douyin links. Automatically downloads the video and replaces it with your product images.
 
 **⚠️ IMPORTANT NOTES:**
+
 - **Display all parameters to user and wait for confirmation before calling API**
 - **DO NOT retry automatically before the previous task returns a result (success or failure)**
   - Video tasks are time-consuming (typically several minutes)
@@ -107,6 +194,7 @@ curl -X POST "https://clipcat.ai/api/openclaw/replicate_from_social" \
 Replicate from a direct video URL (suitable for already downloaded videos).
 
 **⚠️ IMPORTANT NOTES:**
+
 - **Display all parameters to user and wait for confirmation before calling API**
 - **DO NOT retry automatically before the previous task returns a result (success or failure)**
   - Video tasks are time-consuming (typically several minutes)
@@ -141,6 +229,7 @@ curl -X POST "https://clipcat.ai/api/openclaw/replicate" \
 Generate video directly from product images and prompt.
 
 **⚠️ IMPORTANT NOTES:**
+
 - **Display all parameters to user and wait for confirmation before calling API**
 - **DO NOT retry automatically before the previous task returns a result (success or failure)**
   - Video tasks are time-consuming (typically several minutes)
@@ -200,6 +289,8 @@ curl -X POST "https://clipcat.ai/api/openclaw/breakdown" \
   }
 }
 ```
+
+If the same video was already analyzed before, the API may return the existing `taskId`, current `status`, and cached `result` directly instead of creating a new pending task.
 
 **Poll status:** Poll every 20 seconds using `/task` endpoint (see below), use `breakdown` for the `type` parameter
 
@@ -342,6 +433,9 @@ curl -X POST "https://clipcat.ai/api/openclaw/download" \
 When API returns `"code": -1`, display the error message. Common errors:
 
 - `Unauthorized: Invalid API Key`: API key is invalid
+- `limit must be an integer between 1 and 20`: Invalid `limit`
+- `sort_by is invalid. Allowed values: relevance, likes`: Invalid `sort_by`
+- `time_range is invalid. Allowed values: any, day, week, month, quarter, half_year`: Invalid `time_range`
 - `video_url is required`: Missing required parameter
 - `tiktok_douyin_url is required`: Missing required parameter
 - `URL must be a TikTok or Douyin link`: Invalid URL format
