@@ -114,6 +114,7 @@ curl "https://clipcat.ai/api/openclaw/search?query=fashion&limit=10&sort_by=like
   }
 }
 ```
+
 - When quota is exceeded, the API returns an error
 
 ---
