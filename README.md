@@ -14,7 +14,7 @@ For the latest install guide and examples, see: [https://clipcat.ai/tiktok/openc
 - **Video Analysis**: Extract scripts, scenes, hooks, and music from TikTok or Douyin videos
 - **Viral Replication**: Recreate proven viral structures with your own product assets (auto-detects TikTok/Douyin links vs direct video URLs)
 - **Product to Video**: Turn product images into UGC-style TikTok videos
-- **AI Image Generation**: Generate AI images from text prompts, with optional reference images (up to 5)
+- **AI Image Generation**: Generate AI images from text prompts using GPT Image 2, with optional reference images (up to 5)
 - **User Video Analytics**: Fetch a TikTok user's video list with plays, likes, shares, comments, and e-commerce cart data
 - **Video Download**: Download TikTok or Douyin videos through the Clipcat API
 
