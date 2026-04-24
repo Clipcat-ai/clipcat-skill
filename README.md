@@ -4,6 +4,9 @@ Clipcat is a TikTok e-commerce AI video creation skill for OpenClaw. It helps yo
 
 For the latest install guide and examples, see: [https://clipcat.ai/tiktok/openclaw](https://clipcat.ai/tiktok/openclaw)
 
+[中文版本](https://github.com/a2888409/clipcat-skill/blob/main/README_ZH.md)
+
+
 ## Core Capabilities
 
 - **Viral Video Search**: Find viral TikTok videos by keyword for content inspiration and trend research
