@@ -1,29 +1,38 @@
-# OpenClaw 的 Clipcat Skill
+# Clipcat Skill
 
-Clipcat 是一个面向 OpenClaw 的 TikTok 电商 AI 视频创作 Skill，帮助你的 OpenClaw Agent 在同一套工作流中完成爆款视频发现、TikTok Shop 市场情报分析、视频分析、爆款复刻、商品视频生成、AI 图片生成以及 TikTok 视频下载。
+Clipcat 是一个 TikTok 电商 AI 视频创作 Skill，**任何 AI Agent 都可以集成**——Claude Code、OpenClaw、Cursor，或你自研的 Agent 均可。它以一个跨平台的 `clipcat` CLI 加一份 `SKILL.md` 清单的形式提供：Agent 通过调用 `clipcat` 命令，在同一套工作流中完成爆款视频发现、TikTok Shop 市场情报分析、视频分析、爆款复刻、商品视频生成、AI 图片生成以及 TikTok 视频下载。
 
-最新安装指南和示例请查看：[https://clipcat.ai/tiktok/openclaw](https://clipcat.ai/tiktok/openclaw)
+最新指南和示例请查看：[https://clipcat.ai](https://clipcat.ai)
+
+## 工作原理
+
+Clipcat 本质上只是一个小巧的 CLI 二进制 + 一份 `SKILL.md` 技能清单，任何能执行 shell 命令的 Agent 都能驱动它：
+
+- Agent 读取 `SKILL.md` 了解可用命令与约定。
+- 调用 `clipcat <命令>` 并解析其 JSON 输出（默认格式）。
+- 异步任务（视频/图片生成）提交后立即返回，由 Agent 跨轮次轮询。
+
+OpenClaw 会依据清单自动安装该 Skill；其他 Agent 则手动安装 CLI（见下文）。无论哪种方式，底层运行的都是同一个 `clipcat` 二进制。
 
 ## 核心能力
 
-- **爆款视频搜索**：按关键词搜索 TikTok 爆款视频，用于内容灵感获取和趋势研究
-- **TikTok Shop 情报分析**：按关键词搜索 TikTok Shop 商品，挖掘市场洞察、竞品店铺和选品机会
-- **商品调研**：根据商品 ID 或商品链接获取 TikTok Shop 商品详情和评论洞察
+- **TikTok 电商数据情报**：覆盖达人、商品、店铺、视频、直播、关键词/图片搜索 6 大实体域，支持榜单、多维筛选发现、趋势、详情、评价、评论与跨实体关系查询（Agent 通过 `clipcat <实体> -h` 选择具体命令）
 - **视频分析**：提取 TikTok 或抖音视频中的脚本、分镜、钩子和音乐信息
 - **爆款复刻**：基于已验证的爆款结构，结合你的商品素材进行复刻生成（自动识别 TikTok/抖音链接与直链视频 URL）
 - **商品生视频**：将商品图片生成 UGC 风格的 TikTok 视频
 - **AI 图片生成**：基于 GPT Image 2 模型，根据文本提示生成 AI 图片，并可选上传参考图（最多 5 张）
-- **用户视频数据分析**：拉取 TikTok 用户的视频列表，包括播放、点赞、分享、评论和电商购物车数据
 - **视频下载**：通过 Clipcat API 下载 TikTok 或抖音视频
 
 ## 安装
 
-### 1. 安装 Skill
+### 1. 安装 CLI
 
-复制下面的命令并发送给你的 OpenClaw，即可自动安装。
+**OpenClaw**：依据 Skill 清单自动安装，无需手动操作。
+
+**其他 Agent / 手动安装**：安装 CLI 二进制：
 
 ```bash
-# Install skill
+# 安装 clipcat CLI
 curl -fsSL https://clipcat.ai/cli | bash
 ```
 
@@ -35,16 +44,17 @@ curl -fsSL https://clipcat.ai/cli | bash
 
 ### 3. 配置 API Key
 
-将 `your_api_key_here` 替换为你的真实 API Key，然后把下面的命令发送给 OpenClaw 完成配置。
+在 Agent 运行的机器上配置一次即可：
 
 ```bash
-# Set your Clipcat API key
-openclaw env set CLIPCAT_API_KEY your_api_key_here
+clipcat config --api-key your_api_key_here
 ```
+
+通过环境变量管理密钥的 Agent 也可改为设置 `CLIPCAT_API_KEY`（例如 OpenClaw：`openclaw env set CLIPCAT_API_KEY your_api_key_here`）。
 
 ## 使用方式
 
-安装完成后，你可以直接让 OpenClaw 帮你：
+安装完成后，你可以直接让你的 Agent 帮你：
 
 - “搜索本周关于 lip gloss 的 TikTok 爆款视频”
 - “搜索 TikTok Shop 里热门宠物产品，并展示竞品店铺”
@@ -59,15 +69,15 @@ openclaw env set CLIPCAT_API_KEY your_api_key_here
 ## 重要说明
 
 - 视频生成任务是异步执行的，通常需要几分钟
-- OpenClaw 会先展示参数，并在你确认后再提交任务
+- Agent 应在提交消耗算力的任务前先展示参数，并等待你确认
 - 不要手动重复提交任务，Clipcat 已内置重试处理
 - 请保留完整的 TikTok 或抖音链接，尤其是带签名参数的 URL
 
 ## 支持模型
 
-- `veo3.1fast` - 8s, 16s, 24s（720p, 1080p）—— 默认模型，质量与成本均衡
+- `sora2_official_exp` - 4s, 8s, 12s（720p，9:16 或 16:9）—— 默认模型，OpenAI Sora 2 官方通道
+- `veo3.1fast` - 8s, 16s, 24s（720p, 1080p）—— 质量与成本均衡
 - `grok_imagine` - 10s, 15s, 20s, 30s（720p，仅 9:16）—— 支持更长时长
-- `sora2_official_exp` - 4s, 8s, 12s（720p，9:16 或 16:9）—— OpenAI Sora 2 体验通道
 
 请始终通过 `clipcat replicate -h` 查看当前最新的模型列表。
 
@@ -99,7 +109,7 @@ Use these product images:
 Generate a 16-second video in English using veo3.1fast model.
 ```
 
-OpenClaw 会先展示参数，并等待你确认后再提交任务。
+Agent 会先展示参数，并等待你确认后再提交任务。
 
 ### 示例 3：从零生成商品视频
 
@@ -138,5 +148,5 @@ https://www.tiktok.com/@username/video/111222333
 ## 相关链接
 
 - 官网：https://clipcat.ai
-- OpenClaw 页面：https://clipcat.ai/tiktok/openclaw
-- API 文档：详细接口说明请查看 `SKILL.md`
+- OpenClaw 一键安装：https://clipcat.ai/tiktok/openclaw
+- 命令参考：详细命令说明请查看 `SKILL.md`
