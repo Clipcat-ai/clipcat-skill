@@ -1,29 +1,38 @@
-# Clipcat Skill for OpenClaw
+# Clipcat Skill
 
-Clipcat is a TikTok e-commerce AI video creation skill for OpenClaw. It helps your OpenClaw agent complete viral video discovery, TikTok Shop market intelligence, video analysis, viral replication, product video generation, AI image generation, and TikTok video download in one workflow.
+Clipcat is a TikTok e-commerce AI video creation skill that **any AI agent can integrate** — Claude Code, OpenClaw, Cursor, or your own custom agent. It ships as a single cross-platform `clipcat` CLI plus a `SKILL.md` manifest: the agent calls `clipcat` commands to complete viral video discovery, TikTok Shop market intelligence, video analysis, viral replication, product video generation, AI image generation, and TikTok video download — all in one workflow.
 
-For the latest install guide and examples, see: [https://clipcat.ai/tiktok/openclaw](https://clipcat.ai/tiktok/openclaw)
+For the latest guide and examples, see: [https://clipcat.ai](https://clipcat.ai)
+
+## How It Works
+
+Clipcat is just a small CLI binary and a `SKILL.md` skill manifest, so any agent that can run shell commands can drive it:
+
+- The agent reads `SKILL.md` to learn the available commands and conventions.
+- It runs `clipcat <command>` and parses the JSON output (default).
+- Async tasks (video / image generation) submit immediately and are polled across turns.
+
+OpenClaw auto-installs the skill from the manifest; any other agent installs the CLI manually (see below). Either way the runtime is the same `clipcat` binary.
 
 ## Core Capabilities
 
-- **Viral Video Search**: Find viral TikTok videos by keyword for content inspiration and trend research
-- **TikTok Shop Intelligence**: Search TikTok Shop products by keyword to surface market insights, competitor shops, and product opportunities
-- **Product Research**: Get TikTok Shop product detail and review insights from product IDs or product URLs
+- **TikTok E-commerce Data Intelligence**: Query 6 entity domains — creators, products, shops, videos, lives, and keyword/image search — covering leaderboards, multi-filter discovery, trends, detail, reviews, comments, and cross-entity relationships (the agent picks the exact command via `clipcat <entity> -h`)
 - **Video Analysis**: Extract scripts, scenes, hooks, and music from TikTok or Douyin videos
 - **Viral Replication**: Recreate proven viral structures with your own product assets (auto-detects TikTok/Douyin links vs direct video URLs)
 - **Product to Video**: Turn product images into UGC-style TikTok videos
 - **AI Image Generation**: Generate AI images from text prompts using GPT Image 2, with optional reference images (up to 5)
-- **User Video Analytics**: Fetch a TikTok user's video list with plays, likes, shares, comments, and e-commerce cart data
 - **Video Download**: Download TikTok or Douyin videos through the Clipcat API
 
 ## Installation
 
-### 1. Install the Skill
+### 1. Install the CLI
 
-Copy the commands below and send them to your OpenClaw for automatic installation.
+**OpenClaw** — auto-installed from the skill manifest; no manual step needed.
+
+**Any other agent / manual** — install the CLI binary:
 
 ```bash
-# Install skill
+# Install the clipcat CLI
 curl -fsSL https://clipcat.ai/cli | bash
 ```
 
@@ -35,16 +44,17 @@ Sign up or log in, then generate an API key in your personal center:
 
 ### 3. Configure Your API Key
 
-Replace `your_api_key_here` with your real API key, then send the command below to OpenClaw to finish setup.
+Configure the key once on the machine the agent runs on:
 
 ```bash
-# Set your Clipcat API key
-openclaw env set CLIPCAT_API_KEY your_api_key_here
+clipcat config --api-key your_api_key_here
 ```
+
+Agents that manage secrets via environment variables can instead set `CLIPCAT_API_KEY` (e.g. OpenClaw: `openclaw env set CLIPCAT_API_KEY your_api_key_here`).
 
 ## Usage
 
-Once installed, you can ask OpenClaw to:
+Once installed, you can ask your agent to:
 
 - "Search viral TikTok videos about lip gloss this week"
 - "Search TikTok Shop for trending pet products and show me competitor shops"
@@ -59,15 +69,15 @@ Once installed, you can ask OpenClaw to:
 ## Important Notes
 
 - Video generation tasks are asynchronous and may take several minutes
-- OpenClaw will display parameters and wait for your confirmation before submitting tasks
+- The agent should display parameters and wait for your confirmation before submitting tasks that consume credits
 - Do not retry tasks manually; Clipcat already includes retry handling
 - Preserve complete TikTok or Douyin URLs, including signed parameters when present
 
 ## Supported Models
 
-- `veo3.1fast` - 8s, 16s, 24s (720p, 1080p) — balanced default
+- `sora2_official_exp` - 4s, 8s, 12s (720p, 9:16 or 16:9) — default, OpenAI Sora 2 official channel
+- `veo3.1fast` - 8s, 16s, 24s (720p, 1080p) — balanced quality and cost
 - `grok_imagine` - 10s, 15s, 20s, 30s (720p, 9:16 only) — longer clips
-- `sora2_official_exp` - 4s, 8s, 12s (720p, 9:16 or 16:9) — OpenAI Sora 2 trial channel
 
 Always check `clipcat replicate -h` for the current model list.
 
@@ -99,7 +109,7 @@ Use these product images:
 Generate a 16-second video in English using veo3.1fast model.
 ```
 
-OpenClaw will display the parameters and wait for confirmation before submitting the task.
+The agent will display the parameters and wait for confirmation before submitting the task.
 
 ### Example 3: Generate Product Video from Scratch
 
@@ -138,5 +148,5 @@ Synchronous operation, returns direct video URL immediately.
 ## Links
 
 - Homepage: https://clipcat.ai
-- OpenClaw landing page: https://clipcat.ai/tiktok/openclaw
-- API Documentation: See SKILL.md for detailed API reference
+- OpenClaw one-click install: https://clipcat.ai/tiktok/openclaw
+- Command reference: See SKILL.md for the detailed command reference
