@@ -47,7 +47,7 @@ Sign up or log in, then generate an API key in your personal center:
 Configure the key once on the machine the agent runs on:
 
 ```bash
-clipcat config --api-key your_api_key_here
+clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 ```
 
 Agents that manage secrets via environment variables can instead set `CLIPCAT_API_KEY` (e.g. OpenClaw: `openclaw env set CLIPCAT_API_KEY your_api_key_here`).
@@ -69,17 +69,17 @@ Once installed, you can ask your agent to:
 ## Important Notes
 
 - Video generation tasks are asynchronous and may take several minutes
-- The agent should display parameters and wait for your confirmation before submitting tasks that consume credits
+- Before submitting a task that consumes credits, the agent quotes the exact cost with `clipcat quote`, shows you the model / duration / resolution / credits, and waits for your confirmation
 - Do not retry tasks manually; Clipcat already includes retry handling
 - Preserve complete TikTok or Douyin URLs, including signed parameters when present
 
 ## Supported Models
 
-- `sora2_official_exp` - 4s, 8s, 12s (720p, 9:16 or 16:9) — default, OpenAI Sora 2 official channel
+- `grok_imagine` - 10s, 15s, 20s, 30s (720p, 9:16 only) — default, longer clips
 - `veo3.1fast` - 8s, 16s, 24s (720p, 1080p) — balanced quality and cost
-- `grok_imagine` - 10s, 15s, 20s, 30s (720p, 9:16 only) — longer clips
+- `sora2_official_exp` - 4s, 8s, 12s (720p, 9:16 or 16:9) — paid only, OpenAI Sora 2 official channel
 
-Always check `clipcat replicate -h` for the current model list.
+Run `clipcat models` for the full available-model list with the exact per-combination credit cost and your balance; `clipcat replicate -h` also lists models.
 
 ## Supported Languages
 
