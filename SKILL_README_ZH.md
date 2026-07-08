@@ -47,7 +47,7 @@ curl -fsSL https://clipcat.ai/cli | bash
 在 Agent 运行的机器上配置一次即可：
 
 ```bash
-clipcat config --api-key your_api_key_here
+clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 ```
 
 通过环境变量管理密钥的 Agent 也可改为设置 `CLIPCAT_API_KEY`（例如 OpenClaw：`openclaw env set CLIPCAT_API_KEY your_api_key_here`）。
@@ -69,17 +69,17 @@ clipcat config --api-key your_api_key_here
 ## 重要说明
 
 - 视频生成任务是异步执行的，通常需要几分钟
-- Agent 应在提交消耗算力的任务前先展示参数，并等待你确认
+- 提交消耗算力的任务前，Agent 会先用 `clipcat quote` 报出精确算力，向你展示模型/时长/分辨率/算力，并等待你确认
 - 不要手动重复提交任务，Clipcat 已内置重试处理
 - 请保留完整的 TikTok 或抖音链接，尤其是带签名参数的 URL
 
 ## 支持模型
 
-- `sora2_official_exp` - 4s, 8s, 12s（720p，9:16 或 16:9）—— 默认模型，OpenAI Sora 2 官方通道
+- `grok_imagine` - 10s, 15s, 20s, 30s（720p，仅 9:16）—— 默认模型，支持更长时长
 - `veo3.1fast` - 8s, 16s, 24s（720p, 1080p）—— 质量与成本均衡
-- `grok_imagine` - 10s, 15s, 20s, 30s（720p，仅 9:16）—— 支持更长时长
+- `sora2_official_exp` - 4s, 8s, 12s（720p，9:16 或 16:9）—— 仅付费用户，OpenAI Sora 2 官方通道
 
-请始终通过 `clipcat replicate -h` 查看当前最新的模型列表。
+用 `clipcat models` 查看完整可用模型列表、每个「分辨率 × 时长」组合的精确算力和你的余额；`clipcat replicate -h` 也会列出模型。
 
 ## 支持语言
 
