@@ -83,15 +83,16 @@ Trial models are open to all users; standard models require a paid plan.
 
 | Model ID             | Duration            | Resolution        | Notes                                                     |
 | -------------------- | ------------------- | ----------------- | --------------------------------------------------------- |
-| `grok_imagine`       | 10s, 15s, 20s, 30s  | 720p              | **Trial**, default. 9:16 aspect ratio only, longer clips  |
-| `veo3.1fast`         | 8s, 16s, 24s        | 720p, 1080p       | **Trial**. Google Veo 3.1 Fast, balanced quality and cost |
-| `veo3.1pro`          | 8s, 16s, 24s        | 720p, 1080p       | **Trial**. Google Veo 3.1 Pro, high-quality variant       |
+| `grok_imagine`       | 10s, 15s            | 480p, 720p        | **Trial**, default. xAI Grok Imagine 1.5, 9:16 only       |
+| `veo3.1fast`         | 8s, 16s, 24s        | 720p              | **Trial**. Google Veo 3.1 Fast, balanced quality and cost |
 | `omini_flash`        | 10s, 20s            | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model       |
+| `seedance2_mini`     | 4-15s (any integer) | 480p, 720p        | **Trial**. Seedance 2 Mini, value tier (free plans: 480p) |
 | `seedance2`          | 4-15s (any integer) | 480p, 720p, 1080p | Paid. ByteDance Seedance 2, top quality                   |
 | `seedance2_5`        | 4-30s (any integer) | 480p, 720p        | Paid. ByteDance Seedance 2.5, clips up to 30s             |
 | `seedance2_fast`     | 4-15s (any integer) | 480p, 720p        | Paid. ByteDance Seedance 2 Fast, fast variant             |
-| `happyhorse10`       | 3-15s (any integer) | 720p, 1080p       | Paid. Alibaba HappyHorse 1.0                              |
-| `sora2_official_exp` | 4s, 8s, 12s         | 720p              | OpenAI Sora 2 official channel, 9:16 or 16:9              |
+| `wan30`              | 5-30s (any integer) | 480p, 720p, 1080p | Paid. Alibaba Wan 3.0, clips up to 30s                    |
+| `minimax_h3`         | 10s, 15s            | 768p, 2K          | Paid. MiniMax H3                                          |
+| `happyhorse10`       | 3-15s (any integer) | 720p, 1080p       | Paid. Alibaba HappyHorse 1.1                              |
 
 The table is what each model *offers*; run `clipcat models` for the live listing with the exact per-combination credit cost and your balance. `clipcat replicate -h` also lists models.
 

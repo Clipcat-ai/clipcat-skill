@@ -329,15 +329,16 @@ Trial models are available to all users; standard models require a paid plan.
 
 | Model ID             | Duration              | Resolution        | Notes                                                             |
 | -------------------- | --------------------- | ----------------- | ----------------------------------------------------------------- |
-| `veo3.1fast`         | 8s, 16s, 24s          | 720p, 1080p       | **Trial**. Google Veo 3.1 Fast, balanced quality and cost         |
-| `veo3.1pro`          | 8s, 16s, 24s          | 720p, 1080p       | **Trial**. Google Veo 3.1 Pro, high-quality variant               |
-| `omini_flash`        | 10s, 20s              | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model               |
-| `grok_imagine`       | 10s, 15s, 20s, 30s    | 720p              | **Trial**, default. 9:16 aspect ratio only, longer clips          |
+| `grok_imagine`       | 10s, 15s              | 480p, 720p        | **Trial**, default. xAI Grok Imagine 1.5, 9:16 aspect ratio only   |
+| `veo3.1fast`         | 8s, 16s, 24s          | 720p              | **Trial**. Google Veo 3.1 Fast, balanced quality and cost          |
+| `omini_flash`        | 10s, 20s              | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model                |
+| `seedance2_mini`     | 4-15s (any integer)   | 480p, 720p        | **Trial**. Seedance 2 Mini, value tier. Free plans are 480p only — **pass `--resolution 480p` explicitly** |
 | `seedance2`          | 4-15s (any integer)   | 480p, 720p, 1080p | Standard (paid). ByteDance Seedance 2, top quality. **Default 480p** |
 | `seedance2_5`        | 4-30s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2.5, newest generation, clips up to 30s. **Default 480p** |
 | `seedance2_fast`     | 4-15s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2 Fast, fast variant. **Default 480p** |
-| `happyhorse10`       | 3-15s (any integer)   | 720p, 1080p       | Standard (paid). Alibaba HappyHorse 1.0                           |
-| `sora2_official_exp` | 4s, 8s, 12s           | 720p              | OpenAI Sora 2 official channel, 9:16 or 16:9     |
+| `wan30`              | 5-30s (any integer)   | 480p, 720p, 1080p | Standard (paid). Alibaba Wan 3.0, clips up to 30s                  |
+| `minimax_h3`         | 10s, 15s              | 768p, 2K          | Standard (paid). MiniMax H3                                        |
+| `happyhorse10`       | 3-15s (any integer)   | 720p, 1080p       | Standard (paid). Alibaba HappyHorse 1.1                            |
 
 Always check `clipcat replicate -h` for the current model list, and `clipcat
 models` for the authoritative live per-combination credit costs and your balance.
@@ -353,6 +354,11 @@ re-confirm with the user. Do not retry the same combination.
 applies this in `quote`, `replicate` and `product_video` when `--resolution` is
 omitted). Only pass a higher resolution when the user explicitly asks for one,
 and keep `quote` and the submit on the same value.
+
+`seedance2_mini` is **not** covered by that automatic default: free plans can only
+use its 480p tier, so omitting `--resolution` sends the server default (720p) and
+the submit is rejected. Pass `--resolution 480p` explicitly on both the `quote` and
+the submit.
 
 ## Supported languages (`--lang`)
 

@@ -83,15 +83,16 @@ clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 
 | 模型 ID              | 时长                | 分辨率            | 备注                                          |
 | -------------------- | ------------------- | ----------------- | --------------------------------------------- |
-| `grok_imagine`       | 10s, 15s, 20s, 30s  | 720p              | **试用**，默认。仅 9:16 宽高比，支持更长片段  |
-| `veo3.1fast`         | 8s, 16s, 24s        | 720p, 1080p       | **试用**。Google Veo 3.1 Fast，质量与成本均衡 |
-| `veo3.1pro`          | 8s, 16s, 24s        | 720p, 1080p       | **试用**。Google Veo 3.1 Pro，高质量版本      |
-| `omini_flash`        | 10s, 20s            | 720p, 1080p       | **试用**。Gemini Omni Flash，Google 最新模型  |
-| `seedance2`          | 4-15s（任意整数）   | 480p, 720p, 1080p | 付费。字节 Seedance 2，顶级质量               |
-| `seedance2_5`        | 4-30s（任意整数）   | 480p, 720p        | 付费。字节 Seedance 2.5，最长 30s             |
-| `seedance2_fast`     | 4-15s（任意整数）   | 480p, 720p        | 付费。字节 Seedance 2 Fast，快速版本          |
-| `happyhorse10`       | 3-15s（任意整数）   | 720p, 1080p       | 付费。阿里 HappyHorse 1.0                     |
-| `sora2_official_exp` | 4s, 8s, 12s         | 720p              | OpenAI Sora 2 官方渠道，9:16 或 16:9          |
+| `grok_imagine`       | 10s, 15s            | 480p, 720p        | **试用**，默认。xAI Grok Imagine 1.5，仅 9:16  |
+| `veo3.1fast`         | 8s, 16s, 24s        | 720p              | **试用**。Google Veo 3.1 Fast，质量与成本均衡  |
+| `omini_flash`        | 10s, 20s            | 720p, 1080p       | **试用**。Gemini Omni Flash，Google 最新模型   |
+| `seedance2_mini`     | 4-15s（任意整数）   | 480p, 720p        | **试用**。Seedance 2 Mini，高性价比档（免费用户仅 480p） |
+| `seedance2`          | 4-15s（任意整数）   | 480p, 720p, 1080p | 付费。字节 Seedance 2，顶级质量                |
+| `seedance2_5`        | 4-30s（任意整数）   | 480p, 720p        | 付费。字节 Seedance 2.5，最长 30s              |
+| `seedance2_fast`     | 4-15s（任意整数）   | 480p, 720p        | 付费。字节 Seedance 2 Fast，快速版本           |
+| `wan30`              | 5-30s（任意整数）   | 480p, 720p, 1080p | 付费。阿里 Wan 3.0，最长 30s                   |
+| `minimax_h3`         | 10s, 15s            | 768p, 2K          | 付费。MiniMax H3                               |
+| `happyhorse10`       | 3-15s（任意整数）   | 720p, 1080p       | 付费。阿里 HappyHorse 1.1                      |
 
 表格列的是各模型「能提供」的档位；实时可用列表、每个「分辨率 × 时长」组合的精确算力和你的余额，请以 `clipcat models` 为准。`clipcat replicate -h` 也会列出模型。
 

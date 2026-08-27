@@ -235,19 +235,22 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
 
 | 模型 ID              | 时长                  | 分辨率            | 备注                                                              |
 | -------------------- | --------------------- | ----------------- | ----------------------------------------------------------------- |
-| `veo3.1fast`         | 8s, 16s, 24s          | 720p, 1080p       | **试用**。Google Veo 3.1 Fast，质量与成本均衡                     |
-| `veo3.1pro`          | 8s, 16s, 24s          | 720p, 1080p       | **试用**。Google Veo 3.1 Pro，高质量版本                          |
+| `grok_imagine`       | 10s, 15s              | 480p, 720p        | **试用**，默认。xAI Grok Imagine 1.5，仅 9:16 宽高比               |
+| `veo3.1fast`         | 8s, 16s, 24s          | 720p              | **试用**。Google Veo 3.1 Fast，质量与成本均衡                     |
 | `omini_flash`        | 10s, 20s              | 720p, 1080p       | **试用**。Gemini Omni Flash，Google 最新模型                      |
-| `grok_imagine`       | 10s, 15s, 20s, 30s    | 720p              | **试用**，默认。仅 9:16 宽高比，支持更长片段                      |
+| `seedance2_mini`     | 4-15s（任意整数）     | 480p, 720p        | **试用**。Seedance 2 Mini，高性价比档。免费用户仅 480p——**必须显式传 `--resolution 480p`** |
 | `seedance2`          | 4-15s（任意整数）     | 480p, 720p, 1080p | 标准（付费）。字节 Seedance 2，顶级质量。**默认 480p**            |
 | `seedance2_5`        | 4-30s（任意整数）     | 480p, 720p        | 标准（付费）。字节 Seedance 2.5，新一代模型，最长 30s。**默认 480p** |
 | `seedance2_fast`     | 4-15s（任意整数）     | 480p, 720p        | 标准（付费）。字节 Seedance 2 Fast，快速版本。**默认 480p**       |
-| `happyhorse10`       | 3-15s（任意整数）     | 720p, 1080p       | 标准（付费）。阿里 HappyHorse 1.0                                 |
-| `sora2_official_exp` | 4s, 8s, 12s           | 720p              | OpenAI Sora 2 官方渠道，9:16 或 16:9               |
+| `wan30`              | 5-30s（任意整数）     | 480p, 720p, 1080p | 标准（付费）。阿里 Wan 3.0，最长 30s                             |
+| `minimax_h3`         | 10s, 15s              | 768p, 2K          | 标准（付费）。MiniMax H3                                          |
+| `happyhorse10`       | 3-15s（任意整数）     | 720p, 1080p       | 标准（付费）。阿里 HappyHorse 1.1                                |
 
 当前模型列表请始终查 `clipcat replicate -h`；权威的实时「分辨率 × 时长」算力和你的余额查 `clipcat models`。
 
 **`seedance2` / `seedance2_5` / `seedance2_fast` 默认 `--resolution 480p`**（CLI 在 `quote`、`replicate`、`product_video` 省略 `--resolution` 时自动套用）。只有用户明确要求更高分辨率才传别的值，且 `quote` 与提交必须用同一个值。
+
+`seedance2_mini` **不在**这个自动默认范围里：免费用户只能用它的 480p 档，省略 `--resolution` 会走服务端默认的 720p，提交会被拒。报价和提交都要显式传 `--resolution 480p`。
 
 ## 支持的语言（`--lang`）
 
