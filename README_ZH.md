@@ -79,7 +79,7 @@ clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 
 - `grok_imagine` - 10s, 15s, 20s, 30s（720p，仅 9:16）—— 默认模型，支持更长时长
 - `veo3.1fast` - 8s, 16s, 24s（720p, 1080p）—— 质量与成本均衡
-- `sora2_official_exp` - 4s, 8s, 12s（720p，9:16 或 16:9）—— 仅付费用户，OpenAI Sora 2 官方通道
+- `sora2_official_exp` - 4s, 8s, 12s（720p，9:16 或 16:9）—— OpenAI Sora 2 官方通道
 
 用 `clipcat models` 查看完整可用模型列表、每个「分辨率 × 时长」组合的精确算力和你的余额；`clipcat replicate -h` 也会列出模型。
 

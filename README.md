@@ -79,7 +79,7 @@ Once installed, you can ask your agent to:
 
 - `grok_imagine` - 10s, 15s, 20s, 30s (720p, 9:16 only) — default, longer clips
 - `veo3.1fast` - 8s, 16s, 24s (720p, 1080p) — balanced quality and cost
-- `sora2_official_exp` - 4s, 8s, 12s (720p, 9:16 or 16:9) — paid only, OpenAI Sora 2 official channel
+- `sora2_official_exp` - 4s, 8s, 12s (720p, 9:16 or 16:9) — OpenAI Sora 2 official channel
 
 Run `clipcat models` for the full available-model list with the exact per-combination credit cost and your balance; `clipcat replicate -h` also lists models.
 
