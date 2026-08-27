@@ -1,6 +1,8 @@
-# Clipcat Skill
+# Clipcat Skill —— TikTok Shop 带货视频 AI 技能
 
-Clipcat 是一个 TikTok 电商 AI 视频创作 Skill，**任何 AI Agent 都可以集成**——Claude Code、OpenClaw、Cursor，或你自研的 Agent 均可。它以一个跨平台的 `clipcat` CLI 加一份 `SKILL.md` 清单的形式提供：Agent 通过调用 `clipcat` 命令，在同一套工作流中完成爆款视频发现、TikTok Shop 市场情报分析、视频分析、爆款复刻、商品视频生成、AI 图片生成以及 TikTok 视频下载。
+**把任意 AI Agent 变成 TikTok Shop 视频制作人。** 搜索 TikTok 爆款视频，调研 TikTok Shop 商品、店铺、达人和直播间，拆解爆款视频为什么能卖，用自己的商品复刻爆款，把商品图生成 AI 带货 / UGC / 真人口播视频，用文字提示生成电商图片，下载 TikTok 或抖音视频——全部通过一个 CLI 完成。
+
+**任何能执行 shell 命令的 AI Agent 都能用**——Claude Code、Codex、WorkBuddy、OpenClaw、Cursor，或你自研的 Agent。它以一个跨平台的 `clipcat` CLI 加一份 `SKILL.md` 清单的形式提供：Agent 读取清单、执行 `clipcat` 命令并解析 JSON 输出。
 
 最新指南和示例请查看：[https://clipcat.ai](https://clipcat.ai)
 

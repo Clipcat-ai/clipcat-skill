@@ -1,6 +1,8 @@
-# Clipcat Skill
+# Clipcat Skill — AI Selling Videos for TikTok Shop
 
-Clipcat is a TikTok e-commerce AI video creation skill that **any AI agent can integrate** — Claude Code, OpenClaw, Cursor, or your own custom agent. It ships as a single cross-platform `clipcat` CLI plus a `SKILL.md` manifest: the agent calls `clipcat` commands to complete viral video discovery, TikTok Shop market intelligence, video analysis, viral replication, product video generation, AI image generation, and TikTok video download — all in one workflow.
+**Turn any AI agent into a TikTok Shop video producer.** Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells, replicate a winning video with your own product, turn product photos into AI selling / UGC / talking-head videos, generate e-commerce images from a text prompt, and download TikTok or Douyin videos — all from one CLI.
+
+Works with **any AI agent that can run shell commands** — Claude Code, Codex, WorkBuddy, OpenClaw, Cursor, or your own. It ships as a single cross-platform `clipcat` CLI plus a `SKILL.md` manifest: the agent reads the manifest, runs `clipcat` commands and parses the JSON output.
 
 For the latest guide and examples, see: [https://clipcat.ai](https://clipcat.ai)
 
