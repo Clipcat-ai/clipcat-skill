@@ -19,7 +19,7 @@ metadata:
 
 获取 API 密钥：https://clipcat.ai/workspace?modal=settings&tab=apikeys
 
-本技能刻意保持精简。详细的参数和支持值属于 CLI 本身 —— 始终以 `clipcat -h` 和 `clipcat <子命令> -h` 作为首要参考。
+本技能刻意保持精简。详细的参数和支持值属于 CLI 本身 —— 始终以 `clipcat -h` 和 `clipcat <子命令> -h` 作为首要参考。唯一例外是模型清单：模型在两次发版之间就会上下架，`-h` 必然滞后，当前有哪些模型、哪些分辨率和时长一律以 `clipcat models` 为准。
 
 ## 安装
 
@@ -247,7 +247,7 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
 | `minimax_h3`         | 10s, 15s              | 768p, 2K          | 标准（付费）。MiniMax H3                                          |
 | `happyhorse10`       | 3-15s（任意整数）     | 720p, 1080p       | 标准（付费）。阿里 HappyHorse 1.1                                |
 
-当前模型列表请始终查 `clipcat replicate -h`；权威的实时「分辨率 × 时长」算力和你的余额查 `clipcat models`。
+模型清单和实时「分辨率 × 时长」算力都以 `clipcat models` 为准 —— 它没返回的模型即已下架，提交必被拒，`-h` 和本表都不作数。`clipcat models` 列出 `mmh3_promo` 时优先用它而不是 `minimax_h3`：同一个模型走限时补贴渠道，算力只要一小部分，且免费用户可用。
 
 **`seedance2` / `seedance2_5` / `seedance2_fast` 默认 `--resolution 480p`**（CLI 在 `quote`、`replicate`、`product_video` 省略 `--resolution` 时自动套用）。只有用户明确要求更高分辨率才传别的值，且 `quote` 与提交必须用同一个值。
 

@@ -95,7 +95,7 @@ clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 | `minimax_h3`         | 10s, 15s            | 768p, 2K          | 付费。MiniMax H3                               |
 | `happyhorse10`       | 3-15s（任意整数）   | 720p, 1080p       | 付费。阿里 HappyHorse 1.1                      |
 
-表格列的是各模型「能提供」的档位；实时可用列表、每个「分辨率 × 时长」组合的精确算力和你的余额，请以 `clipcat models` 为准。`clipcat replicate -h` 也会列出模型。
+表格列的是各模型「能提供」的档位；实时可用列表、每个「分辨率 × 时长」组合的精确算力和你的余额，请以 `clipcat models` 为准 —— 它也是「模型是否还在架」的唯一权威，`-h` 在两次发版之间必然滞后。`clipcat models` 里有 `mmh3_promo` 时优先用它而不是 `minimax_h3`：同一个模型走补贴渠道，算力只要一小部分。
 
 ## 支持语言
 

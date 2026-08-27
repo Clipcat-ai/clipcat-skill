@@ -95,7 +95,7 @@ Trial models are open to all users; standard models require a paid plan.
 | `minimax_h3`         | 10s, 15s            | 768p, 2K          | Paid. MiniMax H3                                          |
 | `happyhorse10`       | 3-15s (any integer) | 720p, 1080p       | Paid. Alibaba HappyHorse 1.1                              |
 
-The table is what each model *offers*; run `clipcat models` for the live listing with the exact per-combination credit cost and your balance. `clipcat replicate -h` also lists models.
+The table is what each model *offers*; run `clipcat models` for the live listing with the exact per-combination credit cost and your balance — it is the authority on which models still exist, and `-h` lags behind it between releases. Prefer `mmh3_promo` over `minimax_h3` whenever it is listed: same model, subsidized channel, a fraction of the credits.
 
 ## Supported Languages
 

@@ -15,7 +15,7 @@ metadata:
 
 # Clipcat CLI
 
-This skill is intentionally short. Detailed flags and supported values belong to the CLI itself — always treat `clipcat -h` and `clipcat <subcommand> -h` as the primary reference.
+This skill is intentionally short. Detailed flags and supported values belong to the CLI itself — always treat `clipcat -h` and `clipcat <subcommand> -h` as the primary reference. The one thing `-h` cannot be current about is the model catalog: models come and go between releases, so `clipcat models` is the authority on which models, resolutions and durations exist right now.
 
 ## Installation
 
@@ -341,8 +341,11 @@ Trial models are available to all users; standard models require a paid plan.
 | `minimax_h3`         | 10s, 15s              | 768p, 2K          | Standard (paid). MiniMax H3                                        |
 | `happyhorse10`       | 3-15s (any integer)   | 720p, 1080p       | Standard (paid). Alibaba HappyHorse 1.1                            |
 
-Always check `clipcat replicate -h` for the current model list, and `clipcat
-models` for the authoritative live per-combination credit costs and your balance.
+`clipcat models` is the authority on both the model list and the live
+per-combination credit costs — a model missing there has been retired and is
+rejected on submit, whatever `-h` or this table says. Prefer `mmh3_promo` over
+`minimax_h3` whenever `clipcat models` lists it: same model on a limited-time
+subsidized channel, a fraction of the credits, and free plans may use it.
 
 The tiers in this table are what each model *offers*; `clipcat models` is what is
 *available right now*. Providers get disabled for maintenance, so a listed tier can
