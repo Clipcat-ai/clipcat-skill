@@ -1,0 +1,449 @@
+---
+name: clipcat
+description: TikTok e-commerce video creation via the `clipcat` CLI — creator/product/shop/video search and insights, viral video replication, product-to-video and text-to-image generation, video breakdown analysis, and TikTok/Douyin download. Use whenever the user needs any of these TikTok e-commerce data queries or AI video/image workflows.
+user-invocable: true
+metadata:
+  {
+    "openclaw":
+      {
+        "requires": { "env": ["CLIPCAT_API_KEY"] },
+        "primaryEnv": "CLIPCAT_API_KEY",
+      },
+    "homepage": "https://clipcat.ai",
+  }
+---
+
+# Clipcat CLI
+
+This skill is intentionally short. Detailed flags and supported values belong to the CLI itself — always treat `clipcat -h` and `clipcat <subcommand> -h` as the primary reference.
+
+## Installation
+
+Run `clipcat --version` first — if it prints a version, clipcat is installed; skip to API key. If the command is missing, install for the platform:
+
+macOS / Linux / Git Bash:
+
+```bash
+curl -fsSL https://clipcat.ai/cli | bash
+```
+
+Windows (PowerShell, no bash):
+
+```powershell
+irm https://clipcat.ai/cli.ps1 | iex
+```
+
+Then set the API key (see below). Update later with `clipcat update` (re-runs the installer; your saved config is preserved).
+
+### Windows sandbox note (Codex etc.)
+
+If the Windows install fails with `SEC_E_NO_CREDENTIALS`, `AcquireCredentialsHandle`, `0x8009030E`, "The underlying connection was closed", or 「基础连接已经关闭」, you are in a restricted sandbox (e.g. the Codex Windows sandbox) where the Windows TLS stack (Schannel) can't open credentials — `Invoke-WebRequest` and system `curl.exe` both fail there. The installer automatically retries the download through Node (its OpenSSL bypasses Schannel), so installing Node in the sandbox usually fixes it. If it still fails, **show the install command to the user and ask them to run it in a normal PowerShell outside the sandbox, or to approve running it outside the sandbox — do not keep retrying with different commands.**
+
+## API key
+
+Configure the key in the local config file — the only reliable method:
+
+```bash
+clipcat config --api-key <your-key> --base-url https://clipcat.ai
+```
+
+Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer the config file over the `CLIPCAT_API_KEY` environment variable: sandboxed agents (e.g. Codex) filter out env vars whose names contain KEY/SECRET/TOKEN, so it is usually invisible there. (OpenClaw injects `CLIPCAT_API_KEY` automatically; when set, it overrides the config file.)
+
+## What this CLI is for
+
+`clipcat` is the local entrypoint for all Clipcat AI video generation workflows:
+
+- Query TikTok e-commerce data: creators, products, shops, videos, lives, search
+- Replicate viral videos with your product
+- Generate product videos from images
+- Generate AI images from text prompts using GPT Image 2 (with optional reference images)
+- Analyze videos (script, scenes, music)
+- Download TikTok/Douyin videos
+- Connect TikTok accounts and publish videos to them (direct post, draft, scheduled)
+- Query async task status
+
+## Default agent workflow
+
+1. Start with `clipcat -h` to see all commands.
+2. Before using any command, run `clipcat <subcommand> -h` to see flags.
+3. Default to JSON output.
+4. Before any credit-consuming video command, quote the exact cost with
+   `clipcat quote`, confirm it with the user, and submit with
+   `--expected-credits` (see "Confirming cost before paid video commands").
+5. If any command prints an update notice on stderr (`⬆ clipcat X is
+   available … Run: clipcat update`), run `clipcat update` once, then continue.
+   It self-skips when already up to date, so it is safe to run.
+
+## Choosing the right command
+
+### TikTok e-commerce data — entity commands
+
+These are noun-verb commands: `clipcat <entity> <verb>`. Run `clipcat <entity> -h`
+to list verbs and `clipcat <entity> <verb> -h` for flags.
+
+- `creator <list|rank|detail|trend|videos|lives|products|followers|following|region|milestones>` — TikTok creators/influencers
+- `product <list|rank|detail|trend|comments|creators|videos|lives>` — TikTok Shop products
+- `seller <list|rank|detail|trend|products|creators|videos|lives>` — TikTok Shop shops
+- `video <list|rank|detail|trend|comments|captions|products|hashtag>` — TikTok videos
+- `live detail` — live-room detail (only while live)
+- `find <creators|products|videos|lives|hashtags|music|photo|all>` — keyword/image search; `find all` is the broad fallback
+
+**Data mode (`--mode`)**: some commands (`creator detail`, `creator videos`,
+`product comments`, `seller products`, `video detail`) accept
+`--mode offline|realtime`. **Default is already the safe choice — omit it unless
+the user needs it.** Use `--mode realtime` for "latest / current / live", `--mode
+offline` for "history / trend / cumulative / leaderboard". Never expose the words
+offline/realtime to end users; phrase as historical vs. latest data.
+
+**Pagination**: each call returns one page and is billed once. Offline list/rank
+commands take `--page` / `--page-size` (**`--page-size` maxes out at 10**; larger
+values are clamped and the response says so in `pagination_corrected` — get more
+rows with `--page 2`, `--page 3`, …); realtime lists take `--offset` /
+`--cursor` / `--scroll-param` echoed back from a prior page. Fetch more by
+repeating the command page by page (`--max-pages` is deprecated and ignored).
+
+**Insufficient credits**: read commands cost 6 credits each; below a 6-credit balance they error out and return no data.
+
+**Data-query playbook (dense):**
+
+- **Chain ids, don't guess them.** Discover first (`<entity> list|rank`, `find …`),
+  take the id from the result, then call `detail` / `trend` / relationship verbs.
+  Detail verbs take **comma-separated batches** (`--user-ids`, `--product-ids`,
+  `--video-ids`, ≤10).
+- **Seed relationships from commerce-active entities.** Sub-resource verbs
+  (`creator products|lives`, `product creators|videos|lives`, `seller lives`,
+  `video products`) return `[]` for low-activity ids. Pull seeds from `… rank` or a
+  sorted `… list` (top sales/followers), not an arbitrary row, or expect empties.
+- **`… rank` needs a *recent* `--date`.** Pass any day in the target period — the backend
+  auto-snaps it to the period anchor (week→that week's Monday, month→that month's 1st).
+  It never silently serves a *different* period: if the period hasn't ended, or its data
+  isn't generated yet (T+1, usually after midday), you get `data: []` plus `period`
+  (`requested` / `latest_available` / `previous`, each with `anchor`/`start`/`end`) and a
+  `hint` naming the exact `--date` to retry with — follow it instead of re-querying the same
+  period. The date must fall within the freshness window keyed to `--rank-type`:
+  **day ≤30d, week ≤6mo, month ≤12mo** back from *today*. A too-**old** date (e.g. last year)
+  is rejected upstream as `rant_type N only support …` — move it **forward toward today**;
+  don't switch rank-type.
+- **Category filtering is numeric and split by level.** To scope `rank` / `list` to a
+  category, first run `category resolve --keyword <term>` (e.g. `lipstick` / `口红`; CJK
+  auto-uses the zh tree). It returns each match's level + ancestor ids `{l1_id, l2_id?,
+  l3_id?}` (ids work for any region). Pass the id for the level the target command takes:
+  **product/seller** rank/list use **L1→`--category-id`, L2→`--category-l2-id`,
+  L3→`--category-l3-id`** (`--category-id` is L1-only — don't put an L2/L3 id there).
+  The levels you pass must form **one parent-child chain**; a repeated or mismatched id is
+  rejected locally (costs nothing) with the offending fields in `issues` and the correct ids
+  in `suggested` — copy those and resend. Each entry in `issues` carries `field`, `reason`,
+  `value`, a localized `message`, and a structured `detail` (the machine-readable form of
+  the same thing — prefer `detail` when branching in code, `message` when showing a human). Then:
+  **creator** rank takes any level via `--product-category-id`; **video** rank only
+  accepts L1 (`l1_id`) — pass an L2/L3 id there and it is auto-lifted to its L1 ancestor,
+  which **widens** the filter (the response says so in `category_level_corrected`). Low-confidence `hint` → run `category tree` (L1+L2 overview), pick
+  the branch by meaning, then `category tree --parent <that L2 id>` to drill into its L3
+  leaves. For plain keyword *search* (no leaderboard), `find products --keyword` needs no id.
+- **`find products` returns product_id only** (it's a search index). For title /
+  price / metrics, chain the ids into `product detail`.
+- **Empty `[]` / `null` means "none", not an error.** A repeat of the same empty query may
+  come back with `cached: true` + `retry_after` (an ISO timestamp): the backend remembered
+  that this filter has no data and re-probes automatically after that time — don't poll it,
+  change the filter or move on. Known thin/quirky:
+  `creator region` (unreliable → read `region` from `creator detail` instead),
+  `video captions` (many videos have none), `live detail` (only while a room is
+  live), `seller products --mode realtime` (empty when no live inventory; the
+  offline default already covers it).
+- Responses are **server-trimmed to signal** (ids, core metrics, names, key links;
+  images already converted to accessible URLs) — no raw-blob handling needed.
+- **All monetary values are USD.** Every price / avg-price / GMV field (`min_price`,
+  `max_price`, `spu_avg_price`, `*_gmv_*_amt`, …) is a USD-converted number, regardless
+  of `--region`; the response carries `"currency": "USD"` to confirm it. Never label
+  them with a local symbol like `¥`/`円`. If a report needs the local currency (e.g.
+  JPY for a Japan market study), convert from USD using a current FX rate and mark the
+  result approximate.
+
+### Video generation & tools
+
+- `quote` — return the exact credit cost of one specific generation (`--model` + `--resolution` + `--duration`, plus `--url`/`--social` for a TikTok/Douyin replicate, plus `--enhance` for super-resolution). The primary way to quote a paid command: the server does all the math and hands back `totalCredits` (already includes the enhance fee) plus `enhanceCredits` / `enhanceBlocked` (see "Confirming cost before paid video commands" and "Super-resolution").
+- `models` — browse all available video models with their credit costs (discrete → `prices`, range → `creditsPerSecond`) and your balance. Use it when the user hasn't picked a model yet, or an unavailable one is reported. **The listing is live and only contains tiers that currently have a provider** — a resolution or duration missing from `resolutions` / `prices` is rejected on submit, so never submit a combination you did not see here.
+- `replicate` — replicate a viral video with your product images. Reference video via **`--url`** (TikTok/Douyin link or direct URL, auto-detects type) **or `--video`** (local video file, max 100MB, uploaded via presigned URL then downscaled server-side; re-replicating the same file reuses the upload; no download surcharge) — provide exactly one. Product images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed. Supports `--model`, `--duration`, `--size` (only `9:16` or `16:9`), `--lang`, `--resolution`, `--enhance` (super-resolution, see below), `--character-id`, `--expected-credits`
+- `product_video` — generate video from product images only (no reference video); images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed; `--size` only accepts `9:16` or `16:9`; supports `--enhance` (super-resolution, see below), `--expected-credits`
+- `image` — generate an AI image from a text prompt using **GPT Image 2** model; optionally supply up to 5 reference images via `--image` (local file) or `--image-url` (URL). Use `--aspect-ratio` to pick `1:1` (default) / `16:9` / `9:16`. **Dimension hints (9:16/16:9/1:1, portrait/landscape/square, 竖版/横版/方图, banner, wallpaper) must appear in BOTH `--prompt` and `--aspect-ratio`** — `--aspect-ratio` sets canvas, the prompt hint anchors framing. Don't invent dimensions the user didn't ask for.
+- `list_images` — list image generation tasks from server; supports `--status` / `--limit` / `--page` filters, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`)
+- `breakdown` — analyze a video (script, scenes, music); returns cached result immediately if previously analyzed
+- `download` — download TikTok/Douyin video (returns signed URL); cached results return immediately
+- `query_task` — check status of a task by ID and type (`--type replicate | product | breakdown | download | image`). Omit `--task-id` to resume the latest local task. With `--enhance`, each `videos[]` item carries its own `status` / `enhanceStatus` (see "Super-resolution"). Workspace owners/admins may also query their members' tasks.
+- `list_tasks` — list recent **video-related** tasks from server (`--type` required: `replicate | product | breakdown | download`). Image tasks use `list_images`. `--scope all` / `--scope <member-user-id>` widens to the workspace (owners/admins only; adds `creatorName`), default is your own tasks.
+### Publish to TikTok — `clipcat tiktok <verb>`
+
+Connect a TikTok account once, then publish Clipcat videos to it. **Nothing here costs credits.**
+Requires a paid plan (free accounts cannot connect an account at all).
+
+- `tiktok connect` — authorize an account. **Returns immediately; it does not wait.** Prints **two links to stderr, either one works**: the TikTok consent link (one click, but long enough that chat clients cut it) and a short Clipcat page link (the user signs in and the authorization window opens by itself, with a QR code for phones). Give the user both and let them pick — you cannot know which will open where they are. Then wait for the user to say they finished and run `tiktok connect-status --state <state>`; never block on this yourself, and never re-run `connect` to "check" (that mints a new link and orphans the one the user is on). The callback hits the Clipcat server, so the browser can be any device.
+- `tiktok connect-status --state <state>` — one look at a pending authorization. `pending` → ask the user again; `connected` → done; `denied` / `expired` / `failed` → start over with `tiktok connect`; `quota` → the plan's limit is used up, starting over changes nothing (free a slot or upgrade).
+- `tiktok accounts` — connected accounts + plan quota. `openId` is what every other verb takes as `--open-id`. `authStatus: expired` or `scopeMissing: true` → re-run `tiktok connect` before publishing, or it will fail.
+- `tiktok creator-info --open-id <id>` — **the authority on what this account allows**: `privacyLevelOptions`, `maxVideoPostDurationSec`, and which of comment/duet/stitch the account turned off.
+- `tiktok publish` — create a publish task. Source is exactly one of `--video-task-id` (a finished Clipcat video), `--asset-id`, `--video <local file>` (uploaded first, counts toward storage quota). See "Publishing to TikTok" below.
+- `tiktok tasks` / `tiktok task --id <n>` — publish tasks; `--bucket all|scheduled|publishing|completed|failed`. A task is finished when `bucket` is `completed`, `failed` or `canceled`; `failReason` says why it failed.
+- `tiktok cancel --id <n>` — cancel a task still in the `scheduled` bucket. Once uploading started there is nothing to call off.
+
+- `character list` — list the characters saved to your account (`id`, `name`, `status`, `type`). The `id` is what you pass to `--character-id` on `replicate` / `product_video`; only `status: completed` characters are usable. Supports `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`). Free (account metadata, no credits).
+
+## Publishing to TikTok
+
+Order: `tiktok accounts` → `tiktok creator-info` → `tiktok publish`.
+
+**`--privacy` is decided by TikTok, not by you.** Always read `privacyLevelOptions` from
+`creator-info` first and pass one of those exact values. If a value is rejected, re-read the
+options — retrying the same one always fails. While the Clipcat TikTok app is not audited by
+TikTok, the only option is `SELF_ONLY`, and such a post is visible to the account owner alone;
+say so before publishing, or the user will think the video vanished.
+
+- `--mode direct` (default) posts it; `--privacy` is required. `--mode draft` sends it to the
+  TikTok drafts inbox instead — the inbox takes **no post settings at all**, so `--title`,
+  `--privacy`, `--allow-*`, `--brand-*`, `--aigc` and `--cover-ts-ms` are ignored; tell the user
+  they finish all of that in the TikTok app. Never promise a draft went out with a caption.
+- `--allow-comment` / `--allow-duet` / `--allow-stitch` are **off by default** (TikTok UX rule).
+  If the account itself disabled one, the flag is ignored.
+- `--brand-organic` (own brand) / `--brand-content` (paid partnership) are the commercial
+  disclosure. `--brand-content` cannot be combined with `--privacy SELF_ONLY`.
+- `--schedule` takes ISO 8601 **with a timezone** — either UTC (`2026-08-15T10:00:00Z`) or an
+  offset (`2026-08-15T18:00:00+08:00`); a value without one is rejected. 5 min to 30 days ahead,
+  `--mode direct` only. Never convert the user's local time yourself — ask for their zone and
+  pass the offset. Scheduled tasks return immediately (`--wait` does not apply) and can be canceled.
+- `--wait` polls until the task finishes (default 1800s, then prints a resume command). Without
+  it the command returns as soon as the task is created — poll `tiktok task --id <n>` across
+  turns, same as any other async task.
+- Errors carry a stable `errorCode` in `data`; the message already tells you the next step
+  (e.g. `privacy_not_allowed` → run `creator-info`). Read it instead of retrying blindly.
+
+## Passing prompts (never let the shell mangle them)
+
+A mis-escaped `--prompt \"Create a 5s video\"` reaches the CLI as `"Create` — cut at the
+first space. Both the CLI and the server now reject that instead of charging for a garbage
+video, but the fix is to pass prompts so it cannot happen:
+
+- Prompt contains quotes, newlines, `$`, or backticks → use stdin, not an inline flag:
+
+  ```bash
+  clipcat product_video --image-url <url> --model seedance2 --duration 5 \
+    --expected-credits 100 --prompt-file - <<'EOF'
+  Create a 5-second UGC demo. The narrator says "this changed my routine".
+  EOF
+  ```
+
+  The quoted delimiter `<<'EOF'` disables every kind of expansion — zero escaping needed.
+  This works in bash / zsh / Git Bash. **On Windows PowerShell, do NOT pipe — write a UTF-8
+  file and pass its path:**
+
+  ```powershell
+  Set-Content -Encoding utf8 prompt.txt @'
+  Create a 5-second UGC demo. The narrator says "this changed my routine".
+  '@
+  clipcat product_video --image-url <url> --prompt-file prompt.txt
+  ```
+
+  Why not pipe on Windows: **Windows PowerShell 5.1** encodes pipe output to native programs
+  with `$OutputEncoding`, which **defaults to ASCII** — every Chinese/non-ASCII character
+  silently becomes `?`, and a prompt of `????????` looks perfectly valid to every quoting check.
+  If you must pipe, run `$OutputEncoding = [System.Text.Encoding]::UTF8` first. (PowerShell 7
+  defaults to UTF-8 everywhere and is not affected, but the file-based form above works on both,
+  so just use it.) Also note `@'` must end its line and `'@` must start its own line — a
+  single-line `@' … '@` is a syntax error. On 5.1, `Out-File` is not a substitute for
+  `Set-Content -Encoding utf8`: it defaults to UTF-16, which the CLI rejects outright.
+
+- **Never read a file into a string and pass it inline** — no `--prompt (Get-Content p.txt)`.
+  On PowerShell 5.1 `Get-Content` decodes a UTF-8 file as ANSI, producing mojibake that is
+  valid UTF-8 with no quoting anomaly: every check passes and you get charged for a garbage
+  video. Pass the **path** (`--prompt-file p.txt`) and let the CLI read the bytes.
+
+- Short single-line prompts may stay inline as `--prompt "…"`. Never backslash-escape the
+  outer quotes, and never wrap an already-quoted string in another layer of quotes.
+- `--prompt` and `--prompt-file` are mutually exclusive (`-` = stdin, otherwise a file path).
+- After submit the CLI prints `Prompt sent (N chars): …`. Check it against what you intended;
+  a wrong N means the command line was mangled, not the prompt you wrote.
+- If a submit is rejected for a mis-quoted prompt, do NOT retry the same command — re-send it
+  via `--prompt-file -`. Rejections happen before any charge.
+
+## Confirming cost before paid video commands
+
+`replicate` and `product_video` consume credits. Always confirm cost first — and
+**never compute the credits yourself**, let `clipcat quote` return them:
+
+1. Run `clipcat quote` with the SAME parameters you'll submit (`--model`,
+   `--resolution`, `--duration`; for a TikTok/Douyin replicate also pass the
+   `--url`, which auto-adds the download surcharge; for super-resolution also pass
+   `--enhance`). It returns `totalCredits` (the server does all the math —
+   per-second rates, download surcharge, deferred enhance fee) and your
+   `remainingCredits`.
+2. Show the user the model, duration, resolution and that `totalCredits`, and get
+   explicit approval.
+3. Submit with `--expected-credits <totalCredits>`. The server rejects the request
+   only if the real cost is **higher** than what you pass, so you can never
+   overcharge (a cheaper real cost — cache hit, promo — just goes through). On a
+   rejection it returns the current cost — re-confirm that number with the user
+   and resubmit with the updated `--expected-credits`.
+
+Example — quote, then submit the confirmed cost (Seedance 2, 480p default, 8s, TikTok link):
+
+```bash
+clipcat quote --model seedance2 --resolution 480p --duration 8 \
+  --url "https://www.tiktok.com/@u/video/123"
+# → seedance2 480p 8s → 160 credits  + 10 download → total 170 credits
+clipcat replicate --url "https://www.tiktok.com/@u/video/123" \
+  --image product.jpg --model seedance2 --duration 8 --resolution 480p \
+  --size 9:16 --expected-credits 170
+```
+
+When the user hasn't chosen a model yet (or you need the full menu), run `clipcat
+models` to list every available model and its cost, then `clipcat quote` the pick.
+
+Premium models (e.g. `seedance2`, `happyhorse10`) require a paid plan; `clipcat
+quote` flags them (`premiumBlocked`) and the server rejects them for free users.
+The subsidized Seedance 2 tiers (`sd2_promo` / `sd2_fast_promo`) are **not**
+premium — free plans can use them up to 10s (see "Seedance 2: prefer the
+subsidized tier").
+
+## Super-resolution (`--enhance`)
+
+`replicate` and `product_video` accept `--enhance 720p|1080p|2k` to upscale the
+finished video. Rules:
+
+- **Tier must be strictly higher than the generated resolution**: 480p → 720p /
+  1080p / 2k, 720p → 1080p / 2k, 1080p → 2k, 2k → no option. The CLI only
+  enum-checks the value; the server enforces the tier ladder.
+- **Paid plans only.** Free users are rejected on submit; `clipcat quote --enhance`
+  flags this as `enhanceBlocked: true` (upgrade needed).
+- **Cost** = ceil(duration_sec / 10) × tier rate (`720p`=10, `1080p`=20, `2k`=30
+  credits per 10s). It is **deferred** — charged only after the base video
+  succeeds. `quote` returns it as `enhanceCredits`, already folded into
+  `totalCredits`; submit that `totalCredits` via `--expected-credits`.
+- **Status semantics** (`query_task`): once the base video is ready it appears in
+  `videos[]` with `status: enhancing` and a usable `videoUrl` (the original), but
+  the **task reaches its final completed state only after enhance finishes** (a
+  standard 1-min video takes ~6-10 min extra). `enhanceStatus: failed` → the task
+  still completes and delivers the original video, and the enhance fee is refunded.
+
+```bash
+clipcat quote --model seedance2 --resolution 480p --duration 8 --enhance 1080p
+# → seedance2 480p 8s → 160 credits  + 20 enhance (1080p) → total 180 credits
+clipcat product_video --image product.jpg --model seedance2 --duration 8 \
+  --resolution 480p --size 9:16 --enhance 1080p --expected-credits 180
+```
+
+## replicate: reference video source
+
+`clipcat replicate` takes the reference video via **exactly one** of `--url` / `--video`:
+
+- `--url` **TikTok/Douyin link** → calls `/replicate_from_social` (costs **10 extra credits** for download)
+- `--url` **direct video URL** → calls `/replicate`
+- `--video` **local file** (max 100MB) → uploaded via presigned URL, then `/replicate` (no download surcharge). Uploading the same file again is deduplicated (content-hashed, per-user), so repeat replications skip the upload.
+
+Always inform the user about the extra 10 credits before running with a social `--url`.
+
+## clipcat:// asset references
+
+`clipcat://...` strings seen in earlier turns are stable asset references. Pass them **verbatim** to any `--image-url` / `--character-id` flag — never prepend `https://` or modify them; the server resolves them to a signed URL. A mistyped reference is rejected up front (no credits charged), so never retype one from memory. See subcommand `-h` for details.
+
+`--character-id` accepts three forms: a numeric id from `clipcat character list` (never guess ids), `@<sora-username>`, or an image URL / `clipcat://` reference.
+
+## Async task rules
+
+`replicate`, `product_video`, `image`, and `breakdown` are async. All four
+**submit and return immediately** with a task ID — they never block.
+
+Typical durations: `image` ~3 min, `breakdown` a few minutes, `product_video` /
+`replicate` 10+ min. **Never try to wait synchronously inside a single tool
+call** — every realistic agent harness has a tool-call timeout (commonly 60s)
+that will kill the call long before the task is done. Always go submit → return
+→ poll across turns.
+
+1. Task ID is saved locally to `~/.clipcat/tasks.json` automatically.
+2. Check status with `clipcat query_task --task-id <id> --type <type>`. Each
+   call returns immediately with the current status. Omit `--task-id` to resume
+   the latest task. Re-invoke the command across turns (suggested cadence:
+   ~30s for `image`, ~1-2 min for `breakdown` / `product_video` / `replicate`)
+   until `status` is `completed` or `failed`.
+3. Use `clipcat list_tasks --type <replicate|product|breakdown|download>` to
+   see tasks of a given type from the server.
+
+## query_task: auto-resume
+
+`clipcat query_task` with no flags automatically reads the latest task from `~/.clipcat/tasks.json` and resumes it. No need to remember task IDs.
+
+## Available models
+
+Trial models are available to all users; standard models require a paid plan.
+
+| Model ID             | Duration              | Resolution        | Notes                                                             |
+| -------------------- | --------------------- | ----------------- | ----------------------------------------------------------------- |
+| `veo3.1fast`         | 8s, 16s, 24s          | 720p, 1080p       | **Trial**. Google Veo 3.1 Fast, balanced quality and cost         |
+| `veo3.1pro`          | 8s, 16s, 24s          | 720p, 1080p       | **Trial**. Google Veo 3.1 Pro, high-quality variant               |
+| `omini_flash`        | 10s, 20s              | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model               |
+| `grok_imagine`       | 10s, 15s, 20s, 30s    | 720p              | **Trial**, default. 9:16 aspect ratio only, longer clips          |
+| `sd2_promo`          | 10s, 15s              | 480p, 720p        | **Subsidized — prefer it over `seedance2`.** Same Seedance 2 on a limited-time subsidized channel; open to free plans (15s needs a paid plan). **Pass `--resolution 480p` explicitly** |
+| `sd2_fast_promo`     | 10s, 15s              | 480p, 720p        | **Subsidized — prefer it over `seedance2_fast`.** Same deal for the Fast variant |
+| `sd25_promo`         | 20s                   | 720p              | **Subsidized — prefer it over `seedance2_5` when 20s suits.** Full-strength Seedance 2.5 on a subsidized channel; 20s / 720p only, per-clip pricing |
+| `seedance2`          | 4-15s (any integer)   | 480p, 720p, 1080p | Standard (paid). ByteDance Seedance 2, top quality. **Default 480p** |
+| `seedance2_5`        | 4-30s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2.5, newest generation, clips up to 30s. **Default 480p** |
+| `seedance2_fast`     | 4-15s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2 Fast, fast variant. **Default 480p** |
+| `happyhorse10`       | 3-15s (any integer)   | 720p, 1080p       | Standard (paid). Alibaba HappyHorse 1.0                           |
+| `sora2_official_exp` | 4s, 8s, 12s           | 720p              | OpenAI Sora 2 official channel, 9:16 or 16:9     |
+
+Always check `clipcat replicate -h` for the current model list, and `clipcat
+models` for the authoritative live per-combination credit costs and your balance.
+
+The tiers in this table are what each model *offers*; `clipcat models` is what is
+*available right now*. Providers get disabled for maintenance, so a listed tier can
+temporarily disappear. If a submit is rejected with **"no available channel"**, the
+parameters were valid but that tier has no provider at the moment — re-run `clipcat
+models`, pick another resolution/duration/model from the fresh listing, re-quote and
+re-confirm with the user. Do not retry the same combination.
+
+**`seedance2` and `seedance2_fast` default to `--resolution 480p`** (the CLI
+applies this in `quote`, `replicate` and `product_video` when `--resolution` is
+omitted). Only pass a higher resolution when the user explicitly asks for one,
+and keep `quote` and the submit on the same value.
+
+### Seedance 2: prefer the subsidized tier when it is listed
+
+Whenever the user asks for Seedance 2 (or Seedance 2 Fast), run `clipcat models`
+first and look for the subsidized entries:
+
+- `sd2_promo` present → use it instead of `seedance2`. `sd2_fast_promo` present →
+  use it instead of `seedance2_fast`. It is the same underlying model routed
+  through a limited-time subsidized channel: markedly cheaper (at the time of
+  writing 480p/10s is 130 vs 200 credits, Fast 120 vs 170) and usable on free
+  plans, while `seedance2` / `seedance2_fast` are paid-only. Prices move — treat
+  `clipcat models` / `clipcat quote` as the only authority, never these numbers.
+- Not listed (subsidy ended, or the channel is down) → fall back to `seedance2` /
+  `seedance2_fast` and tell the user the subsidized tier is currently unavailable.
+- Deliberately pick the non-subsidized model only when the request needs something
+  the subsidized tier does not offer: **1080p** (subsidized is 480p / 720p only) or
+  a **duration other than 10s / 15s** (non-subsidized takes any integer 4-15s).
+- **Always pass `--resolution 480p` explicitly** for `sd2_promo` / `sd2_fast_promo`,
+  on both the `quote` and the submit. The CLI's automatic 480p default covers only
+  `seedance2` / `seedance2_5` / `seedance2_fast`; omit it here and the server falls
+  back to 720p,
+  which costs substantially more.
+- Free plans cap at **10s** on both subsidized models — the 15s tier is a paid
+  benefit (`clipcat models` reports `freeUserMaxDuration: 10` on them). Don't quote
+  15s to a free user; the submit is rejected server-side.
+- Nothing else changes: quote → confirm with the user → submit with
+  `--expected-credits`.
+
+## Supported languages (`--lang`)
+
+`en` `zh` `fr` `de` `ms` `vi` `th` `ja` `ko` `id` `fil` `es`
+
+## Region (`--region`)
+
+ISO 3166-1 alpha-2, uppercase: `US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` `MY` `PH` `SG` `TH` `VN`. Server-enforced; an out-of-range code returns the current allowed list.
+
+## Good agent behavior
+
+- Run `clipcat -h` first if unsure which command to use.
+- For paid video commands (`replicate`, `product_video`): quote the exact cost with `clipcat quote` (same params you'll submit), show the user the model / duration / resolution / `totalCredits`, get explicit approval, then submit with `--expected-credits <totalCredits>`. Never compute the credits yourself — let `clipcat quote` return them.
+- Seedance 2 requests: check `clipcat models` for `sd2_promo` / `sd2_fast_promo` first and recommend the subsidized tier when it is listed — same model, much cheaper, and free plans can use it (up to 10s). Fall back to `seedance2` / `seedance2_fast` only when the subsidized tier is missing or the user needs 1080p or a duration other than 10s / 15s.
+- Resolution: always quote and submit at the model's default (`480p` for `seedance2` / `seedance2_5` / `seedance2_fast`, and `480p` passed explicitly for `sd2_promo` / `sd2_fast_promo`) unless the user explicitly asked for a higher one. Never silently upgrade to 720p/1080p — higher resolution costs more credits.
+- Pass any non-trivial prompt via `--prompt-file -` with a quoted heredoc (see "Passing prompts"); verify the `Prompt sent (N chars)` echo after submit.
+- Keep record of task IDs; re-invoke `query_task` across turns to track long-running tasks.
+- Preserve signed video URLs intact — they contain `X-Amz-*` params that break if truncated.
+- Agents should prefer the default JSON output.

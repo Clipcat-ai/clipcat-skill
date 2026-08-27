@@ -4,6 +4,8 @@ Clipcat is a TikTok e-commerce AI video creation skill that **any AI agent can i
 
 For the latest guide and examples, see: [https://clipcat.ai](https://clipcat.ai)
 
+中文文档：[README_ZH.md](README_ZH.md)
+
 ## How It Works
 
 Clipcat is just a small CLI binary and a `SKILL.md` skill manifest, so any agent that can run shell commands can drive it:
@@ -145,8 +147,23 @@ Synchronous operation, returns direct video URL immediately.
 - Preserve complete video URLs with all signed parameters
 - Choose appropriate models based on duration and quality needs
 
+## Repository Structure
+
+This repo follows the Agent Skills convention — one skill per directory under `skills/`, each containing a `SKILL.md` manifest:
+
+```
+clipcat-skill/
+├── README.md                  # this file
+├── README_ZH.md               # Chinese version
+├── docs/
+│   └── SKILL_ZH.md            # Chinese translation of the skill manifest
+└── skills/
+    └── clipcat/
+        └── SKILL.md           # the skill manifest agents load
+```
+
 ## Links
 
 - Homepage: https://clipcat.ai
 - OpenClaw one-click install: https://clipcat.ai/tiktok/openclaw
-- Command reference: See SKILL.md for the detailed command reference
+- Command reference: [`skills/clipcat/SKILL.md`](skills/clipcat/SKILL.md)

@@ -4,6 +4,8 @@ Clipcat 是一个 TikTok 电商 AI 视频创作 Skill，**任何 AI Agent 都可
 
 最新指南和示例请查看：[https://clipcat.ai](https://clipcat.ai)
 
+English: [README.md](README.md)
+
 ## 工作原理
 
 Clipcat 本质上只是一个小巧的 CLI 二进制 + 一份 `SKILL.md` 技能清单，任何能执行 shell 命令的 Agent 都能驱动它：
@@ -145,8 +147,23 @@ https://www.tiktok.com/@username/video/111222333
 - 带签名参数的视频链接请完整保留
 - 根据时长和质量需求选择合适模型
 
+## 仓库结构
+
+本仓库遵循 Agent Skills 规范——每个 skill 一个目录，放在 `skills/` 下，各自包含一份 `SKILL.md` 清单：
+
+```
+clipcat-skill/
+├── README.md                  # 英文说明
+├── README_ZH.md               # 本文件
+├── docs/
+│   └── SKILL_ZH.md            # 技能清单的中文翻译
+└── skills/
+    └── clipcat/
+        └── SKILL.md           # Agent 实际加载的技能清单
+```
+
 ## 相关链接
 
 - 官网：https://clipcat.ai
 - OpenClaw 一键安装：https://clipcat.ai/tiktok/openclaw
-- 命令参考：详细命令说明请查看 `SKILL.md`
+- 命令参考：[`skills/clipcat/SKILL.md`](skills/clipcat/SKILL.md)
