@@ -168,9 +168,7 @@ offline`。永远不要向最终用户暴露 offline/realtime 这两个词；用
 再对选定项 `clipcat quote`。
 
 付费专享模型（如 `seedance2`、`happyhorse10`）需付费套餐；`clipcat quote` 会标记
-（`premiumBlocked`），免费用户提交会被服务端拒绝。补贴档（`sd2_promo` /
-`sd2_fast_promo`）**不是**付费专享，免费用户可用，但封顶 10s（见「Seedance 2：
-补贴档可用时优先推荐补贴档」）。
+（`premiumBlocked`），免费用户提交会被服务端拒绝。
 
 ## 超分（`--enhance`）
 
@@ -241,8 +239,6 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
 | `veo3.1pro`          | 8s, 16s, 24s          | 720p, 1080p       | **试用**。Google Veo 3.1 Pro，高质量版本                          |
 | `omini_flash`        | 10s, 20s              | 720p, 1080p       | **试用**。Gemini Omni Flash，Google 最新模型                      |
 | `grok_imagine`       | 10s, 15s, 20s, 30s    | 720p              | **试用**，默认。仅 9:16 宽高比，支持更长片段                      |
-| `sd2_promo`          | 10s, 15s              | 480p, 720p        | **补贴档，优先于 `seedance2`**。同一个 Seedance 2 走限时补贴渠道，免费用户也能用（15s 需付费套餐）。**必须显式传 `--resolution 480p`** |
-| `sd2_fast_promo`     | 10s, 15s              | 480p, 720p        | **补贴档，优先于 `seedance2_fast`**。快速版同上                   |
 | `seedance2`          | 4-15s（任意整数）     | 480p, 720p, 1080p | 标准（付费）。字节 Seedance 2，顶级质量。**默认 480p**            |
 | `seedance2_5`        | 4-30s（任意整数）     | 480p, 720p        | 标准（付费）。字节 Seedance 2.5，新一代模型，最长 30s。**默认 480p** |
 | `seedance2_fast`     | 4-15s（任意整数）     | 480p, 720p        | 标准（付费）。字节 Seedance 2 Fast，快速版本。**默认 480p**       |
@@ -252,25 +248,6 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
 当前模型列表请始终查 `clipcat replicate -h`；权威的实时「分辨率 × 时长」算力和你的余额查 `clipcat models`。
 
 **`seedance2` / `seedance2_5` / `seedance2_fast` 默认 `--resolution 480p`**（CLI 在 `quote`、`replicate`、`product_video` 省略 `--resolution` 时自动套用）。只有用户明确要求更高分辨率才传别的值，且 `quote` 与提交必须用同一个值。
-
-### Seedance 2：补贴档可用时优先推荐补贴档
-
-用户要用 Seedance 2（或 Seedance 2 Fast）时，先跑 `clipcat models` 看补贴档在不在列表里：
-
-- 列表里有 `sd2_promo` → 用它替代 `seedance2`；有 `sd2_fast_promo` → 用它替代 `seedance2_fast`。
-  两者是同一个模型走限时补贴渠道，明显更便宜（撰写时 480p/10s 为 130 vs 200 算力，
-  Fast 为 120 vs 170），且免费用户也能用，而 `seedance2` / `seedance2_fast` 是付费专享。
-  价格随时会调 —— 报价一律以 `clipcat models` / `clipcat quote` 为准，别照抄这里的数字。
-- 列表里没有（补贴已下线或渠道不可用）→ 回落到 `seedance2` / `seedance2_fast`，
-  并告诉用户补贴档当前不可用。
-- 只有以下情况才该主动选非补贴档：用户需要 **1080p**（补贴档只有 480p / 720p），
-  或需要 **10s / 15s 以外的时长**（非补贴档支持 4-15s 任意整数秒）。
-- **`sd2_promo` / `sd2_fast_promo` 必须显式传 `--resolution 480p`**，报价和提交都要传。
-  CLI 的自动 480p 默认只覆盖 `seedance2` / `seedance2_5` / `seedance2_fast`，补贴档省略时服务端会落到
-  720p，算力贵不少。
-- 免费用户在两个补贴档上封顶 **10s**，15s 是付费权益（`clipcat models` 会在这两个模型上
-  下发 `freeUserMaxDuration: 10`）。别给免费用户报 15s 的价，提交会被服务端拒。
-- 其余流程不变：`quote` → 与用户确认 → 带 `--expected-credits` 提交。
 
 ## 支持的语言（`--lang`）
 
@@ -284,8 +261,7 @@ ISO 3166-1 alpha-2，大写：`US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` 
 
 - 不确定用哪个命令时，先运行 `clipcat -h`。
 - 付费视频命令（`replicate`、`product_video`）：先用 `clipcat quote`（同一套参数）报出精确算力，向用户展示模型/时长/分辨率/`totalCredits` 并获得明确确认，再带 `--expected-credits <totalCredits>` 提交。绝不自己算算力——让 `clipcat quote` 返回。
-- 用户要 Seedance 2 时：先用 `clipcat models` 看有没有 `sd2_promo` / `sd2_fast_promo`，有就优先推荐补贴档——同一个模型、明显更便宜，且免费用户也能用（封顶 10s）。只有补贴档不在列表，或用户需要 1080p / 10s 与 15s 以外的时长时，才回落到 `seedance2` / `seedance2_fast`。
-- 分辨率：报价和提交一律用模型默认档位（`seedance2` / `seedance2_5` / `seedance2_fast` 为 `480p`；`sd2_promo` / `sd2_fast_promo` 要显式传 `480p`），除非用户明确要求更高分辨率。绝不静默升到 720p/1080p——更高分辨率会多扣算力。
+- 分辨率：报价和提交一律用模型默认档位（`seedance2` / `seedance2_5` / `seedance2_fast` 为 `480p`），除非用户明确要求更高分辨率。绝不静默升到 720p/1080p——更高分辨率会多扣算力。
 - 记录任务 ID；跨轮次重复调用 `query_task` 来跟踪长耗时任务。
 - 保持签名视频 URL 完整 —— 它们含有 `X-Amz-*` 参数，截断后会失效。
 - agent 应优先使用默认的 JSON 输出。

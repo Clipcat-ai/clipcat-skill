@@ -20,9 +20,12 @@ OpenClaw auto-installs the skill from the manifest; any other agent installs the
 
 - **TikTok E-commerce Data Intelligence**: Query 6 entity domains — creators, products, shops, videos, lives, and keyword/image search — covering leaderboards, multi-filter discovery, trends, detail, reviews, comments, and cross-entity relationships (the agent picks the exact command via `clipcat <entity> -h`)
 - **Video Analysis**: Extract scripts, scenes, hooks, and music from TikTok or Douyin videos
-- **Viral Replication**: Recreate proven viral structures with your own product assets (auto-detects TikTok/Douyin links vs direct video URLs)
+- **Viral Replication**: Recreate proven viral structures with your own product assets — reference a TikTok/Douyin link, a direct video URL, or a local video file (up to 100MB)
 - **Product to Video**: Turn product images into UGC-style TikTok videos
 - **AI Image Generation**: Generate AI images from text prompts using GPT Image 2, with optional reference images (up to 5)
+- **Super-Resolution**: Upscale a generated video to 720p, 1080p or 2K with `--enhance`
+- **Reusable Characters**: Keep the same on-screen character across videos via `--character-id`
+- **Publish to TikTok**: Connect a TikTok account and publish generated videos as a post or a draft (paid plans)
 - **Video Download**: Download TikTok or Douyin videos through the Clipcat API
 
 ## Installation
@@ -66,6 +69,7 @@ Once installed, you can ask your agent to:
 - "Analyze this video and extract the script"
 - "Show me this TikTok user's recent videos with engagement stats"
 - "Download this TikTok video"
+- "Publish that finished video to my TikTok account"
 - "Fetch TikTok Shop product detail and review highlights for this product URL"
 
 ## Important Notes
@@ -77,15 +81,31 @@ Once installed, you can ask your agent to:
 
 ## Supported Models
 
-- `grok_imagine` - 10s, 15s, 20s, 30s (720p, 9:16 only) — default, longer clips
-- `veo3.1fast` - 8s, 16s, 24s (720p, 1080p) — balanced quality and cost
-- `sora2_official_exp` - 4s, 8s, 12s (720p, 9:16 or 16:9) — OpenAI Sora 2 official channel
+Trial models are open to all users; standard models require a paid plan.
 
-Run `clipcat models` for the full available-model list with the exact per-combination credit cost and your balance; `clipcat replicate -h` also lists models.
+| Model ID             | Duration            | Resolution        | Notes                                                     |
+| -------------------- | ------------------- | ----------------- | --------------------------------------------------------- |
+| `grok_imagine`       | 10s, 15s, 20s, 30s  | 720p              | **Trial**, default. 9:16 aspect ratio only, longer clips  |
+| `veo3.1fast`         | 8s, 16s, 24s        | 720p, 1080p       | **Trial**. Google Veo 3.1 Fast, balanced quality and cost |
+| `veo3.1pro`          | 8s, 16s, 24s        | 720p, 1080p       | **Trial**. Google Veo 3.1 Pro, high-quality variant       |
+| `omini_flash`        | 10s, 20s            | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model       |
+| `seedance2`          | 4-15s (any integer) | 480p, 720p, 1080p | Paid. ByteDance Seedance 2, top quality                   |
+| `seedance2_5`        | 4-30s (any integer) | 480p, 720p        | Paid. ByteDance Seedance 2.5, clips up to 30s             |
+| `seedance2_fast`     | 4-15s (any integer) | 480p, 720p        | Paid. ByteDance Seedance 2 Fast, fast variant             |
+| `happyhorse10`       | 3-15s (any integer) | 720p, 1080p       | Paid. Alibaba HappyHorse 1.0                              |
+| `sora2_official_exp` | 4s, 8s, 12s         | 720p              | OpenAI Sora 2 official channel, 9:16 or 16:9              |
+
+The table is what each model *offers*; run `clipcat models` for the live listing with the exact per-combination credit cost and your balance. `clipcat replicate -h` also lists models.
 
 ## Supported Languages
 
-English, Chinese, French, German, Malay, Vietnamese, Thai, Japanese, Korean, Indonesian, Filipino
+English, Chinese, French, German, Malay, Vietnamese, Thai, Japanese, Korean, Indonesian, Filipino, Spanish
+
+## Supported Regions
+
+`US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` `MY` `PH` `SG` `TH` `VN`
+
+All monetary values in e-commerce data responses are USD-converted regardless of region.
 
 ## Usage Examples
 

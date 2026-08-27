@@ -297,9 +297,6 @@ models` to list every available model and its cost, then `clipcat quote` the pic
 
 Premium models (e.g. `seedance2`, `happyhorse10`) require a paid plan; `clipcat
 quote` flags them (`premiumBlocked`) and the server rejects them for free users.
-The subsidized Seedance 2 tiers (`sd2_promo` / `sd2_fast_promo`) are **not**
-premium — free plans can use them up to 10s (see "Seedance 2: prefer the
-subsidized tier").
 
 ## Super-resolution (`--enhance`)
 
@@ -378,9 +375,6 @@ Trial models are available to all users; standard models require a paid plan.
 | `veo3.1pro`          | 8s, 16s, 24s          | 720p, 1080p       | **Trial**. Google Veo 3.1 Pro, high-quality variant               |
 | `omini_flash`        | 10s, 20s              | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model               |
 | `grok_imagine`       | 10s, 15s, 20s, 30s    | 720p              | **Trial**, default. 9:16 aspect ratio only, longer clips          |
-| `sd2_promo`          | 10s, 15s              | 480p, 720p        | **Subsidized — prefer it over `seedance2`.** Same Seedance 2 on a limited-time subsidized channel; open to free plans (15s needs a paid plan). **Pass `--resolution 480p` explicitly** |
-| `sd2_fast_promo`     | 10s, 15s              | 480p, 720p        | **Subsidized — prefer it over `seedance2_fast`.** Same deal for the Fast variant |
-| `sd25_promo`         | 20s                   | 720p              | **Subsidized — prefer it over `seedance2_5` when 20s suits.** Full-strength Seedance 2.5 on a subsidized channel; 20s / 720p only, per-clip pricing |
 | `seedance2`          | 4-15s (any integer)   | 480p, 720p, 1080p | Standard (paid). ByteDance Seedance 2, top quality. **Default 480p** |
 | `seedance2_5`        | 4-30s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2.5, newest generation, clips up to 30s. **Default 480p** |
 | `seedance2_fast`     | 4-15s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2 Fast, fast variant. **Default 480p** |
@@ -397,37 +391,10 @@ parameters were valid but that tier has no provider at the moment — re-run `cl
 models`, pick another resolution/duration/model from the fresh listing, re-quote and
 re-confirm with the user. Do not retry the same combination.
 
-**`seedance2` and `seedance2_fast` default to `--resolution 480p`** (the CLI
+**`seedance2`, `seedance2_5` and `seedance2_fast` default to `--resolution 480p`** (the CLI
 applies this in `quote`, `replicate` and `product_video` when `--resolution` is
 omitted). Only pass a higher resolution when the user explicitly asks for one,
 and keep `quote` and the submit on the same value.
-
-### Seedance 2: prefer the subsidized tier when it is listed
-
-Whenever the user asks for Seedance 2 (or Seedance 2 Fast), run `clipcat models`
-first and look for the subsidized entries:
-
-- `sd2_promo` present → use it instead of `seedance2`. `sd2_fast_promo` present →
-  use it instead of `seedance2_fast`. It is the same underlying model routed
-  through a limited-time subsidized channel: markedly cheaper (at the time of
-  writing 480p/10s is 130 vs 200 credits, Fast 120 vs 170) and usable on free
-  plans, while `seedance2` / `seedance2_fast` are paid-only. Prices move — treat
-  `clipcat models` / `clipcat quote` as the only authority, never these numbers.
-- Not listed (subsidy ended, or the channel is down) → fall back to `seedance2` /
-  `seedance2_fast` and tell the user the subsidized tier is currently unavailable.
-- Deliberately pick the non-subsidized model only when the request needs something
-  the subsidized tier does not offer: **1080p** (subsidized is 480p / 720p only) or
-  a **duration other than 10s / 15s** (non-subsidized takes any integer 4-15s).
-- **Always pass `--resolution 480p` explicitly** for `sd2_promo` / `sd2_fast_promo`,
-  on both the `quote` and the submit. The CLI's automatic 480p default covers only
-  `seedance2` / `seedance2_5` / `seedance2_fast`; omit it here and the server falls
-  back to 720p,
-  which costs substantially more.
-- Free plans cap at **10s** on both subsidized models — the 15s tier is a paid
-  benefit (`clipcat models` reports `freeUserMaxDuration: 10` on them). Don't quote
-  15s to a free user; the submit is rejected server-side.
-- Nothing else changes: quote → confirm with the user → submit with
-  `--expected-credits`.
 
 ## Supported languages (`--lang`)
 
@@ -441,8 +408,7 @@ ISO 3166-1 alpha-2, uppercase: `US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID`
 
 - Run `clipcat -h` first if unsure which command to use.
 - For paid video commands (`replicate`, `product_video`): quote the exact cost with `clipcat quote` (same params you'll submit), show the user the model / duration / resolution / `totalCredits`, get explicit approval, then submit with `--expected-credits <totalCredits>`. Never compute the credits yourself — let `clipcat quote` return them.
-- Seedance 2 requests: check `clipcat models` for `sd2_promo` / `sd2_fast_promo` first and recommend the subsidized tier when it is listed — same model, much cheaper, and free plans can use it (up to 10s). Fall back to `seedance2` / `seedance2_fast` only when the subsidized tier is missing or the user needs 1080p or a duration other than 10s / 15s.
-- Resolution: always quote and submit at the model's default (`480p` for `seedance2` / `seedance2_5` / `seedance2_fast`, and `480p` passed explicitly for `sd2_promo` / `sd2_fast_promo`) unless the user explicitly asked for a higher one. Never silently upgrade to 720p/1080p — higher resolution costs more credits.
+- Resolution: always quote and submit at the model's default (`480p` for `seedance2` / `seedance2_5` / `seedance2_fast`) unless the user explicitly asked for a higher one. Never silently upgrade to 720p/1080p — higher resolution costs more credits.
 - Pass any non-trivial prompt via `--prompt-file -` with a quoted heredoc (see "Passing prompts"); verify the `Prompt sent (N chars)` echo after submit.
 - Keep record of task IDs; re-invoke `query_task` across turns to track long-running tasks.
 - Preserve signed video URLs intact — they contain `X-Amz-*` params that break if truncated.
