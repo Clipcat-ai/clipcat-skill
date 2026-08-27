@@ -25,7 +25,6 @@ OpenClaw auto-installs the skill from the manifest; any other agent installs the
 - **AI Image Generation**: Generate AI images from text prompts using GPT Image 2, with optional reference images (up to 5)
 - **Super-Resolution**: Upscale a generated video to 720p, 1080p or 2K with `--enhance`
 - **Reusable Characters**: Keep the same on-screen character across videos via `--character-id`
-- **Publish to TikTok**: Connect a TikTok account and publish generated videos as a post or a draft (paid plans)
 - **Video Download**: Download TikTok or Douyin videos through the Clipcat API
 
 ## Installation
@@ -69,7 +68,6 @@ Once installed, you can ask your agent to:
 - "Analyze this video and extract the script"
 - "Show me this TikTok user's recent videos with engagement stats"
 - "Download this TikTok video"
-- "Publish that finished video to my TikTok account"
 - "Fetch TikTok Shop product detail and review highlights for this product URL"
 
 ## Important Notes

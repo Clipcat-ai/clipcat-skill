@@ -59,7 +59,6 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 - Generate AI images from text prompts using GPT Image 2 (with optional reference images)
 - Analyze videos (script, scenes, music)
 - Download TikTok/Douyin videos
-- Connect TikTok accounts and publish videos to them (direct post, draft, scheduled)
 - Query async task status
 
 ## Default agent workflow
@@ -171,48 +170,7 @@ repeating the command page by page (`--max-pages` is deprecated and ignored).
 - `download` — download TikTok/Douyin video (returns signed URL); cached results return immediately
 - `query_task` — check status of a task by ID and type (`--type replicate | product | breakdown | download | image`). Omit `--task-id` to resume the latest local task. With `--enhance`, each `videos[]` item carries its own `status` / `enhanceStatus` (see "Super-resolution"). Workspace owners/admins may also query their members' tasks.
 - `list_tasks` — list recent **video-related** tasks from server (`--type` required: `replicate | product | breakdown | download`). Image tasks use `list_images`. `--scope all` / `--scope <member-user-id>` widens to the workspace (owners/admins only; adds `creatorName`), default is your own tasks.
-### Publish to TikTok — `clipcat tiktok <verb>`
-
-Connect a TikTok account once, then publish Clipcat videos to it. **Nothing here costs credits.**
-Requires a paid plan (free accounts cannot connect an account at all).
-
-- `tiktok connect` — authorize an account. **Returns immediately; it does not wait.** Prints **two links to stderr, either one works**: the TikTok consent link (one click, but long enough that chat clients cut it) and a short Clipcat page link (the user signs in and the authorization window opens by itself, with a QR code for phones). Give the user both and let them pick — you cannot know which will open where they are. Then wait for the user to say they finished and run `tiktok connect-status --state <state>`; never block on this yourself, and never re-run `connect` to "check" (that mints a new link and orphans the one the user is on). The callback hits the Clipcat server, so the browser can be any device.
-- `tiktok connect-status --state <state>` — one look at a pending authorization. `pending` → ask the user again; `connected` → done; `denied` / `expired` / `failed` → start over with `tiktok connect`; `quota` → the plan's limit is used up, starting over changes nothing (free a slot or upgrade).
-- `tiktok accounts` — connected accounts + plan quota. `openId` is what every other verb takes as `--open-id`. `authStatus: expired` or `scopeMissing: true` → re-run `tiktok connect` before publishing, or it will fail.
-- `tiktok creator-info --open-id <id>` — **the authority on what this account allows**: `privacyLevelOptions`, `maxVideoPostDurationSec`, and which of comment/duet/stitch the account turned off.
-- `tiktok publish` — create a publish task. Source is exactly one of `--video-task-id` (a finished Clipcat video), `--asset-id`, `--video <local file>` (uploaded first, counts toward storage quota). See "Publishing to TikTok" below.
-- `tiktok tasks` / `tiktok task --id <n>` — publish tasks; `--bucket all|scheduled|publishing|completed|failed`. A task is finished when `bucket` is `completed`, `failed` or `canceled`; `failReason` says why it failed.
-- `tiktok cancel --id <n>` — cancel a task still in the `scheduled` bucket. Once uploading started there is nothing to call off.
-
 - `character list` — list the characters saved to your account (`id`, `name`, `status`, `type`). The `id` is what you pass to `--character-id` on `replicate` / `product_video`; only `status: completed` characters are usable. Supports `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`). Free (account metadata, no credits).
-
-## Publishing to TikTok
-
-Order: `tiktok accounts` → `tiktok creator-info` → `tiktok publish`.
-
-**`--privacy` is decided by TikTok, not by you.** Always read `privacyLevelOptions` from
-`creator-info` first and pass one of those exact values. If a value is rejected, re-read the
-options — retrying the same one always fails. While the Clipcat TikTok app is not audited by
-TikTok, the only option is `SELF_ONLY`, and such a post is visible to the account owner alone;
-say so before publishing, or the user will think the video vanished.
-
-- `--mode direct` (default) posts it; `--privacy` is required. `--mode draft` sends it to the
-  TikTok drafts inbox instead — the inbox takes **no post settings at all**, so `--title`,
-  `--privacy`, `--allow-*`, `--brand-*`, `--aigc` and `--cover-ts-ms` are ignored; tell the user
-  they finish all of that in the TikTok app. Never promise a draft went out with a caption.
-- `--allow-comment` / `--allow-duet` / `--allow-stitch` are **off by default** (TikTok UX rule).
-  If the account itself disabled one, the flag is ignored.
-- `--brand-organic` (own brand) / `--brand-content` (paid partnership) are the commercial
-  disclosure. `--brand-content` cannot be combined with `--privacy SELF_ONLY`.
-- `--schedule` takes ISO 8601 **with a timezone** — either UTC (`2026-08-15T10:00:00Z`) or an
-  offset (`2026-08-15T18:00:00+08:00`); a value without one is rejected. 5 min to 30 days ahead,
-  `--mode direct` only. Never convert the user's local time yourself — ask for their zone and
-  pass the offset. Scheduled tasks return immediately (`--wait` does not apply) and can be canceled.
-- `--wait` polls until the task finishes (default 1800s, then prints a resume command). Without
-  it the command returns as soon as the task is created — poll `tiktok task --id <n>` across
-  turns, same as any other async task.
-- Errors carry a stable `errorCode` in `data`; the message already tells you the next step
-  (e.g. `privacy_not_allowed` → run `creator-info`). Read it instead of retrying blindly.
 
 ## Passing prompts (never let the shell mangle them)
 

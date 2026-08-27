@@ -25,7 +25,6 @@ OpenClaw 会依据清单自动安装该 Skill；其他 Agent 则手动安装 CLI
 - **AI 图片生成**：基于 GPT Image 2 模型，根据文本提示生成 AI 图片，并可选上传参考图（最多 5 张）
 - **超分**：用 `--enhance` 把成片提升到 720p、1080p 或 2K
 - **可复用角色**：通过 `--character-id` 让多条视频里的出镜角色保持一致
-- **发布到 TikTok**：绑定 TikTok 账号后，把生成的视频直接发布为帖子或存入草稿箱（需付费套餐）
 - **视频下载**：通过 Clipcat API 下载 TikTok 或抖音视频
 
 ## 安装
@@ -69,7 +68,6 @@ clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 - “分析这个视频并提取脚本”
 - “展示这个 TikTok 用户最近的视频及互动数据”
 - “下载这个 TikTok 视频”
-- “把刚生成的那条视频发布到我的 TikTok 账号”
 - “拉取这个商品链接对应的 TikTok Shop 商品详情和评论亮点”
 
 ## 重要说明
