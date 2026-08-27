@@ -1,6 +1,6 @@
 ---
 name: clipcat
-description: Clipcat - TikTok 电商视频创作技能。通过 Clipcat CLI 进行视频搜索、商品洞察、爆款复刻、产品转视频生成、视频拆解分析和视频下载。
+description: 面向任意 AI Agent（Claude Code、Codex、WorkBuddy、OpenClaw）的 TikTok Shop 带货视频一站式技能。搜索 TikTok 爆款视频，调研 TikTok Shop 商品、店铺、达人和直播间，拆解爆款视频的脚本、分镜、钩子和音乐，用自己的商品复刻爆款，把商品图生成 AI 带货 / UGC / 商品演示视频，用文字提示生成电商图片，成片超分到 1080p 或 2K，下载 TikTok 或抖音视频。关键词 —— AI 带货视频、TikTok 爆款复刻、找爆款视频、TikTok Shop 选品调研、竞品店铺分析、达人榜单、商品转视频、UGC 视频生成、AI 商品图、TikTok 视频下载。当用户需要 TikTok 电商数据、爆款视频调研或 AI 视频/图片生成时使用。
 user-invocable: true
 metadata:
   {

@@ -1,6 +1,6 @@
 ---
 name: clipcat
-description: TikTok e-commerce video creation via the `clipcat` CLI — creator/product/shop/video search and insights, viral video replication, product-to-video and text-to-image generation, video breakdown analysis, and TikTok/Douyin download. Use whenever the user needs any of these TikTok e-commerce data queries or AI video/image workflows.
+description: All-in-one TikTok Shop selling-video skill for any AI agent (Claude Code, Codex, WorkBuddy, OpenClaw). Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells (script, scenes, hooks, music), replicate a winning video with your own product, turn product photos into AI selling / UGC / product-demo videos, generate e-commerce images from a text prompt, upscale results to 1080p or 2K, and download TikTok or Douyin videos. Keywords — AI selling video, TikTok viral replication, find viral TikTok videos, TikTok Shop product research, competitor shop analysis, creator and influencer ranking, product-to-video, UGC video generator, AI product image, TikTok video downloader. Use whenever the user needs TikTok e-commerce data, viral video research, or AI video/image generation.
 user-invocable: true
 metadata:
   {
