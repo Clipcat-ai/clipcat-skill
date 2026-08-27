@@ -239,6 +239,7 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
 | `veo3.1fast`         | 8s, 16s, 24s          | 720p              | **试用**。Google Veo 3.1 Fast，质量与成本均衡                     |
 | `omini_flash`        | 10s, 20s              | 720p, 1080p       | **试用**。Gemini Omni Flash，Google 最新模型                      |
 | `seedance2_mini`     | 4-15s（任意整数）     | 480p, 720p        | **试用**。Seedance 2 Mini，高性价比档。免费用户仅 480p——**必须显式传 `--resolution 480p`** |
+| `mmh3_promo`         | 10s, 15s              | 480p, 720p, 2K    | **试用**。MiniMax H3 补贴渠道，免费用户可用                       |
 | `seedance2`          | 4-15s（任意整数）     | 480p, 720p, 1080p | 标准（付费）。字节 Seedance 2，顶级质量。**默认 480p**            |
 | `seedance2_5`        | 4-30s（任意整数）     | 480p, 720p        | 标准（付费）。字节 Seedance 2.5，新一代模型，最长 30s。**默认 480p** |
 | `seedance2_fast`     | 4-15s（任意整数）     | 480p, 720p        | 标准（付费）。字节 Seedance 2 Fast，快速版本。**默认 480p**       |

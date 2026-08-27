@@ -333,6 +333,7 @@ Trial models are available to all users; standard models require a paid plan.
 | `veo3.1fast`         | 8s, 16s, 24s          | 720p              | **Trial**. Google Veo 3.1 Fast, balanced quality and cost          |
 | `omini_flash`        | 10s, 20s              | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model                |
 | `seedance2_mini`     | 4-15s (any integer)   | 480p, 720p        | **Trial**. Seedance 2 Mini, value tier. Free plans are 480p only — **pass `--resolution 480p` explicitly** |
+| `mmh3_promo`         | 10s, 15s              | 480p, 720p, 2K    | **Trial**. Subsidized MiniMax H3 channel, open to free plans       |
 | `seedance2`          | 4-15s (any integer)   | 480p, 720p, 1080p | Standard (paid). ByteDance Seedance 2, top quality. **Default 480p** |
 | `seedance2_5`        | 4-30s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2.5, newest generation, clips up to 30s. **Default 480p** |
 | `seedance2_fast`     | 4-15s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2 Fast, fast variant. **Default 480p** |

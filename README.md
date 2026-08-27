@@ -87,6 +87,7 @@ Trial models are open to all users; standard models require a paid plan.
 | `veo3.1fast`         | 8s, 16s, 24s        | 720p              | **Trial**. Google Veo 3.1 Fast, balanced quality and cost |
 | `omini_flash`        | 10s, 20s            | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model       |
 | `seedance2_mini`     | 4-15s (any integer) | 480p, 720p        | **Trial**. Seedance 2 Mini, value tier (free plans: 480p) |
+| `mmh3_promo`         | 10s, 15s            | 480p, 720p, 2K    | **Trial**. Subsidized MiniMax H3, open to free plans      |
 | `seedance2`          | 4-15s (any integer) | 480p, 720p, 1080p | Paid. ByteDance Seedance 2, top quality                   |
 | `seedance2_5`        | 4-30s (any integer) | 480p, 720p        | Paid. ByteDance Seedance 2.5, clips up to 30s             |
 | `seedance2_fast`     | 4-15s (any integer) | 480p, 720p        | Paid. ByteDance Seedance 2 Fast, fast variant             |
@@ -120,14 +121,8 @@ Returns a ranked list of relevant viral videos, including core metrics and sourc
 ### Example 2: Replicate a TikTok Video
 
 ```
-Replicate this TikTok video with my product:
-https://www.tiktok.com/@username/video/123456789
-
-Use these product images:
-- /path/to/product1.jpg
-- /path/to/product2.jpg
-
-Generate a 16-second video in English using veo3.1fast model.
+Please use Clipcat’s replication feature to fully replicate the original video’s script and visuals, replacing only the original product with my product. If there is voiceover in the original video, please adapt it to match my product; if there is no voiceover, then no voiceover is needed. The replicated video should not include subtitles. The duration of the new script must be controlled within 15 seconds. Please use the model seedance2.0, and the voiceover language should be English.
+This is the TikTok link to replicate:https://www.tiktok.com/@username/video/123456789
 ```
 
 The agent will display the parameters and wait for confirmation before submitting the task.

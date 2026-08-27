@@ -87,6 +87,7 @@ clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 | `veo3.1fast`         | 8s, 16s, 24s        | 720p              | **试用**。Google Veo 3.1 Fast，质量与成本均衡  |
 | `omini_flash`        | 10s, 20s            | 720p, 1080p       | **试用**。Gemini Omni Flash，Google 最新模型   |
 | `seedance2_mini`     | 4-15s（任意整数）   | 480p, 720p        | **试用**。Seedance 2 Mini，高性价比档（免费用户仅 480p） |
+| `mmh3_promo`         | 10s, 15s            | 480p, 720p, 2K    | **试用**。MiniMax H3 补贴渠道，免费用户可用    |
 | `seedance2`          | 4-15s（任意整数）   | 480p, 720p, 1080p | 付费。字节 Seedance 2，顶级质量                |
 | `seedance2_5`        | 4-30s（任意整数）   | 480p, 720p        | 付费。字节 Seedance 2.5，最长 30s              |
 | `seedance2_fast`     | 4-15s（任意整数）   | 480p, 720p        | 付费。字节 Seedance 2 Fast，快速版本           |
@@ -120,14 +121,8 @@ Show me the top 10 results sorted by likes.
 ### 示例 2：复刻 TikTok 视频
 
 ```text
-Replicate this TikTok video with my product:
-https://www.tiktok.com/@username/video/123456789
-
-Use these product images:
-- /path/to/product1.jpg
-- /path/to/product2.jpg
-
-Generate a 16-second video in English using veo3.1fast model.
+Please use Clipcat’s replication feature to fully replicate the original video’s script and visuals, replacing only the original product with my product. If there is voiceover in the original video, please adapt it to match my product; if there is no voiceover, then no voiceover is needed. The replicated video should not include subtitles. The duration of the new script must be controlled within 15 seconds. Please use the model seedance2.0, and the voiceover language should be English.
+This is the TikTok link to replicate:https://www.tiktok.com/@username/video/123456789
 ```
 
 Agent 会先展示参数，并等待你确认后再提交任务。
