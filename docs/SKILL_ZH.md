@@ -70,31 +70,70 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 这些是「名词-动词」命令：`clipcat <实体> <动作>`。用 `clipcat <实体> -h`
 列出动作，用 `clipcat <实体> <动作> -h` 查看参数。
 
-- `creator <list|rank|detail|trend|videos|lives|products|followers|following|region|milestones>` —— TikTok 达人/网红
-- `product <list|rank|detail|trend|comments|creators|videos|lives>` —— TikTok Shop 商品
-- `seller <list|rank|detail|trend|products|creators|videos|lives>` —— TikTok Shop 店铺
-- `video <list|rank|detail|trend|comments|captions|products|hashtag>` —— TikTok 视频
+- `creator <list|rank|profile|enrich|trend|posts|sales-videos|lives|products|followers|following|region|milestones>` —— TikTok 达人/网红
+- `product <list|rank|detail|trend|reviews|live-comments|creators|videos|lives>` —— TikTok Shop 商品
+- `seller <list|rank|detail|trend|catalog|inventory|creators|videos|lives>` —— TikTok Shop 店铺
+- `video <list|rank|snapshot|sales|trend|comments|captions|products|hashtag>` —— TikTok 视频
 - `live detail` —— 直播间详情（仅直播进行时可用）
 - `find <creators|products|videos|lives|hashtags|music|photo|all>` —— 关键词/图片搜索；`find all` 是兜底的宽泛搜索
 
-**数据模式（`--mode`）**：部分命令（`creator detail`、`creator videos`、
-`product comments`、`seller products`、`video detail`）接受
-`--mode offline|realtime`。**默认值已是安全选择 —— 除非用户确有需要，否则省略它。**
-查「最新/当前/正在直播」用 `--mode realtime`，查「历史/趋势/累计/榜单」用 `--mode
-offline`。永远不要向最终用户暴露 offline/realtime 这两个词；用「历史数据」和「最新数据」来表述。
+**两个数据源，命令名已经替你选好了**：没有 `--mode` 需要判断，按你要什么结果挑命令：
 
-**分页**：每次调用只返回一页、各计一次费。offline 的 list/rank 命令用 `--page` /
-`--page-size` 翻页；realtime 列表用 `--offset` / `--cursor` / `--scroll-param`，
+| 你要什么 | 命令 | 能拿到 | 拿不到 |
+|---|---|---|---|
+| 达人最近发了什么 | `creator posts` | 任意公开达人，最新在前 | 没有单条视频的销量/GMV |
+| 达人的带货视频表现 | `creator sales-videos` | 每条视频的销量+GMV，可排序 | 只覆盖历史库已收录的达人 |
+| 达人当前主页信息 | `creator profile` | 任意公开达人 | 没有累计带货指标 |
+| 批量补全达人指标 | `creator enrich` | 一次 ≤10 个，累计指标 | 只覆盖已收录达人 |
+| 单条视频的现状 | `video snapshot` | 任意公开视频 | 没有销量/GMV |
+| 已有 id 的视频卖得怎样 | `video sales` | 一次 ≤10 个，销量+GMV | 只覆盖已收录视频 |
+| 按评分筛评论 | `product reviews` | 评分筛选、翻页 | 略滞后 |
+| 最新的评论 | `product live-comments` | 最新，需 `--region` | 没有评分筛选 |
+| 店铺历史（含已下架） | `seller catalog` | 销量+GMV，可排序 | 不是当前在售清单 |
+| 店铺当前在售 | `seller inventory` | 实时，需 `--region` | 没有销量/GMV |
+
+**历史数据源并不覆盖全部内容**（采集范围受成本限制），所以 `sales` / `catalog` /
+`enrich` 这一侧经常回答「未收录」—— id 来自实时搜索时，十次里有四到六次查不到。
+而来自 `… rank` / `… list` 的 id 天然就在库内，几乎次次命中。这一侧的空结果意味着
+**未收录**，不是**不存在**，改用实时那条命令去核实，别原样重试。永远不要向最终用户
+暴露 offline/realtime 这两个词；用「历史数据」和「最新数据」来表述。
+
+**分页**：每次调用只返回一页、各计一次费。历史数据的 list/rank 命令用 `--page` /
+`--page-size` 翻页；最新数据的列表用 `--offset` / `--cursor` / `--scroll-param`，
 这些值要从上一页结果中回传。需要更多数据就逐页多发几次命令（`--max-pages` 已废弃、被忽略）。
+
+**两种数据源的翻页方式不通用**：历史侧命令（`creator sales-videos`、`product reviews`、
+`seller catalog`）按页码翻，对应的实时命令（`creator posts`、`product live-comments`、
+`seller inventory`）按游标翻，页码换不成游标。对实时命令用 `--page` 会被 CLI 直接拒绝；
+老版本客户端仍会发出去，此时响应带 `pagination_ignored`——
+意思是**本次返回的是该源的第一页**，不是你请求的那一页。别再按原页码翻，改用 `next` 里给的
+游标；重复原页码只会拿到同一批数据并再次扣 6 算力。
+
+**空结果是答案，不是故障**：历史数据源并不覆盖全部内容，查不到通常意味着「不在该库收录
+范围」而非「不存在」。此时响应会带 `try_instead`，里面是可直接执行的换源命令、换过去能拿到
+什么（最新源：覆盖全但没有销量/GMV；历史源：有销量/GMV 和排序但只覆盖已收录对象）、以及
+还缺哪些参数。换源是另一次独立计费的调用，确实需要那些字段再换。**不要原样重试同一个空
+查询。**
+
+**报错会告诉你该不该重试**：失败响应带 `error_kind` 与 `retryable` 两个字段。
+`transient`＝限流或短暂抖动，过几秒原样重试即可；`invalid_params`＝报错文案已写明哪个参数
+不对，改参数后再发，别原样重试；`temporarily_unavailable`＝此刻重试无用，换个查询或稍后再来。
 
 **余额不足**：读取类命令每次 6 算力；余额 <6 时直接报错、不返回数据。
 
 **数据查询实战手册（高密度）：**
 
 - **ID 要顺藤摸瓜，别猜。** 先发现（`<实体> list|rank`、`find …`），
-  从结果里取 id，再调用 `detail` / `trend` / 关系类动作。
-  detail 类动作接受**逗号分隔的批量**（`--user-ids`、`--product-ids`、
-  `--video-ids`，≤10 个）。
+  从结果里取 id，再调用详情 / 趋势 / 关系类动作。批量类动作（`creator enrich`、
+  `video sales`、`product detail`）接受逗号分隔的 id（`--user-ids`、`--video-ids`、
+  `--product-ids`，≤10）；`creator profile` / `video snapshot` 是单个 id。
+- **id 从哪来，决定了哪条命令答得上。** 来自 `find …`（实时搜索）的 id 是任意公开对象，
+  后续要接实时命令 —— `video snapshot`、`creator posts`、`creator profile`；来自
+  `… rank` / `… list` 的 id 天然在历史库内，才适合接 `video sales`、
+  `creator sales-videos`、`creator enrich`、`seller catalog`。把实时搜来的 id 直接喂给
+  带销量的命令，是最常见的白烧算力方式 —— `find videos` 的 id 有约四成查不到销量数据。
+  如果用户要的就是实时搜到的那条内容的销量，直说数据未收录，别为了拿到本就不存在的数据
+  反复翻页。
 - **关系类查询要从「电商活跃」实体出发。** 子资源动作
   （`creator products|lives`、`product creators|videos|lives`、`seller lives`、
   `video products`）对低活跃 id 会返回 `[]`。种子要从 `… rank` 或排序后的
@@ -126,9 +165,9 @@ offline`。永远不要向最终用户暴露 offline/realtime 这两个词；用
 - **空 `[]` / `null` 表示「无」，不是错误。** 同一组筛选重复查时可能返回
   `cached: true` + `retry_after`（ISO 时间戳）：后端记住了这组条件当前无数据，
   到点会自动重新探测 —— 不要轮询，换筛选条件或继续往下做。已知稀疏/特殊的情况：
-  `creator region`（不可靠 → 改从 `creator detail` 读 `region`）、
+  `creator region`（不可靠 → 改从 `creator profile` 读 `region`）、
   `video captions`（很多视频没有字幕）、`live detail`（仅直播间在播时可用）、
-  `seller products --mode realtime`（无在播库存时为空；默认的 offline 已覆盖该需求）。
+  `seller inventory`（店铺当前没有在售商品时为空 —— 查历史用 `seller catalog`）。
 - 响应已被**服务端裁剪为有效信息**（id、核心指标、名称、关键链接；
   图片已转为可访问 URL）—— 无需处理原始二进制数据。
 - **所有金额一律为美元 USD。** 价格/均价/GMV 等字段（`min_price`、`max_price`、

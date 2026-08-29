@@ -80,35 +80,85 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 These are noun-verb commands: `clipcat <entity> <verb>`. Run `clipcat <entity> -h`
 to list verbs and `clipcat <entity> <verb> -h` for flags.
 
-- `creator <list|rank|detail|trend|videos|lives|products|followers|following|region|milestones>` — TikTok creators/influencers
-- `product <list|rank|detail|trend|comments|creators|videos|lives>` — TikTok Shop products
-- `seller <list|rank|detail|trend|products|creators|videos|lives>` — TikTok Shop shops
-- `video <list|rank|detail|trend|comments|captions|products|hashtag>` — TikTok videos
+- `creator <list|rank|profile|enrich|trend|posts|sales-videos|lives|products|followers|following|region|milestones>` — TikTok creators/influencers
+- `product <list|rank|detail|trend|reviews|live-comments|creators|videos|lives>` — TikTok Shop products
+- `seller <list|rank|detail|trend|catalog|inventory|creators|videos|lives>` — TikTok Shop shops
+- `video <list|rank|snapshot|sales|trend|comments|captions|products|hashtag>` — TikTok videos
 - `live detail` — live-room detail (only while live)
 - `find <creators|products|videos|lives|hashtags|music|photo|all>` — keyword/image search; `find all` is the broad fallback
 
-**Data mode (`--mode`)**: some commands (`creator detail`, `creator videos`,
-`product comments`, `seller products`, `video detail`) accept
-`--mode offline|realtime`. **Default is already the safe choice — omit it unless
-the user needs it.** Use `--mode realtime` for "latest / current / live", `--mode
-offline` for "history / trend / cumulative / leaderboard". Never expose the words
-offline/realtime to end users; phrase as historical vs. latest data.
+**Two data sources, and the command name already picks one for you.** There is no
+`--mode` flag to reason about — pick by what you need back:
 
-**Pagination**: each call returns one page and is billed once. Offline list/rank
-commands take `--page` / `--page-size` (**`--page-size` maxes out at 10**; larger
-values are clamped and the response says so in `pagination_corrected` — get more
-rows with `--page 2`, `--page 3`, …); realtime lists take `--offset` /
+| You need | Command | What you get | What you don't |
+|---|---|---|---|
+| A creator's recent posts | `creator posts` | any public creator, newest first | no per-video sales/GMV |
+| A creator's shoppable videos | `creator sales-videos` | sales + GMV per video, sortable | only creators in the historical dataset |
+| A creator's profile now | `creator profile` | any public creator | no cumulative commerce metrics |
+| Commerce metrics for many creators | `creator enrich` | batch ≤10, cumulative metrics | only collected creators |
+| One video's current state | `video snapshot` | any public video | no sales/GMV |
+| Sales for videos you already have ids for | `video sales` | batch ≤10, sales + GMV | only collected videos |
+| Reviews you can filter by rating | `product reviews` | rating filters, paging | slightly staler |
+| The freshest comments | `product live-comments` | latest, needs `--region` | no rating filter |
+| A shop's history incl. removed items | `seller catalog` | sales + GMV, sortable | not what's listed right now |
+| What a shop lists right now | `seller inventory` | current, needs `--region` | no sales/GMV |
+
+**The historical dataset does not cover everything** (collection is capped by cost),
+so the `sales` / `catalog` / `enrich` side answers "not collected" fairly often —
+roughly 4-6 times in 10 when the id came from a live search. Ids taken from
+`… rank` / `… list` are in the dataset by construction and hit nearly every time.
+An empty result there means *not collected*, not *does not exist* — check with the
+live command instead of retrying. Never expose the words offline/realtime to end
+users; say historical vs. latest data.
+
+**Pagination**: each call returns one page and is billed once. Historical
+list/rank commands take `--page` / `--page-size` (**`--page-size` maxes out at 10**;
+larger values are clamped and the response says so in `pagination_corrected` — get
+more rows with `--page 2`, `--page 3`, …); live lists take `--offset` /
 `--cursor` / `--scroll-param` echoed back from a prior page. Fetch more by
 repeating the command page by page (`--max-pages` is deprecated and ignored).
 
-**Insufficient credits**: read commands cost 6 credits each; below a 6-credit balance they error out and return no data.
+**The two data sources do not share a paging scheme.** Historical commands
+(`creator sales-videos`, `product reviews`, `seller catalog`) page by number; their
+live counterparts (`creator posts`, `product live-comments`, `seller inventory`)
+page by cursor, and a page number cannot become a cursor. If you page a live list
+with `--page`, the CLI rejects it outright; if an older client sends it anyway,
+the response carries `pagination_ignored` — that means **this is the source's first
+page**, not the page you asked for. Stop paging by your original number and continue
+with the token in `next`; repeating the number returns the same rows and bills 6
+credits again.
+
+**Empty is an answer, not a failure.** The historical dataset does not cover
+everything, so an empty result usually means "not in that dataset" rather than "no
+such thing". The response then carries `try_instead` with a ready-to-run command for
+the other source, plus what you gain (live: full coverage, no sales/GMV; historical:
+sales/GMV and sorting, covered entities only) and any flags you still need to add.
+Switching sources is a separate billed call — switch only if you need those fields.
+Do not retry the same empty query.
+
+**Errors tell you whether to retry.** Failures carry `error_kind` and `retryable`:
+`transient` (rate limit or a brief wobble — retry the same command in a few
+seconds), `invalid_params` (the message says exactly what is wrong — fix the flag,
+never retry as-is), `temporarily_unavailable` (retrying will not help; change the
+query or come back later).
+
+**Insufficient credits**: read commands cost 6 credits each; below that balance they error out and return no data.
 
 **Data-query playbook (dense):**
 
 - **Chain ids, don't guess them.** Discover first (`<entity> list|rank`, `find …`),
-  take the id from the result, then call `detail` / `trend` / relationship verbs.
-  Detail verbs take **comma-separated batches** (`--user-ids`, `--product-ids`,
+  take the id from the result, then call detail / trend / relationship verbs.
+  Batch verbs take **comma-separated ids** (`--user-ids`, `--product-ids`,
   `--video-ids`, ≤10).
+- **Where the id came from decides which command can answer.** Ids from `find …`
+  (live search) are any public entity, so follow them with the live commands —
+  `video snapshot`, `creator posts`, `creator profile`. Ids from `… rank` / `… list`
+  are in the historical dataset by construction, so those are the ones to follow with
+  `video sales`, `creator sales-videos`, `creator enrich`, `seller catalog`. Running a
+  live-search id straight into a sales command is the single most common way to burn
+  credits on empty results — a `find videos` id misses the sales dataset about 4 times
+  in 10. If you need sales figures for something you found live, say so plainly rather
+  than paging for data that was never collected.
 - **Seed relationships from commerce-active entities.** Sub-resource verbs
   (`creator products|lives`, `product creators|videos|lives`, `seller lives`,
   `video products`) return `[]` for low-activity ids. Pull seeds from `… rank` or a
@@ -145,10 +195,10 @@ repeating the command page by page (`--max-pages` is deprecated and ignored).
   come back with `cached: true` + `retry_after` (an ISO timestamp): the backend remembered
   that this filter has no data and re-probes automatically after that time — don't poll it,
   change the filter or move on. Known thin/quirky:
-  `creator region` (unreliable → read `region` from `creator detail` instead),
+  `creator region` (unreliable → read `region` from `creator profile` instead),
   `video captions` (many videos have none), `live detail` (only while a room is
-  live), `seller products --mode realtime` (empty when no live inventory; the
-  offline default already covers it).
+  live), `seller inventory` (empty when a shop lists nothing right now — use
+  `seller catalog` for its history).
 - Responses are **server-trimmed to signal** (ids, core metrics, names, key links;
   images already converted to accessible URLs) — no raw-blob handling needed.
 - **All monetary values are USD.** Every price / avg-price / GMV field (`min_price`,
