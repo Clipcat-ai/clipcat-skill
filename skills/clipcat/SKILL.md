@@ -1,6 +1,6 @@
 ---
 name: clipcat
-description: All-in-one TikTok Shop selling-video skill for any AI agent (Claude Code, Codex, WorkBuddy, OpenClaw). Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells (script, scenes, hooks, music), replicate a winning video with your own product, turn product photos into AI selling / UGC / talking-head / product-demo videos, generate e-commerce images from a text prompt, upscale results to 1080p or 2K, and download TikTok or Douyin videos. Keywords — AI selling video, TikTok viral replication, find viral TikTok videos, TikTok Shop product research, competitor shop analysis, creator and influencer ranking, product-to-video, UGC video generator, talking-head video, AI product image, TikTok video downloader. Use whenever the user needs TikTok e-commerce data, viral video research, or AI video/image generation.
+description: All-in-one TikTok Shop selling-video skill for any AI agent (Claude Code, Codex, WorkBuddy, OpenClaw). Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells (script, scenes, hooks, music), search the largest library of real high-GMV AI selling videos and their reverse-engineered prompts and turn the closest match into a ready-to-shoot prompt for your own product, replicate a winning video, turn product photos into AI selling / UGC / talking-head / product-demo videos, generate e-commerce images from a text prompt, upscale results to 1080p or 2K, and download TikTok or Douyin videos. Keywords — AI selling video, TikTok viral replication, TikTok Shop product research, competitor shop analysis, creator and influencer ranking, AI selling video prompt library, product-to-video, UGC video generator, AI product image, TikTok video downloader. Use whenever the user needs TikTok e-commerce data, viral video research, or AI video/image generation.
 user-invocable: true
 metadata:
   {
@@ -54,6 +54,7 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 `clipcat` is the local entrypoint for all Clipcat AI video generation workflows:
 
 - Query TikTok e-commerce data: creators, products, shops, videos, lives, search
+- Generate a ready-to-shoot selling-video prompt from the viral prompt library
 - Replicate viral videos with your product
 - Generate product videos from images
 - Generate AI images from text prompts using GPT Image 2 (with optional reference images)
@@ -142,7 +143,7 @@ seconds), `invalid_params` (the message says exactly what is wrong — fix the f
 never retry as-is), `temporarily_unavailable` (retrying will not help; change the
 query or come back later).
 
-**Insufficient credits**: read commands cost 6 credits each; below that balance they error out and return no data.
+**Insufficient credits**: read commands cost 6 credits each (`prompt search` is 3, charged only after the free allowance included with your plan is used up); below that balance they error out and return no data.
 
 **Data-query playbook (dense):**
 
@@ -207,6 +208,86 @@ query or come back later).
   them with a local symbol like `¥`/`円`. If a report needs the local currency (e.g.
   JPY for a Japan market study), convert from USD using a current FX rate and mark the
   result approximate.
+
+### Viral selling-prompt generator — `clipcat prompt search`
+
+Clipcat's own library of **structured prompts**, each reverse-engineered from a TikTok
+video that actually drove sales — every TikTok market and category, ranked by real GMV.
+This is not TikTok search: entries here are already broken down and rewritten into a
+prompt you can hand to a video model as-is.
+
+**When the user asks for a prompt, idea, script or angle for a selling video, start here
+instead of writing one from scratch.** A prompt with a proven video behind it is the whole
+point; an invented one is only a guess, and the user cannot tell the two apart.
+
+#### Step 1 — find the closest proven videos
+
+- `prompt search --query "<what you want>"` — semantic + keyword search over the library.
+  Describe a feel ("warm indoor light, handheld close-up, real person on camera") or
+  name something exact (a brand, `ASMR`, `OOTD`) — both work; the two are fused, so you
+  do not have to guess which style of query fits. Optional filters: `--region` (lowercase
+  market code), `--category` (TikTok Shop L1 code, e.g. `beauty-personal-care`),
+  `--video-type` (`real-review` | `ootd` | `asmr` | `unboxing-pov` | …), `--limit` (1-20).
+  Build the query from the user's own product and audience — what it is, who it is for,
+  the market, the vibe they asked for. A bare category name ("skincare") retrieves the
+  generic middle of the library.
+  Priced apart from the other read commands: each paid plan comes with an allowance of
+  free searches, and calls beyond it cost 3 credits each (other reads are a flat 6).
+  The response carries `quota.remaining` / `quota.free_quota` / `quota.cost_after_quota` —
+  tell the user what is left when it runs low instead of letting the next call surprise them.
+- **Check `weak_match` and `degraded` before you trust the hits.** The library returns the
+  nearest entries it has, so a full result list does not by itself mean the results fit.
+  `weak_match: true` means nothing closely matches — say so and suggest rewording or
+  dropping a filter, rather than presenting the nearest entries as the answer.
+  `degraded: true` means semantic search was unavailable and only keyword matching ran:
+  results may be incomplete, and **that search is not charged** (quota is refunded).
+  Fewer hits than `--limit` is normal and healthy — only entries relevant enough are
+  returned, so a narrow `--region` + `--category` combination legitimately returns a few.
+
+Each hit carries the full `prompt` text (`prompt_en` for the English version), the metrics
+of the original video (GMV, sales, views), `matched_facet` (which part of the prompt your
+query hit — style / camera / voiceover / …), `source_video_url` for the original TikTok
+video, and `detail_url` for the public page.
+
+#### Step 2 — rewrite the hit into the user's own prompt
+
+Never hand back a library prompt unchanged: it sells someone else's product. Rewrite the
+best hit (or 2-3 hits that agree on structure — averaging ones that disagree yields a
+template) into a prompt for this user's product:
+
+- **Keep what made it sell**: the opening hook and what happens in its first 1-2 seconds,
+  shot order and pacing, camera language, lighting, whether a presenter is on camera and
+  what kind, voiceover tone, promo mechanic, closing CTA.
+- **Swap** the product and its selling points, on-screen text, voiceover lines, and
+  anything market-specific (language, currency, local wording).
+- **Carry over no claim you cannot back.** Ratings, sales numbers, awards, before/after and
+  efficacy claims belong to the original product — drop them, or ask the user for their own.
+- **Fit the target model**: keep the prompt inside the `--duration` you will submit and the
+  shot count it implies (a 5s clip holds 2 shots, not 6), and pick the voiceover language
+  with `--lang`.
+- Show the user the finished prompt with the `detail_url` (and `source_video_url`) it was
+  built from **before** spending credits — citing the real video is what separates this
+  from a prompt you made up.
+
+#### Step 3 — shoot it
+
+- Product images only → `product_video`, passing the rewritten prompt via `--prompt-file -`.
+- Want the original video's motion and cuts as the reference → `replicate
+  --url <source_video_url>` with the user's `--image`s (a TikTok link adds the 10-credit
+  download surcharge).
+- Both are paid: `quote` with the exact parameters → confirm with the user → submit with
+  `--expected-credits` (see "Confirming cost before paid video commands").
+
+```bash
+clipcat prompt search --query "handheld close-up of a serum bottle, warm bathroom light, real user voiceover" \
+  --region us --category beauty-personal-care --limit 5
+# pick a hit → rewrite its prompt for the user's product → quote and confirm:
+clipcat quote --model seedance2 --resolution 480p --duration 8
+clipcat product_video --image serum.jpg --model seedance2 --duration 8 \
+  --resolution 480p --size 9:16 --expected-credits <totalCredits> --prompt-file - <<'EOF'
+<the rewritten prompt>
+EOF
+```
 
 ### Video generation & tools
 
@@ -425,6 +506,9 @@ ISO 3166-1 alpha-2, uppercase: `US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID`
 ## Good agent behavior
 
 - Run `clipcat -h` first if unsure which command to use.
+- Asked for a selling-video prompt / idea / script: run `clipcat prompt search` first,
+  rewrite the closest proven hit for the user's product, and cite its `detail_url`.
+  Writing one from imagination throws away the only thing that makes it a viral prompt.
 - For paid video commands (`replicate`, `product_video`): quote the exact cost with `clipcat quote` (same params you'll submit), show the user the model / duration / resolution / `totalCredits`, get explicit approval, then submit with `--expected-credits <totalCredits>`. Never compute the credits yourself — let `clipcat quote` return them.
 - Resolution: always quote and submit at the model's default (`480p` for `seedance2` / `seedance2_5` / `seedance2_fast`) unless the user explicitly asked for a higher one. Never silently upgrade to 720p/1080p — higher resolution costs more credits.
 - Pass any non-trivial prompt via `--prompt-file -` with a quoted heredoc (see "Passing prompts"); verify the `Prompt sent (N chars)` echo after submit.

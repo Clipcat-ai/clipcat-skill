@@ -1,6 +1,6 @@
 ---
 name: clipcat
-description: 面向任意 AI Agent（Claude Code、Codex、WorkBuddy、OpenClaw）的 TikTok Shop 带货视频一站式技能。搜索 TikTok 爆款视频，调研 TikTok Shop 商品、店铺、达人和直播间，拆解爆款视频的脚本、分镜、钩子和音乐，用自己的商品复刻爆款，把商品图生成 AI 带货 / UGC / 真人口播 / 商品演示视频，用文字提示生成电商图片，成片超分到 1080p 或 2K，下载 TikTok 或抖音视频。关键词 —— AI 带货视频、TikTok 爆款复刻、找爆款视频、TikTok Shop 选品调研、竞品店铺分析、达人榜单、商品转视频、UGC 视频生成、真人口播视频、AI 商品图、TikTok 视频下载。当用户需要 TikTok 电商数据、爆款视频调研或 AI 视频/图片生成时使用。
+description: 面向任意 AI Agent（Claude Code、Codex、WorkBuddy、OpenClaw）的 TikTok Shop 带货视频一站式技能。搜索 TikTok 爆款视频，调研 TikTok Shop 商品、店铺、达人和直播间，拆解爆款视频的脚本、分镜、钩子和音乐，检索全球最大的真实 AI 带货视频与提示词库并把最匹配的一条改写成可直接出片的爆款带货提示词，复刻爆款，把商品图生成 AI 带货 / UGC / 真人口播 / 商品演示视频，用文字提示生成电商图片，成片超分到 1080p 或 2K，下载 TikTok 或抖音视频。关键词 —— AI 带货视频、TikTok 爆款复刻、TikTok Shop 选品调研、竞品店铺分析、达人榜单、AI 带货提示词库、商品转视频、UGC 视频生成、AI 商品图、TikTok 视频下载。当用户需要 TikTok 电商数据、爆款视频调研或 AI 视频/图片生成时使用。
 user-invocable: true
 metadata:
   {
@@ -46,6 +46,7 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 `clipcat` 是所有 Clipcat AI 视频生成工作流的本地入口：
 
 - 查询 TikTok 电商数据：达人、商品、店铺、视频、直播、搜索
+- 从爆款提示词库生成可直接出片的带货视频提示词
 - 用你的商品复刻爆款视频
 - 从图片生成产品视频
 - 用 GPT Image 2 从文本提示词生成 AI 图片（可选参考图）
@@ -119,7 +120,7 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 `transient`＝限流或短暂抖动，过几秒原样重试即可；`invalid_params`＝报错文案已写明哪个参数
 不对，改参数后再发，别原样重试；`temporarily_unavailable`＝此刻重试无用，换个查询或稍后再来。
 
-**余额不足**：读取类命令每次 6 算力；余额 <6 时直接报错、不返回数据。
+**余额不足**：读取类命令每次 6 算力（`prompt search` 是 3 算力，且只在套餐自带的免费次数用完后才扣）；余额不足时直接报错、不返回数据。
 
 **数据查询实战手册（高密度）：**
 
@@ -174,6 +175,73 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
   `spu_avg_price`、`*_gmv_*_amt` 等）无论 `--region` 是哪个区，都是**美元换算值**；
   响应会带 `"currency": "USD"` 作确认。**切勿标成本地符号如 `¥`/`円`**。若报告需要本地
   货币（如日本市场调研要 JPY），从 USD 按当前汇率换算，并注明为约数。
+
+### 爆款带货提示词生成器 —— `clipcat prompt search`
+
+Clipcat 自有的**结构化提示词库**：每一条都逆向自一支真实卖爆过的 TikTok 带货视频，
+覆盖 TikTok 全部国家与品类，按真实 GMV 排序。它不是 TikTok 搜索 —— 库里的内容已经拆解
+并改写成可以直接喂给视频模型的提示词。
+
+**用户要「带货视频的提示词 / 创意 / 脚本 / 切入角度」时，先来这里检索，不要凭空写。**
+背后有一支真实跑出销量的视频，才是这条提示词的全部价值；自己编的那条用户分辨不出来，
+但拍出来就是普通视频。
+
+#### 第一步：找出最接近的爆款
+
+- `prompt search --query "<你要什么>"` —— 语义 + 关键词混合检索。既可以描述感觉
+  （「暖光居家、手持特写、真人出镜」），也可以给精确词（品牌名、`ASMR`、`OOTD`），
+  两路已经融合，不用纠结该用哪种写法。可选筛选：`--region`（小写市场代码）、
+  `--category`（TikTok Shop L1 代码，如 `beauty-personal-care`）、
+  `--video-type`（`real-review` | `ootd` | `asmr` | `unboxing-pov` | …）、`--limit`（1-20）。
+  **query 要从用户自己的商品和受众里长出来** —— 卖什么、卖给谁、哪个市场、要什么调性；
+  只丢一个品类名（「护肤」）检索到的是库里最平庸的中段内容。
+  计费与其他读命令不同：付费套餐自带一批免费检索次数，用完之后每次 3 算力（其他读命令统一 6）。
+  响应带 `quota.remaining` / `quota.free_quota` / `quota.cost_after_quota` —— 快用完时主动
+  告诉用户，别让下一次调用突然扣算力。
+- **信任结果前先看 `weak_match` 和 `degraded`。** 库永远会返回它手上最接近的几条，
+  所以「结果是满的」并不等于「结果对得上」。`weak_match: true` = 库里没有高度相关的内容，
+  要如实说明并建议换措辞或去掉一个筛选，而不是把最接近的几条当答案端上去。
+  `degraded: true` = 语义检索暂时不可用、只跑了关键词匹配，结果可能不全，**这次检索不计费**
+  （额度已退）。命中数少于 `--limit` 是正常且健康的：只有足够相关的才会返回，
+  `--region` + `--category` 收得很窄时本来就只有几条。
+
+每条命中都带完整的 `prompt`（英文版在 `prompt_en`）、原视频指标（GMV、销量、播放）、
+`matched_facet`（命中的是提示词的哪个分面 —— 风格 / 运镜 / 口播 / …）、
+`source_video_url`（原始 TikTok 视频）和 `detail_url`（公开详情页）。
+
+#### 第二步：把命中改写成用户自己的提示词
+
+**绝不能把库里的提示词原样丢回去** —— 那卖的是别人的商品。挑最好的一条（或 2-3 条结构一致
+的；结构互相打架的硬糅只会得到一份模板味的提示词），改写成这位用户商品的提示词：
+
+- **保留卖爆的那部分**：开场钩子及其前 1-2 秒发生了什么、分镜顺序与节奏、运镜语言、
+  光线、是否真人出镜及出镜者类型、口播语气、促销机制、结尾 CTA。
+- **替换**：商品与卖点、画面文字、口播台词，以及一切市场相关的东西（语言、货币、本地说法）。
+- **拿不出证据的一律不搬**：评分、销量、奖项、前后对比与功效类表述属于原商品 ——
+  要么删掉，要么问用户要他自己的。
+- **对齐要提交的模型**：提示词长度和分镜数要落在将要提交的 `--duration` 之内
+  （5 秒装得下 2 个镜头，装不下 6 个），口播语言用 `--lang` 指定。
+- **花算力之前**先把成品提示词连同它来自哪条 `detail_url`（和 `source_video_url`）一起给用户看。
+  能引用出那支真实视频，才是它区别于「我编的一段提示词」的地方。
+
+#### 第三步：出片
+
+- 只有商品图 → `product_video`，改写后的提示词用 `--prompt-file -` 传。
+- 想连原视频的运镜和剪辑一起复用 → `replicate --url <source_video_url>` + 用户的 `--image`
+  （TikTok 链接会多收 10 算力下载费）。
+- 两条都是付费命令：先用同一套参数 `quote` → 与用户确认 → 带 `--expected-credits` 提交
+  （见「付费视频命令的算力确认」）。
+
+```bash
+clipcat prompt search --query "手持特写精华液瓶身，暖色浴室光，真人口播" \
+  --region us --category beauty-personal-care --limit 5
+# 挑一条命中 → 按用户的商品改写它的 prompt → 报价并与用户确认：
+clipcat quote --model seedance2 --resolution 480p --duration 8
+clipcat product_video --image serum.jpg --model seedance2 --duration 8 \
+  --resolution 480p --size 9:16 --expected-credits <totalCredits> --prompt-file - <<'EOF'
+<改写后的提示词>
+EOF
+```
 
 ### 视频生成与工具
 
@@ -303,6 +371,9 @@ ISO 3166-1 alpha-2，大写：`US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` 
 ## 良好的 agent 行为
 
 - 不确定用哪个命令时，先运行 `clipcat -h`。
+- 用户要带货视频的提示词 / 创意 / 脚本时：先跑 `clipcat prompt search`，把最接近的那条
+  已验证爆款改写成用户商品的提示词，并引用它的 `detail_url`。凭空写等于把「爆款」这两个字
+  唯一的依据丢掉了。
 - 付费视频命令（`replicate`、`product_video`）：先用 `clipcat quote`（同一套参数）报出精确算力，向用户展示模型/时长/分辨率/`totalCredits` 并获得明确确认，再带 `--expected-credits <totalCredits>` 提交。绝不自己算算力——让 `clipcat quote` 返回。
 - 分辨率：报价和提交一律用模型默认档位（`seedance2` / `seedance2_5` / `seedance2_fast` 为 `480p`），除非用户明确要求更高分辨率。绝不静默升到 720p/1080p——更高分辨率会多扣算力。
 - 记录任务 ID；跨轮次重复调用 `query_task` 来跟踪长耗时任务。

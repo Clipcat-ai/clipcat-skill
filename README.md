@@ -1,6 +1,6 @@
 # Clipcat Skill — AI Selling Videos for TikTok Shop
 
-**Turn any AI agent into a TikTok Shop video producer.** Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells, replicate a winning video with your own product, turn product photos into AI selling / UGC / talking-head videos, generate e-commerce images from a text prompt, and download TikTok or Douyin videos — all from one CLI.
+**Turn any AI agent into a TikTok Shop video producer.** Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells, generate a ready-to-shoot viral selling prompt from the library of real high-GMV AI selling videos, replicate a winning video with your own product, turn product photos into AI selling / UGC / talking-head videos, generate e-commerce images from a text prompt, and download TikTok or Douyin videos — all from one CLI.
 
 Works with **any AI agent that can run shell commands** — Claude Code, Codex, WorkBuddy, OpenClaw, Cursor, or your own. It ships as a single cross-platform `clipcat` CLI plus a `SKILL.md` manifest: the agent reads the manifest, runs `clipcat` commands and parses the JSON output.
 
@@ -21,6 +21,7 @@ OpenClaw auto-installs the skill from the manifest; any other agent installs the
 ## Core Capabilities
 
 - **TikTok E-commerce Data Intelligence**: Query 6 entity domains — creators, products, shops, videos, lives, and keyword/image search — covering leaderboards, multi-filter discovery, trends, detail, reviews, comments, and cross-entity relationships (the agent picks the exact command via `clipcat <entity> -h`)
+- **Viral Selling-Prompt Generator**: Search the largest library of real AI selling videos and their reverse-engineered prompts (every TikTok market and category, entries that actually drove sales), match the ones relevant to your product, and turn the closest one into a ready-to-shoot selling-video prompt — cited back to the real video it came from
 - **Video Analysis**: Extract scripts, scenes, hooks, and music from TikTok or Douyin videos
 - **Viral Replication**: Recreate proven viral structures with your own product assets — reference a TikTok/Douyin link, a direct video URL, or a local video file (up to 100MB)
 - **Product to Video**: Turn product images into UGC-style TikTok videos
@@ -64,6 +65,7 @@ Once installed, you can ask your agent to:
 
 - "Search viral TikTok videos about lip gloss this week"
 - "Search TikTok Shop for trending pet products and show me competitor shops"
+- "I sell a portable blender — find matching viral selling videos and write me a ready-to-shoot prompt"
 - "Replicate this TikTok video with my product images"
 - "Generate a product video from these images"
 - "Generate an AI image of a model holding my product"
@@ -110,6 +112,17 @@ English, Chinese, French, German, Malay, Vietnamese, Thai, Japanese, Korean, Ind
 All monetary values in e-commerce data responses are USD-converted regardless of region.
 
 ## Usage Examples
+
+### Example 0: Generate a Viral Selling Prompt
+
+```
+I sell a portable blender (image: /path/to/juicer.jpg), target market US.
+Search the viral prompt library for relevant proven videos, rewrite the best match
+into a selling-video prompt for my product, tell me which video it came from,
+and generate an 8s video once I approve.
+```
+
+The agent runs `clipcat prompt search` over prompts reverse-engineered from real high-GMV videos, keeps the original hook, shot pacing and voiceover tone, swaps in your product and selling points, and cites the source video's page before spending any credits.
 
 ### Example 1: Search for Viral TikTok Videos
 
