@@ -81,6 +81,26 @@ Once installed, you can ask your agent to:
 - Do not retry tasks manually; Clipcat already includes retry handling
 - Preserve complete TikTok or Douyin URLs, including signed parameters when present
 
+## What's Inside the Viral Library
+
+`clipcat prompt search` doesn't invent a script — it retrieves from a real, searchable
+library of AI selling videos that actually sold on TikTok Shop:
+
+| Asset | What it gives you |
+| ----- | ----------------- |
+| **5000+ real AI viral selling videos** | Every one actually sold on TikTok Shop — not demos, not concepts |
+| **15 markets online** | US, UK, and every other TikTok Shop market, so prompts match your target region |
+| **30 primary categories online** | Beauty, home, electronics, food… matched to your product's category |
+| **Copy-ready prompts** | Each viral video ships with the exact prompt that produced it — copy it, or replicate the video in one step |
+| **Real sales proof** | Every entry carries the original video's real GMV / sales / views, so you build on what already won |
+| **Updated daily** | New winners land every day — the US market is ingested daily, the other markets weekly |
+| **Semantic search** | Describe the effect you want ("cozy home, handheld close-up, real person on camera") and retrieve the matching winners |
+
+Because every prompt is grounded in a video that already sold, `clipcat prompt search`
+gives you a ready-to-shoot prompt built on a proven best-seller — not a guess. Each hit
+comes back with the source video and its public detail page, so you can always see what
+the prompt was reverse-engineered from.
+
 ## Supported Models
 
 Trial models are open to all users; standard models require a paid plan.
