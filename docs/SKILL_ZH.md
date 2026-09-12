@@ -49,7 +49,7 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 - 从爆款提示词库生成可直接出片的带货视频提示词
 - 用你的商品复刻爆款视频
 - 从图片生成产品视频
-- 用 GPT Image 2 从文本提示词生成 AI 图片（可选参考图）
+- 用 GPT Image 2 / GPT Image 2.5（Flare / Sunburst）从文本提示词生成 AI 图片（可选参考图）
 - 分析视频（脚本、场景、音乐）
 - 下载 TikTok/抖音视频
 - 查询异步任务状态
@@ -59,8 +59,9 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 1. 先用 `clipcat -h` 查看所有命令。
 2. 使用任何命令前，先 `clipcat <子命令> -h` 查看参数。
 3. 默认使用 JSON 输出。
-4. 运行任何消耗算力的视频命令前，先用 `clipcat quote` 报出精确算力、与用户确认，
-   再带 `--expected-credits` 提交（见「付费视频命令的算力确认」）。
+4. `replicate` / `product_video` 提交分**两次调用**：第一次不扣费不建任务，返回确认
+   清单 + `confirmId`；把清单摆给用户、等到明确同意后，再 `--confirm <confirmId>`
+   （见「付费视频命令的两段式确认」）。
 5. 若任何命令在 stderr 打出更新提示（`⬆ clipcat X is available … Run: clipcat
    update`），执行一次 `clipcat update` 再继续。已是最新时它会自动跳过，可放心运行。
 
@@ -220,7 +221,7 @@ Clipcat 自有的**结构化提示词库**：每一条都逆向自一支真实�
 - **拿不出证据的一律不搬**：评分、销量、奖项、前后对比与功效类表述属于原商品 ——
   要么删掉，要么问用户要他自己的。
 - **对齐要提交的模型**：提示词长度和分镜数要落在将要提交的 `--duration` 之内
-  （5 秒装得下 2 个镜头，装不下 6 个），口播语言用 `--lang` 指定。
+  （5 秒装得下 2 个镜头，装不下 6 个），口播语言用 `--lang` 指定（必填，CLI 没有默认值，要明确选）。
 - **花算力之前**先把成品提示词连同它来自哪条 `detail_url`（和 `source_video_url`）一起给用户看。
   能引用出那支真实视频，才是它区别于「我编的一段提示词」的地方。
 
@@ -229,27 +230,28 @@ Clipcat 自有的**结构化提示词库**：每一条都逆向自一支真实�
 - 只有商品图 → `product_video`，改写后的提示词用 `--prompt-file -` 传。
 - 想连原视频的运镜和剪辑一起复用 → `replicate --url <source_video_url>` + 用户的 `--image`
   （TikTok 链接会多收 10 算力下载费）。
-- 两条都是付费命令：先用同一套参数 `quote` → 与用户确认 → 带 `--expected-credits` 提交
-  （见「付费视频命令的算力确认」）。
+- 两条都是付费命令，且都走两段式：提交 → 把返回的清单摆给用户 → 等明确同意 →
+  `--confirm <confirmId>`（见「付费视频命令的两段式确认」）。
 
 ```bash
 clipcat prompt search --query "手持特写精华液瓶身，暖色浴室光，真人口播" \
   --region us --category beauty-personal-care --limit 5
-# 挑一条命中 → 按用户的商品改写它的 prompt → 报价并与用户确认：
-clipcat quote --model seedance2 --resolution 480p --duration 8
+# 挑一条命中 → 按用户的商品改写它的 prompt → 第一段提交（不扣费）：
 clipcat product_video --image serum.jpg --model seedance2 --duration 8 \
-  --resolution 480p --size 9:16 --expected-credits <totalCredits> --prompt-file - <<'EOF'
+  --resolution 480p --size 9:16 --lang zh --prompt-file - <<'EOF'
 <改写后的提示词>
 EOF
+# → 返回 confirmationRequired + confirmId；把清单摆给用户，等到同意后：
+clipcat product_video --confirm <confirmId>
 ```
 
 ### 视频生成与工具
 
-- `quote` —— 返回某一次具体生成（`--model` + `--resolution` + `--duration`，社媒复刻再带 `--url`/`--social`，超分再带 `--enhance`）的精确算力。付费命令报价的首选：服务端把算术全做完，直接回 `totalCredits`（已含超分费）以及 `enhanceCredits` / `enhanceBlocked`（见「付费视频命令的算力确认」和「超分」）。
-- `models` —— 浏览所有可用视频模型及其算力（离散看 `prices`、range 看 `creditsPerSecond`）和你的余额。用户还没选模型、或报了不可用模型时用它。
-- `replicate` —— 用你的商品图复刻爆款视频（自动识别 URL 类型）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；支持 `--model`、`--duration`、`--size`（仅 `9:16` 或 `16:9`）、`--lang`、`--resolution`、`--enhance`（超分，见下）、`--character-id`、`--expected-credits`
-- `product_video` —— 仅用商品图生成视频（无参考视频）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；`--size` 仅接受 `9:16` 或 `16:9`；支持 `--enhance`（超分，见下）、`--expected-credits`
-- `image` —— 用 **GPT Image 2** 模型从文本提示词生成 AI 图片；可选用 `--image`（本地文件）或 `--image-url`（URL）提供最多 5 张参考图。用 `--aspect-ratio` 选 `1:1`（默认）/ `16:9` / `9:16`。**尺寸提示（9:16/16:9/1:1、portrait/landscape/square、竖版/横版/方图、banner、wallpaper）必须同时出现在 `--prompt` 和 `--aspect-ratio` 中** —— `--aspect-ratio` 设定画布，提示词里的尺寸词锚定构图。不要臆造用户没要求的尺寸。
+- `quote` —— 返回某一次具体生成（`--model` + `--resolution` + `--duration`，社媒复刻再带 `--url`/`--social`，超分再带 `--enhance`）的精确算力：服务端把算术全做完，直接回 `totalCredits`（已含超分费）以及 `enhanceCredits` / `enhanceBlocked`。它是可选的事前预估，**不是**确认环节 —— 用于和用户横向比模型，或给 `--expected-credits` 提供数值；真正要摆给用户看的清单由提交本身返回（见「付费视频命令的两段式确认」和「超分」）。
+- `models` —— 浏览所有可用视频模型及其算力（离散看 `prices`、range 看 `creditsPerSecond`）、图片模型及每张算力（`imageModels`）和你的余额。用户还没选模型、或报了不可用模型时用它。
+- `replicate` —— 用你的商品图复刻爆款视频（自动识别 URL 类型）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；支持 `--model`、`--duration`、`--size`（仅 `9:16` 或 `16:9`）、`--lang`（**必填**，无默认值）、`--resolution`、`--enhance`（超分，见下）、`--character-id`、`--expected-credits`。**两段式提交**，用 `--confirm`（见下）。
+- `product_video` —— 仅用商品图生成视频（无参考视频）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；`--size` 仅接受 `9:16` 或 `16:9`；`--lang` **必填**（无默认值 —— 它是成片的口播 / 字幕语言，要与用户确认）；支持 `--enhance`（超分，见下）、`--expected-credits`。**两段式提交**，用 `--confirm`（见下）。
+- `image` —— 用 **GPT Image** 系列模型从文本提示词生成 AI 图片；可选用 `--image`（本地文件）或 `--image-url`（URL）提供最多 5 张参考图。用 `--aspect-ratio` 选 `1:1`（默认）/ `16:9` / `9:16`。**尺寸提示（9:16/16:9/1:1、portrait/landscape/square、竖版/横版/方图、banner、wallpaper）必须同时出现在 `--prompt` 和 `--aspect-ratio` 中** —— `--aspect-ratio` 设定画布，提示词里的尺寸词锚定构图。不要臆造用户没要求的尺寸。`--model` 选图片模型：`gptimage2` | `gptimage25flare`（GPT Image 2.5 Flare）| `gptimage25sunburst`（GPT Image 2.5 Sunburst）| `nanobana2`（Nano Banana Pro）——每张算力是服务端配置，读 `clipcat models` 的 `imageModels` 段。**用户没指定模型就不要传 `--model`**（不传即走服务端默认，具体是哪个由后台配置决定，不一定是 `gptimage2`），**提交前要告诉用户每张多少算力**。
 - `list_images` —— 列出服务端的图片生成任务；支持 `--status` / `--limit` / `--page` 筛选
 - `breakdown` —— 分析视频（脚本、场景、音乐）；之前分析过的会立即返回缓存结果
 - `download` —— 下载 TikTok/抖音视频（返回签名 URL）；缓存结果立即返回
@@ -257,22 +259,51 @@ EOF
 - `list_tasks` —— 列出服务端最近的**视频相关**任务（`--type` 必填：`replicate | product | breakdown | download`）。图片任务用 `list_images`。
 - `character list` —— 列出账号下保存的角色（`id`、`name`、`status`、`type`）。`id` 即 `replicate` / `product_video` 的 `--character-id` 取值；只有 `status: completed` 的角色可用。支持 `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`。免费（自有账号元数据，不扣算力）。
 
-## 付费视频命令的算力确认
+## 付费视频命令的两段式确认
 
-`replicate` 和 `product_video` 会消耗算力。发起前务必先确认算力——且**绝不要自己算**，
-让 `clipcat quote` 返回：
+`replicate` 和 `product_video` 会消耗算力，提交固定分**两次调用**。绝不要在同一轮里连发两次。
 
-1. 用将要提交的同一套参数运行 `clipcat quote`（`--model`、`--resolution`、`--duration`；
-   TikTok/抖音链接复刻再带 `--url`，会自动计入下载费；要超分再带 `--enhance`）。它返回
-   `totalCredits`（按秒单价、下载费、延迟扣的超分费等全由服务端算好）和你的余额
-   `remainingCredits`。
-2. 把模型、时长、分辨率和这个 `totalCredits` 展示给用户，获得明确确认。
-3. 带 `--expected-credits <totalCredits>` 提交。仅当实扣**高于**你传的值才会被拒，
-   绝不会多扣（实扣更低——缓存命中、促销——直接放行）；被拒时会返回当前算力，按新数字
-   与用户重新确认后，用更新的 `--expected-credits` 重新提交。
+**第一段 —— 照常提交。** 按平常的写法把完整命令发出去。服务端跑完全部校验，但
+**不扣费、不建任务**，返回 `data.confirmationRequired: true`，附带 `confirmId` 和参数快照
+`confirmation`（generationType、model、resolution、duration、size、lang、imageCount、
+**完整的 prompt 原文**，以及算力明细 `credits` / `downloadSurcharge` / `enhanceCredits` /
+`totalCredits`），外加一段 `instruction`。退出码是 0 —— 这**不是错误**，不要重试、不要改参数。
 
-用户还没选模型（或需要完整菜单）时，用 `clipcat models` 列出所有可用模型及其算力，
-再对选定项 `clipcat quote`。
+**第二段 —— 把清单摆给用户，然后停下。** 展示各项参数、完整 prompt 原文和 `totalCredits`，
+把 `instruction` 原样打出来，然后**在对话里等用户明确回复**。沉默、"看着办"、你自己的判断
+都不算同意。绝不要把第三步塞进同一轮。
+
+**第三段 —— 只有拿到明确同意后：**
+
+```bash
+clipcat product_video --confirm cfm_7QK2M8      # 或：clipcat replicate --confirm cfm_7QK2M8
+```
+
+`--confirm` 不能与任何**生成参数**同时使用 —— 服务端提交的是它在第一段存下的参数快照，
+带了也不会生效（CLI 本地直接拒绝这种组合，而不是让你误以为改动生效了）。通道类参数
+（`--output` / `--api-key` / `--base-url` / `--poll`）不受限。要改任何参数，回到第一段用新
+参数重发，让用户确认新清单。
+
+完整示例（Seedance 2、默认 480p、8 秒、TikTok 链接）：
+
+```bash
+clipcat replicate --url "https://www.tiktok.com/@u/video/123" \
+  --image product.jpg --model seedance2 --duration 8 --resolution 480p \
+  --size 9:16 --lang zh
+# → confirmationRequired，confirmId cfm_7QK2M8，共 170 算力（160 + 10 下载费）
+# → 把清单摆给用户，等到同意后：
+clipcat replicate --confirm cfm_7QK2M8
+```
+
+两个可选项，都与确认流程相互独立：
+
+- `clipcat quote` 可以在第一段之前预估算力（同一套参数；社媒链接带 `--url` 计入下载费，
+  超分带 `--enhance`），适合和用户横向比模型。**绝不要自己算算力** —— 让 `quote` 或第一段
+  返回的清单给数。
+- 第一段可以带 `--expected-credits <n>` 作为价格上限：仅当实扣**高于**你传的值才会被拒
+  （实扣更低 —— 缓存命中、促销 —— 直接放行）；被拒时会返回当前算力，重新确认后再提交。
+
+用户还没选模型（或需要完整菜单）时，用 `clipcat models` 列出所有可用模型及其算力。
 
 付费专享模型（如 `seedance2`、`happyhorse10`）需付费套餐；`clipcat quote` 会标记
 （`premiumBlocked`），免费用户提交会被服务端拒绝。
@@ -296,7 +327,9 @@ EOF
 clipcat quote --model seedance2 --resolution 480p --duration 8 --enhance 1080p
 # → seedance2 480p 8s → 160 credits  + 20 enhance (1080p) → total 180 credits
 clipcat product_video --image product.jpg --model seedance2 --duration 8 \
-  --resolution 480p --size 9:16 --enhance 1080p --expected-credits 180
+  --resolution 480p --size 9:16 --lang zh --enhance 1080p --expected-credits 180
+# → 返回 confirmationRequired；把清单摆给用户，等到同意后：
+clipcat product_video --confirm <confirmId>
 ```
 
 ## replicate：URL 类型自动识别
@@ -342,10 +375,10 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
 
 | 模型 ID              | 时长                  | 分辨率            | 备注                                                              |
 | -------------------- | --------------------- | ----------------- | ----------------------------------------------------------------- |
-| `grok_imagine`       | 10s, 15s              | 480p, 720p        | **试用**，默认。xAI Grok Imagine 1.5，仅 9:16 宽高比               |
+| `grok_imagine`       | 10s, 15s              | 480p, 720p        | **试用**。xAI Grok Imagine 1.5，仅 9:16 宽高比                     |
 | `veo3.1fast`         | 8s, 16s, 24s          | 720p              | **试用**。Google Veo 3.1 Fast，质量与成本均衡                     |
 | `omini_flash`        | 10s, 20s              | 720p, 1080p       | **试用**。Gemini Omni Flash，Google 最新模型                      |
-| `seedance2_mini`     | 4-15s（任意整数）     | 480p, 720p        | **试用**。Seedance 2 Mini，高性价比档。免费用户仅 480p——**必须显式传 `--resolution 480p`** |
+| `seedance2_mini`     | 4-15s（任意整数）     | 480p, 720p        | **试用**、**平台默认**（不传 `--model` 就是它）。Seedance 2 Mini，高性价比档。免费用户仅 480p——不传 `--resolution` 就是 480p |
 | `mmh3_promo`         | 10s, 15s              | 480p, 720p, 2K    | **试用**。MiniMax H3 补贴渠道，免费用户可用                       |
 | `seedance2`          | 4-15s（任意整数）     | 480p, 720p, 1080p | 标准（付费）。字节 Seedance 2，顶级质量。**默认 480p**            |
 | `seedance2_5`        | 4-30s（任意整数）     | 480p, 720p        | 标准（付费）。字节 Seedance 2.5，新一代模型，最长 30s。**默认 480p** |
@@ -356,13 +389,31 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
 
 模型清单和实时「分辨率 × 时长」算力都以 `clipcat models` 为准 —— 它没返回的模型即已下架，提交必被拒，`-h` 和本表都不作数。`clipcat models` 列出 `mmh3_promo` 时优先用它而不是 `minimax_h3`：同一个模型走限时补贴渠道，算力只要一小部分，且免费用户可用。
 
-**`seedance2` / `seedance2_5` / `seedance2_fast` 默认 `--resolution 480p`**（CLI 在 `quote`、`replicate`、`product_video` 省略 `--resolution` 时自动套用）。只有用户明确要求更高分辨率才传别的值，且 `quote` 与提交必须用同一个值。
+**用户没点名档位就别传 `--resolution`。** 服务端会用该模型自己的默认档 —— 即它价目表里的第一档：高性价比档位（`seedance2`、`seedance2_5`、`seedance2_fast`、`seedance2_mini`、`mmh3_promo`）是 `480p`，其余是 `720p`。这与网页上切到该模型时预选的档位是同一个，`quote` 也按同一条规则解析，所以报价与实扣不会分叉。传了比用户要求更高的档位 = 悄悄多扣他的算力。
 
-`seedance2_mini` **不在**这个自动默认范围里：免费用户只能用它的 480p 档，省略 `--resolution` 会走服务端默认的 720p，提交会被拒。报价和提交都要显式传 `--resolution 480p`。
+### 图片模型（`clipcat image --model`）
+
+下表是发版时的默认价；单价是服务端配置、随时可改，报价一律读 `clipcat models`
+的 `imageModels`，不要照抄这张表。
+
+| 模型 ID               | 名称                   | 算力 / 张   |
+| --------------------- | ---------------------- | ----------- |
+| `gptimage2`           | GPT Image 2            | 20（默认）  |
+| `gptimage25flare`     | GPT Image 2.5 Flare    | 22          |
+| `gptimage25sunburst`  | GPT Image 2.5 Sunburst | 22          |
+| `nanobana2`           | Nano Banana Pro        | 20          |
+
+生图按模型逐张计费。只有用户点名要某个模型时才传 `--model`，不传即走服务端默认的
+`gptimage2`。提交前要告诉用户每张多少算力；实际扣费以响应里的 `costCredits` 为准。
+和视频一样，模型清单和实时单价都以 `clipcat models` 的 `imageModels` 段为准。
 
 ## 支持的语言（`--lang`）
 
-`en` `zh` `fr` `de` `ms` `vi` `th` `ja` `ko` `id` `fil` `es`
+`en` `zh` `fr` `de` `ms` `vi` `th` `ja` `ko` `id` `fil` `es` `pt` `ar`
+
+`replicate` / `product_video` 的 `--lang` 是**必填的，没有默认值**。它决定成片的口播 /
+字幕语言，所以提交前要连同模型 / 时长 / 分辨率 / 算力一起与用户确认。不在这个清单里的
+值，CLI 和服务端都会拒绝。
 
 ## 地区（`--region`）
 
@@ -374,8 +425,8 @@ ISO 3166-1 alpha-2，大写：`US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` 
 - 用户要带货视频的提示词 / 创意 / 脚本时：先跑 `clipcat prompt search`，把最接近的那条
   已验证爆款改写成用户商品的提示词，并引用它的 `detail_url`。凭空写等于把「爆款」这两个字
   唯一的依据丢掉了。
-- 付费视频命令（`replicate`、`product_video`）：先用 `clipcat quote`（同一套参数）报出精确算力，向用户展示模型/时长/分辨率/`totalCredits` 并获得明确确认，再带 `--expected-credits <totalCredits>` 提交。绝不自己算算力——让 `clipcat quote` 返回。
-- 分辨率：报价和提交一律用模型默认档位（`seedance2` / `seedance2_5` / `seedance2_fast` 为 `480p`），除非用户明确要求更高分辨率。绝不静默升到 720p/1080p——更高分辨率会多扣算力。
+- 付费视频命令（`replicate`、`product_video`）：先提交一次拿到清单 + `confirmId`（不扣费），向用户展示各项参数 / 完整 prompt / `totalCredits`，**在对话里等到明确同意**，再在后续一轮执行 `--confirm <confirmId>`。绝不自行代替用户确认，也绝不把两次调用塞进同一轮。绝不自己算算力 —— 让清单（或 `clipcat quote`）返回。
+- 分辨率：用户没点名档位就不要传 `--resolution`，服务端会套用该模型自己的默认档（高性价比档位 480p，其余 720p），`quote` 同一条规则。绝不静默升到 720p/1080p——更高分辨率会多扣算力。
 - 记录任务 ID；跨轮次重复调用 `query_task` 来跟踪长耗时任务。
 - 保持签名视频 URL 完整 —— 它们含有 `X-Amz-*` 参数，截断后会失效。
 - agent 应优先使用默认的 JSON 输出。

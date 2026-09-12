@@ -57,7 +57,7 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 - Generate a ready-to-shoot selling-video prompt from the viral prompt library
 - Replicate viral videos with your product
 - Generate product videos from images
-- Generate AI images from text prompts using GPT Image 2 (with optional reference images)
+- Generate AI images from text prompts using GPT Image 2 / GPT Image 2.5 (Flare / Sunburst), with optional reference images
 - Analyze videos (script, scenes, music)
 - Download TikTok/Douyin videos
 - Query async task status
@@ -67,9 +67,10 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 1. Start with `clipcat -h` to see all commands.
 2. Before using any command, run `clipcat <subcommand> -h` to see flags.
 3. Default to JSON output.
-4. Before any credit-consuming video command, quote the exact cost with
-   `clipcat quote`, confirm it with the user, and submit with
-   `--expected-credits` (see "Confirming cost before paid video commands").
+4. `replicate` / `product_video` submit in TWO calls: the first charges nothing
+   and returns a checklist + `confirmId`; you show that checklist to the user,
+   wait for an explicit yes, then run `--confirm <confirmId>` (see "Two-step
+   confirmation for paid video commands").
 5. If any command prints an update notice on stderr (`⬆ clipcat X is
    available … Run: clipcat update`), run `clipcat update` once, then continue.
    It self-skips when already up to date, so it is safe to run.
@@ -264,7 +265,7 @@ template) into a prompt for this user's product:
   efficacy claims belong to the original product — drop them, or ask the user for their own.
 - **Fit the target model**: keep the prompt inside the `--duration` you will submit and the
   shot count it implies (a 5s clip holds 2 shots, not 6), and pick the voiceover language
-  with `--lang`.
+  with `--lang` (required — pick it deliberately, the CLI has no default).
 - Show the user the finished prompt with the `detail_url` (and `source_video_url`) it was
   built from **before** spending credits — citing the real video is what separates this
   from a prompt you made up.
@@ -275,27 +276,29 @@ template) into a prompt for this user's product:
 - Want the original video's motion and cuts as the reference → `replicate
   --url <source_video_url>` with the user's `--image`s (a TikTok link adds the 10-credit
   download surcharge).
-- Both are paid: `quote` with the exact parameters → confirm with the user → submit with
-  `--expected-credits` (see "Confirming cost before paid video commands").
+- Both are paid and two-step: submit → show the returned checklist to the user → wait for
+  an explicit yes → `--confirm <confirmId>` (see "Two-step confirmation for paid video
+  commands").
 
 ```bash
 clipcat prompt search --query "handheld close-up of a serum bottle, warm bathroom light, real user voiceover" \
   --region us --category beauty-personal-care --limit 5
-# pick a hit → rewrite its prompt for the user's product → quote and confirm:
-clipcat quote --model seedance2 --resolution 480p --duration 8
+# pick a hit → rewrite its prompt for the user's product → step 1 (no charge):
 clipcat product_video --image serum.jpg --model seedance2 --duration 8 \
-  --resolution 480p --size 9:16 --expected-credits <totalCredits> --prompt-file - <<'EOF'
+  --resolution 480p --size 9:16 --lang en --prompt-file - <<'EOF'
 <the rewritten prompt>
 EOF
+# → confirmationRequired + confirmId. Show the checklist, wait for a yes, then:
+clipcat product_video --confirm <confirmId>
 ```
 
 ### Video generation & tools
 
-- `quote` — return the exact credit cost of one specific generation (`--model` + `--resolution` + `--duration`, plus `--url`/`--social` for a TikTok/Douyin replicate, plus `--enhance` for super-resolution). The primary way to quote a paid command: the server does all the math and hands back `totalCredits` (already includes the enhance fee) plus `enhanceCredits` / `enhanceBlocked` (see "Confirming cost before paid video commands" and "Super-resolution").
-- `models` — browse all available video models with their credit costs (discrete → `prices`, range → `creditsPerSecond`) and your balance. Use it when the user hasn't picked a model yet, or an unavailable one is reported. **The listing is live and only contains tiers that currently have a provider** — a resolution or duration missing from `resolutions` / `prices` is rejected on submit, so never submit a combination you did not see here.
-- `replicate` — replicate a viral video with your product images. Reference video via **`--url`** (TikTok/Douyin link or direct URL, auto-detects type) **or `--video`** (local video file, max 100MB, uploaded via presigned URL then downscaled server-side; re-replicating the same file reuses the upload; no download surcharge) — provide exactly one. Product images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed. Supports `--model`, `--duration`, `--size` (only `9:16` or `16:9`), `--lang`, `--resolution`, `--enhance` (super-resolution, see below), `--character-id`, `--expected-credits`
-- `product_video` — generate video from product images only (no reference video); images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed; `--size` only accepts `9:16` or `16:9`; supports `--enhance` (super-resolution, see below), `--expected-credits`
-- `image` — generate an AI image from a text prompt using **GPT Image 2** model; optionally supply up to 5 reference images via `--image` (local file) or `--image-url` (URL). Use `--aspect-ratio` to pick `1:1` (default) / `16:9` / `9:16`. **Dimension hints (9:16/16:9/1:1, portrait/landscape/square, 竖版/横版/方图, banner, wallpaper) must appear in BOTH `--prompt` and `--aspect-ratio`** — `--aspect-ratio` sets canvas, the prompt hint anchors framing. Don't invent dimensions the user didn't ask for.
+- `quote` — return the exact credit cost of one specific generation (`--model` + `--resolution` + `--duration`, plus `--url`/`--social` for a TikTok/Douyin replicate, plus `--enhance` for super-resolution). Optional cost preview, **not** the confirmation step: the server does all the math and hands back `totalCredits` (already includes the enhance fee) plus `enhanceCredits` / `enhanceBlocked`. Useful for comparing models or for feeding `--expected-credits`; the checklist you actually show the user comes from the submit itself (see "Two-step confirmation for paid video commands" and "Super-resolution").
+- `models` — browse all available video models with their credit costs (discrete → `prices`, range → `creditsPerSecond`), the image models with their per-image credit cost (`imageModels`), and your balance. Use it when the user hasn't picked a model yet, or an unavailable one is reported. **The listing is live and only contains tiers that currently have a provider** — a resolution or duration missing from `resolutions` / `prices` is rejected on submit, so never submit a combination you did not see here.
+- `replicate` — replicate a viral video with your product images. Reference video via **`--url`** (TikTok/Douyin link or direct URL, auto-detects type) **or `--video`** (local video file, max 100MB, uploaded via presigned URL then downscaled server-side; re-replicating the same file reuses the upload; no download surcharge) — provide exactly one. Product images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed. Supports `--model`, `--duration`, `--size` (only `9:16` or `16:9`), `--lang` (**required**, no default), `--resolution`, `--enhance` (super-resolution, see below), `--character-id`, `--expected-credits`. **Two-step submit** via `--confirm` (see below).
+- `product_video` — generate video from product images only (no reference video); images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed; `--size` only accepts `9:16` or `16:9`; `--lang` is **required** (no default — it is the video's spoken/subtitle language, confirm it with the user); supports `--enhance` (super-resolution, see below), `--expected-credits`. **Two-step submit** via `--confirm` (see below).
+- `image` — generate an AI image from a text prompt using the **GPT Image** models; optionally supply up to 5 reference images via `--image` (local file) or `--image-url` (URL). Use `--aspect-ratio` to pick `1:1` (default) / `16:9` / `9:16`. **Dimension hints (9:16/16:9/1:1, portrait/landscape/square, 竖版/横版/方图, banner, wallpaper) must appear in BOTH `--prompt` and `--aspect-ratio`** — `--aspect-ratio` sets canvas, the prompt hint anchors framing. Don't invent dimensions the user didn't ask for. `--model` picks the image model: `gptimage2` | `gptimage25flare` (GPT Image 2.5 Flare) | `gptimage25sunburst` (GPT Image 2.5 Sunburst) | `nanobana2` (Nano Banana Pro) — per-image credits are server config, so read them from the `imageModels` section of `clipcat models`. **Do not pass `--model` unless the user asked for a specific model** (omitting it uses the server default, which is configured server-side and is not necessarily `gptimage2`), and **tell the user the per-image credit cost before submitting**.
 - `list_images` — list image generation tasks from server; supports `--status` / `--limit` / `--page` filters, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`)
 - `breakdown` — analyze a video (script, scenes, music); returns cached result immediately if previously analyzed
 - `download` — download TikTok/Douyin video (returns signed URL); cached results return immediately
@@ -351,38 +354,59 @@ video, but the fix is to pass prompts so it cannot happen:
 - If a submit is rejected for a mis-quoted prompt, do NOT retry the same command — re-send it
   via `--prompt-file -`. Rejections happen before any charge.
 
-## Confirming cost before paid video commands
+## Two-step confirmation for paid video commands
 
-`replicate` and `product_video` consume credits. Always confirm cost first — and
-**never compute the credits yourself**, let `clipcat quote` return them:
+`replicate` and `product_video` consume credits, so submitting them takes **two
+calls**. Never do both in one turn.
 
-1. Run `clipcat quote` with the SAME parameters you'll submit (`--model`,
-   `--resolution`, `--duration`; for a TikTok/Douyin replicate also pass the
-   `--url`, which auto-adds the download surcharge; for super-resolution also pass
-   `--enhance`). It returns `totalCredits` (the server does all the math —
-   per-second rates, download surcharge, deferred enhance fee) and your
-   `remainingCredits`.
-2. Show the user the model, duration, resolution and that `totalCredits`, and get
-   explicit approval.
-3. Submit with `--expected-credits <totalCredits>`. The server rejects the request
-   only if the real cost is **higher** than what you pass, so you can never
-   overcharge (a cheaper real cost — cache hit, promo — just goes through). On a
-   rejection it returns the current cost — re-confirm that number with the user
-   and resubmit with the updated `--expected-credits`.
+**Step 1 — submit normally.** Run the full command as you always would. The server
+validates everything but **charges nothing and creates no task**; it returns
+`data.confirmationRequired: true` with a `confirmId` and a `confirmation` snapshot
+(generationType, model, resolution, duration, size, lang, imageCount, the **full
+prompt text**, and the credit breakdown `credits` / `downloadSurcharge` /
+`enhanceCredits` / `totalCredits`), plus an `instruction` string. Exit code is 0 —
+this is **not** an error, so do not retry or change parameters.
 
-Example — quote, then submit the confirmed cost (Seedance 2, 480p default, 8s, TikTok link):
+**Step 2 — put the checklist to the user and stop.** Show the parameters, the full
+prompt and `totalCredits`, print the `instruction` as-is, and **wait for the user's
+explicit reply in the conversation**. Silence, "sounds good", or your own judgment
+is not approval. Never chain step 3 into the same turn.
+
+**Step 3 — only after an explicit yes:**
 
 ```bash
-clipcat quote --model seedance2 --resolution 480p --duration 8 \
-  --url "https://www.tiktok.com/@u/video/123"
-# → seedance2 480p 8s → 160 credits  + 10 download → total 170 credits
-clipcat replicate --url "https://www.tiktok.com/@u/video/123" \
-  --image product.jpg --model seedance2 --duration 8 --resolution 480p \
-  --size 9:16 --expected-credits 170
+clipcat product_video --confirm cfm_7QK2M8      # or: clipcat replicate --confirm cfm_7QK2M8
 ```
 
+`--confirm` cannot be combined with any **generation parameter** — the server submits the
+snapshot it stored in step 1, so passing one would silently do nothing (the CLI rejects
+the combination locally rather than let you believe it took effect). Plumbing flags
+(`--output`, `--api-key`, `--base-url`, `--poll`) are fine. To change any parameter, go
+back to step 1 with the new values and get the new checklist approved.
+
+Full example (Seedance 2, 480p default, 8s, TikTok link):
+
+```bash
+clipcat replicate --url "https://www.tiktok.com/@u/video/123" \
+  --image product.jpg --model seedance2 --duration 8 --resolution 480p \
+  --size 9:16 --lang en
+# → confirmationRequired, confirmId cfm_7QK2M8, total 170 credits (160 + 10 download)
+# → show the checklist, wait for the user's yes, then:
+clipcat replicate --confirm cfm_7QK2M8
+```
+
+Optional extras, both independent of the confirmation:
+
+- `clipcat quote` previews the cost before step 1 (same parameters; add `--url` for
+  the download surcharge, `--enhance` for super-resolution). Useful to compare models
+  with the user. **Never compute credits yourself** — let `quote` or the step-1
+  checklist return them.
+- `--expected-credits <n>` on step 1 caps the cost: the server rejects the request
+  only if the real cost is **higher** (a cheaper real cost — cache hit, promo — just
+  goes through). On a rejection it returns the current cost; re-confirm and resubmit.
+
 When the user hasn't chosen a model yet (or you need the full menu), run `clipcat
-models` to list every available model and its cost, then `clipcat quote` the pick.
+models` to list every available model and its cost.
 
 Premium models (e.g. `seedance2`, `happyhorse10`) require a paid plan; `clipcat
 quote` flags them (`premiumBlocked`) and the server rejects them for free users.
@@ -411,7 +435,9 @@ finished video. Rules:
 clipcat quote --model seedance2 --resolution 480p --duration 8 --enhance 1080p
 # → seedance2 480p 8s → 160 credits  + 20 enhance (1080p) → total 180 credits
 clipcat product_video --image product.jpg --model seedance2 --duration 8 \
-  --resolution 480p --size 9:16 --enhance 1080p --expected-credits 180
+  --resolution 480p --size 9:16 --lang en --enhance 1080p --expected-credits 180
+# → confirmationRequired; show the checklist, wait for a yes, then:
+clipcat product_video --confirm <confirmId>
 ```
 
 ## replicate: reference video source
@@ -460,10 +486,10 @@ Trial models are available to all users; standard models require a paid plan.
 
 | Model ID             | Duration              | Resolution        | Notes                                                             |
 | -------------------- | --------------------- | ----------------- | ----------------------------------------------------------------- |
-| `grok_imagine`       | 10s, 15s              | 480p, 720p        | **Trial**, default. xAI Grok Imagine 1.5, 9:16 aspect ratio only   |
+| `grok_imagine`       | 10s, 15s              | 480p, 720p        | **Trial**. xAI Grok Imagine 1.5, 9:16 aspect ratio only            |
 | `veo3.1fast`         | 8s, 16s, 24s          | 720p              | **Trial**. Google Veo 3.1 Fast, balanced quality and cost          |
 | `omini_flash`        | 10s, 20s              | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model                |
-| `seedance2_mini`     | 4-15s (any integer)   | 480p, 720p        | **Trial**. Seedance 2 Mini, value tier. Free plans are 480p only — **pass `--resolution 480p` explicitly** |
+| `seedance2_mini`     | 4-15s (any integer)   | 480p, 720p        | **Trial**, **platform default** (what an omitted `--model` resolves to). Seedance 2 Mini, value tier. Free plans are 480p only — that is also what an omitted `--resolution` gives |
 | `mmh3_promo`         | 10s, 15s              | 480p, 720p, 2K    | **Trial**. Subsidized MiniMax H3 channel, open to free plans       |
 | `seedance2`          | 4-15s (any integer)   | 480p, 720p, 1080p | Standard (paid). ByteDance Seedance 2, top quality. **Default 480p** |
 | `seedance2_5`        | 4-30s (any integer)   | 480p, 720p        | Standard (paid). ByteDance Seedance 2.5, newest generation, clips up to 30s. **Default 480p** |
@@ -485,19 +511,40 @@ parameters were valid but that tier has no provider at the moment — re-run `cl
 models`, pick another resolution/duration/model from the fresh listing, re-quote and
 re-confirm with the user. Do not retry the same combination.
 
-**`seedance2`, `seedance2_5` and `seedance2_fast` default to `--resolution 480p`** (the CLI
-applies this in `quote`, `replicate` and `product_video` when `--resolution` is
-omitted). Only pass a higher resolution when the user explicitly asks for one,
-and keep `quote` and the submit on the same value.
+**Omit `--resolution` unless the user asked for a specific tier.** The server then uses
+that model's own default — the first resolution the model lists, which is `480p` on the
+value models (`seedance2`, `seedance2_5`, `seedance2_fast`, `seedance2_mini`,
+`mmh3_promo`) and `720p` on the rest. It is the same tier the web preselects, and
+`quote` resolves it the same way, so the quote and the later charge cannot drift apart.
+Passing a higher tier than the user asked for silently costs them more credits.
 
-`seedance2_mini` is **not** covered by that automatic default: free plans can only
-use its 480p tier, so omitting `--resolution` sends the server default (720p) and
-the submit is rejected. Pass `--resolution 480p` explicitly on both the `quote` and
-the submit.
+### Image models (`clipcat image --model`)
+
+Prices below are the shipped defaults; they are server-side config and can be
+changed without a release, so quote from `clipcat models` (`imageModels`), not
+from this table.
+
+| Model ID              | Name                   | Credits / image |
+| --------------------- | ---------------------- | --------------- |
+| `gptimage2`           | GPT Image 2            | 20 (default)    |
+| `gptimage25flare`     | GPT Image 2.5 Flare    | 22              |
+| `gptimage25sunburst`  | GPT Image 2.5 Sunburst | 22              |
+| `nanobana2`           | Nano Banana Pro        | 20              |
+
+Image generation is charged per model, per image. Only pass `--model` when the
+user asked for a specific model — omit it and the server uses `gptimage2`. Tell
+the user the per-image cost before submitting; the `costCredits` field in the
+submit response is what was actually charged. As with video, the `imageModels`
+section of `clipcat models` is the live authority on the list and the prices.
 
 ## Supported languages (`--lang`)
 
-`en` `zh` `fr` `de` `ms` `vi` `th` `ja` `ko` `id` `fil` `es`
+`en` `zh` `fr` `de` `ms` `vi` `th` `ja` `ko` `id` `fil` `es` `pt` `ar`
+
+`--lang` is **required** on `replicate` and `product_video` — there is no default. It sets
+the spoken/subtitle language of the finished video, so confirm it with the user (alongside
+model / duration / resolution / credits) before submitting. A value outside this list is
+rejected by both the CLI and the server.
 
 ## Region (`--region`)
 
@@ -509,8 +556,8 @@ ISO 3166-1 alpha-2, uppercase: `US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID`
 - Asked for a selling-video prompt / idea / script: run `clipcat prompt search` first,
   rewrite the closest proven hit for the user's product, and cite its `detail_url`.
   Writing one from imagination throws away the only thing that makes it a viral prompt.
-- For paid video commands (`replicate`, `product_video`): quote the exact cost with `clipcat quote` (same params you'll submit), show the user the model / duration / resolution / `totalCredits`, get explicit approval, then submit with `--expected-credits <totalCredits>`. Never compute the credits yourself — let `clipcat quote` return them.
-- Resolution: always quote and submit at the model's default (`480p` for `seedance2` / `seedance2_5` / `seedance2_fast`) unless the user explicitly asked for a higher one. Never silently upgrade to 720p/1080p — higher resolution costs more credits.
+- For paid video commands (`replicate`, `product_video`): submit once to get the checklist + `confirmId` (no charge), show the user the parameters / full prompt / `totalCredits`, wait for an **explicit yes in the conversation**, then run `--confirm <confirmId>` in a later turn. Never confirm on your own and never chain the two calls in one turn. Never compute the credits yourself — let the checklist (or `clipcat quote`) return them.
+- Resolution: omit `--resolution` unless the user explicitly asked for a tier — the server applies that model's own default (480p on the value models, 720p on the rest), and `quote` resolves it identically. Never silently upgrade to 720p/1080p — higher resolution costs more credits.
 - Pass any non-trivial prompt via `--prompt-file -` with a quoted heredoc (see "Passing prompts"); verify the `Prompt sent (N chars)` echo after submit.
 - Keep record of task IDs; re-invoke `query_task` across turns to track long-running tasks.
 - Preserve signed video URLs intact — they contain `X-Amz-*` params that break if truncated.

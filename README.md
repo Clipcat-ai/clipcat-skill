@@ -25,7 +25,7 @@ OpenClaw auto-installs the skill from the manifest; any other agent installs the
 - **Video Analysis**: Extract scripts, scenes, hooks, and music from TikTok or Douyin videos
 - **Viral Replication**: Recreate proven viral structures with your own product assets — reference a TikTok/Douyin link, a direct video URL, or a local video file (up to 100MB)
 - **Product to Video**: Turn product images into UGC-style TikTok videos
-- **AI Image Generation**: Generate AI images from text prompts using GPT Image 2, with optional reference images (up to 5)
+- **AI Image Generation**: Generate AI images from text prompts using GPT Image 2 / GPT Image 2.5 (Flare / Sunburst), with optional reference images (up to 5)
 - **Super-Resolution**: Upscale a generated video to 720p, 1080p or 2K with `--enhance`
 - **Reusable Characters**: Keep the same on-screen character across videos via `--character-id`
 - **Video Download**: Download TikTok or Douyin videos through the Clipcat API
@@ -77,7 +77,7 @@ Once installed, you can ask your agent to:
 ## Important Notes
 
 - Video generation tasks are asynchronous and may take several minutes
-- Before submitting a task that consumes credits, the agent quotes the exact cost with `clipcat quote`, shows you the model / duration / resolution / credits, and waits for your confirmation
+- Before a video task consumes credits, the agent submits once for free to get a confirmation checklist (model / duration / resolution / full prompt / credits), shows it to you, and waits for your explicit yes before confirming it
 - Do not retry tasks manually; Clipcat already includes retry handling
 - Preserve complete TikTok or Douyin URLs, including signed parameters when present
 
