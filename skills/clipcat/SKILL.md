@@ -60,6 +60,7 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 - Generate AI images from text prompts using GPT Image 2 / GPT Image 2.5 (Flare / Sunburst), with optional reference images
 - Analyze videos (script, scenes, music)
 - Download TikTok/Douyin videos
+- Publish finished videos to your own TikTok accounts (direct post or drafts inbox)
 - Query async task status
 
 ## Default agent workflow
@@ -67,10 +68,10 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 1. Start with `clipcat -h` to see all commands.
 2. Before using any command, run `clipcat <subcommand> -h` to see flags.
 3. Default to JSON output.
-4. `replicate` / `product_video` submit in TWO calls: the first charges nothing
-   and returns a checklist + `confirmId`; you show that checklist to the user,
-   wait for an explicit yes, then run `--confirm <confirmId>` (see "Two-step
-   confirmation for paid video commands").
+4. `replicate` / `product_video` / `tiktok publish` submit in TWO calls: the first
+   charges nothing, creates nothing and returns a checklist + `confirmId`; you show
+   that checklist to the user, wait for an explicit yes, then run
+   `--confirm <confirmId>` (see "Two-step confirmation").
 5. If any command prints an update notice on stderr (`⬆ clipcat X is
    available … Run: clipcat update`), run `clipcat update` once, then continue.
    It self-skips when already up to date, so it is safe to run.
@@ -277,8 +278,7 @@ template) into a prompt for this user's product:
   --url <source_video_url>` with the user's `--image`s (a TikTok link adds the 10-credit
   download surcharge).
 - Both are paid and two-step: submit → show the returned checklist to the user → wait for
-  an explicit yes → `--confirm <confirmId>` (see "Two-step confirmation for paid video
-  commands").
+  an explicit yes → `--confirm <confirmId>` (see "Two-step confirmation").
 
 ```bash
 clipcat prompt search --query "handheld close-up of a serum bottle, warm bathroom light, real user voiceover" \
@@ -305,6 +305,24 @@ clipcat product_video --confirm <confirmId>
 - `query_task` — check status of a task by ID and type (`--type replicate | product | breakdown | download | image`). Omit `--task-id` to resume the latest local task. With `--enhance`, each `videos[]` item carries its own `status` / `enhanceStatus` (see "Super-resolution"). Workspace owners/admins may also query their members' tasks.
 - `list_tasks` — list recent **video-related** tasks from server (`--type` required: `replicate | product | breakdown | download`). Image tasks use `list_images`. `--scope all` / `--scope <member-user-id>` widens to the workspace (owners/admins only; adds `creatorName`), default is your own tasks.
 - `character list` — list the characters saved to your account (`id`, `name`, `status`, `type`). The `id` is what you pass to `--character-id` on `replicate` / `product_video`; only `status: completed` characters are usable. Supports `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`). Free (account metadata, no credits).
+
+### Publish to TikTok — `clipcat tiktok`
+
+Noun-verb: `clipcat tiktok <connect|connect-status|accounts|creator-info|publish|tasks|task|cancel>`.
+Publishing costs no credits — the quota is on **connected accounts** (free 0 / basic 3 / creator+ unlimited).
+Only watermark-free renders can be published (TikTok forbids API clients stamping creator
+content); a watermarked one is rejected at submit with `watermarked_video`.
+
+- `connect` — one-time authorization. The consent page opens in a browser; with no GUI (SSH / container) it degrades to printing the link **on stderr**, so `--json` stays parseable. The callback lands on the server, not on this machine, so the page may be opened on a phone. Poll `connect-status --state <state>`; a user who cancels shows up as `denied`, don't wait it out.
+- `accounts` — connected accounts and their `openId`; every other subcommand takes `--open-id`.
+- `creator-info` — **run this before every direct post.** `privacyLevelOptions` is the only authority on which `--privacy` values the account accepts (a private account offers `SELF_ONLY` alone). It also reports `maxVideoPostDurationSec` and whether the account disabled comment / duet / stitch. When a privacy level is rejected, read the options here instead of retrying the same value.
+- `publish` — **two-step, like the paid video commands** (see "Two-step confirmation"), though for a different reason: it costs no credits, but it is the one command that pushes content to the user's **own public TikTok account**, and once a post is live nothing here can take it back. The first call validates and returns a checklist of everything that will be posted — account, video, post mode, caption, who can view, comment/duet/stitch, AIGC and brand-content disclosure, schedule — plus a `confirmId`. Exactly one video source: `--video-task-id` (a finished Clipcat video), `--asset-id` (asset library), or `--video <path>` (local file, uploaded first, counts toward storage quota).
+  - `--mode direct` (default) posts it now and **requires `--privacy`**. `--mode draft` delivers only the video to TikTok's drafts inbox — `--title`, `--privacy`, `--allow-*`, `--brand-*`, `--aigc` and `--cover-ts-ms` are ignored there; the user fills those in inside the TikTok app.
+  - Interaction flags (`--allow-comment` / `--allow-duet` / `--allow-stitch`) are **off by default**, as TikTok's UX guidelines require; the server forces them off when the account disabled them.
+  - `--brand-content` (paid partnership) cannot be combined with `SELF_ONLY`.
+  - `--schedule` queues it for later (direct posts only, 5 min to 30 days ahead). **The timezone offset is mandatory** — `2027-03-01T20:00:00+08:00` is 20:00 Beijing time (UTC+8), `2027-03-01T12:00:00Z` is that same moment in UTC; a bare `2027-03-01T20:00:00` is rejected. Most users say a wall-clock time in their own timezone, so append their offset rather than converting to `Z` in your head. `--wait` is ignored here — the task returns as `SCHEDULED` and `cancel --task-id <id>` calls it off.
+  - Async like the generation commands: the upload runs server-side and the command returns as soon as the task is created. `--wait` blocks polling every 15s, so prefer submit → `task --task-id <id>` across turns rather than risking a tool-call timeout.
+- `tasks` / `task --task-id <id>` / `cancel --task-id <id>` — list publish tasks, read one, cancel one that is still scheduled.
 
 ## Passing prompts (never let the shell mangle them)
 
@@ -354,10 +372,11 @@ video, but the fix is to pass prompts so it cannot happen:
 - If a submit is rejected for a mis-quoted prompt, do NOT retry the same command — re-send it
   via `--prompt-file -`. Rejections happen before any charge.
 
-## Two-step confirmation for paid video commands
+## Two-step confirmation
 
-`replicate` and `product_video` consume credits, so submitting them takes **two
-calls**. Never do both in one turn.
+Three commands submit in **two calls**, and you must never do both in one turn:
+`replicate` and `product_video` because they consume credits, `tiktok publish`
+because it posts to the user's own public account and cannot be undone.
 
 **Step 1 — submit normally.** Run the full command as you always would. The server
 validates everything but **charges nothing and creates no task**; it returns
@@ -378,11 +397,12 @@ is not approval. Never chain step 3 into the same turn.
 clipcat product_video --confirm cfm_7QK2M8      # or: clipcat replicate --confirm cfm_7QK2M8
 ```
 
-`--confirm` cannot be combined with any **generation parameter** — the server submits the
+`--confirm` cannot be combined with any **business parameter** — the server submits the
 snapshot it stored in step 1, so passing one would silently do nothing (the CLI rejects
 the combination locally rather than let you believe it took effect). Plumbing flags
-(`--output`, `--api-key`, `--base-url`, `--poll`) are fine. To change any parameter, go
-back to step 1 with the new values and get the new checklist approved.
+(`--output`, `--api-key`, `--base-url`, `--poll`, and `--wait` / `--timeout` on
+`tiktok publish`) are fine. To change any parameter, go back to step 1 with the new
+values and get the new checklist approved.
 
 Full example (Seedance 2, 480p default, 8s, TikTok link):
 
@@ -394,6 +414,36 @@ clipcat replicate --url "https://www.tiktok.com/@u/video/123" \
 # → show the checklist, wait for the user's yes, then:
 clipcat replicate --confirm cfm_7QK2M8
 ```
+
+### `tiktok publish` — same protocol, different checklist
+
+The three steps are identical; what changes is what the user is being asked to approve.
+`data.confirmationType` is `tiktok_publish` (it is `video` for the two generation
+commands) and the `confirmation` snapshot carries the account, the video (source, title,
+duration), the post mode, the caption, the privacy level, comment / duet / stitch, the
+AIGC and brand-organic / brand-content disclosure flags, the schedule and the cover
+frame — plus two lists the server computed for you:
+
+- `forcedOff` — interactions the user asked for that this account has disabled in its
+  own TikTok settings. They **will be posted as off**. Say so; do not retry.
+- `ignoredInDraft` — settings that were passed but are not sent in `--mode draft`
+  (TikTok takes them from the app instead). Their values **will not apply**.
+
+```bash
+clipcat tiktok publish --open-id _000abc... --video-task-id 4211 \
+  --privacy PUBLIC_TO_EVERYONE --title "New drop" --allow-comment
+# → confirmationRequired, confirmId cfm_7QK2M8, plus the full post checklist
+# → show it, say plainly that this posts to their public account, wait for a yes:
+clipcat tiktok publish --confirm cfm_7QK2M8
+```
+
+A successful confirm returns a `taskId`; **no `taskId` means nothing was published** —
+report that as a failure, never as a post. A CLI older than 1.0.43 cannot publish at all:
+the server rejects it with an explicit "run `clipcat update`" message, because those
+versions read the confirmation checklist as a created task and print a publish task that
+does not exist. `creator-info` is still worth running before
+step 1: it is the only authority on which `--privacy` values the account accepts, and it
+saves a rejected upload when `--video` points at a large local file.
 
 Optional extras, both independent of the confirmation:
 
