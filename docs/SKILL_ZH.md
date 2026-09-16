@@ -471,7 +471,7 @@ ISO 3166-1 alpha-2，大写：`US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` 
 - 用户要带货视频的提示词 / 创意 / 脚本时：先跑 `clipcat prompt search`，把最接近的那条
   已验证爆款改写成用户商品的提示词，并引用它的 `detail_url`。凭空写等于把「爆款」这两个字
   唯一的依据丢掉了。
-- 付费视频命令（`replicate`、`product_video`）：先提交一次拿到清单 + `confirmId`（不扣费），向用户展示各项参数 / 完整 prompt / `totalCredits`，**在对话里等到明确同意**，再在后续一轮执行 `--confirm <confirmId>`。绝不自行代替用户确认，也绝不把两次调用塞进同一轮。绝不自己算算力 —— 让清单（或 `clipcat quote`）返回。
+- 两段式命令（`replicate`、`product_video`、`tiktok publish`）：先提交一次拿到清单 + `confirmId`（不扣费、不创建任何东西），把返回的内容展示给用户 —— 生成命令是各项参数 / 完整 prompt / `totalCredits`，发布命令是账号 / 文案 / 可见范围 / 定时 —— **在对话里等到明确同意**，再在后续一轮执行 `--confirm <confirmId>`。绝不自行代替用户确认，也绝不把两次调用塞进同一轮。绝不自己算算力 —— 让清单（或 `clipcat quote`）返回。`tiktok publish` 要如实说明它会发到用户自己的公开账号、且发出后无法撤回；确认后没返回 `taskId` 要当作失败，绝不能说成已发布。
 - 分辨率：用户没点名档位就不要传 `--resolution`，服务端会套用该模型自己的默认档（高性价比档位 480p，其余 720p），`quote` 同一条规则。绝不静默升到 720p/1080p——更高分辨率会多扣算力。
 - 记录任务 ID；跨轮次重复调用 `query_task` 来跟踪长耗时任务。
 - 保持签名视频 URL 完整 —— 它们含有 `X-Amz-*` 参数，截断后会失效。
