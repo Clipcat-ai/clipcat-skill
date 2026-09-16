@@ -52,6 +52,7 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 - 用 GPT Image 2 / GPT Image 2.5（Flare / Sunburst）从文本提示词生成 AI 图片（可选参考图）
 - 分析视频（脚本、场景、音乐）
 - 下载 TikTok/抖音视频
+- 把成片发布到你自己的 TikTok 账号（直发或投递到草稿箱）
 - 查询异步任务状态
 
 ## 默认 agent 工作流
@@ -59,9 +60,9 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 1. 先用 `clipcat -h` 查看所有命令。
 2. 使用任何命令前，先 `clipcat <子命令> -h` 查看参数。
 3. 默认使用 JSON 输出。
-4. `replicate` / `product_video` 提交分**两次调用**：第一次不扣费不建任务，返回确认
-   清单 + `confirmId`；把清单摆给用户、等到明确同意后，再 `--confirm <confirmId>`
-   （见「付费视频命令的两段式确认」）。
+4. `replicate` / `product_video` / `tiktok publish` 提交分**两次调用**：第一次不扣费、
+   不创建任何东西，返回确认清单 + `confirmId`；把清单摆给用户、等到明确同意后，再
+   `--confirm <confirmId>`（见「两段式确认」）。
 5. 若任何命令在 stderr 打出更新提示（`⬆ clipcat X is available … Run: clipcat
    update`），执行一次 `clipcat update` 再继续。已是最新时它会自动跳过，可放心运行。
 
@@ -231,7 +232,7 @@ Clipcat 自有的**结构化提示词库**：每一条都逆向自一支真实�
 - 想连原视频的运镜和剪辑一起复用 → `replicate --url <source_video_url>` + 用户的 `--image`
   （TikTok 链接会多收 10 算力下载费）。
 - 两条都是付费命令，且都走两段式：提交 → 把返回的清单摆给用户 → 等明确同意 →
-  `--confirm <confirmId>`（见「付费视频命令的两段式确认」）。
+  `--confirm <confirmId>`（见「两段式确认」）。
 
 ```bash
 clipcat prompt search --query "手持特写精华液瓶身，暖色浴室光，真人口播" \
@@ -247,7 +248,7 @@ clipcat product_video --confirm <confirmId>
 
 ### 视频生成与工具
 
-- `quote` —— 返回某一次具体生成（`--model` + `--resolution` + `--duration`，社媒复刻再带 `--url`/`--social`，超分再带 `--enhance`）的精确算力：服务端把算术全做完，直接回 `totalCredits`（已含超分费）以及 `enhanceCredits` / `enhanceBlocked`。它是可选的事前预估，**不是**确认环节 —— 用于和用户横向比模型，或给 `--expected-credits` 提供数值；真正要摆给用户看的清单由提交本身返回（见「付费视频命令的两段式确认」和「超分」）。
+- `quote` —— 返回某一次具体生成（`--model` + `--resolution` + `--duration`，社媒复刻再带 `--url`/`--social`，超分再带 `--enhance`）的精确算力：服务端把算术全做完，直接回 `totalCredits`（已含超分费）以及 `enhanceCredits` / `enhanceBlocked`。它是可选的事前预估，**不是**确认环节 —— 用于和用户横向比模型，或给 `--expected-credits` 提供数值；真正要摆给用户看的清单由提交本身返回（见「两段式确认」和「超分」）。
 - `models` —— 浏览所有可用视频模型及其算力（离散看 `prices`、range 看 `creditsPerSecond`）、图片模型及每张算力（`imageModels`）和你的余额。用户还没选模型、或报了不可用模型时用它。
 - `replicate` —— 用你的商品图复刻爆款视频（自动识别 URL 类型）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；支持 `--model`、`--duration`、`--size`（仅 `9:16` 或 `16:9`）、`--lang`（**必填**，无默认值）、`--resolution`、`--enhance`（超分，见下）、`--character-id`、`--expected-credits`。**两段式提交**，用 `--confirm`（见下）。
 - `product_video` —— 仅用商品图生成视频（无参考视频）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；`--size` 仅接受 `9:16` 或 `16:9`；`--lang` **必填**（无默认值 —— 它是成片的口播 / 字幕语言，要与用户确认）；支持 `--enhance`（超分，见下）、`--expected-credits`。**两段式提交**，用 `--confirm`（见下）。
@@ -257,11 +258,32 @@ clipcat product_video --confirm <confirmId>
 - `download` —— 下载 TikTok/抖音视频（返回签名 URL）；缓存结果立即返回
 - `query_task` —— 按 ID 和类型查询任务状态（`--type replicate | product | breakdown | download | image`）。省略 `--task-id` 则恢复本地最近一个任务。开启超分时，`videos[]` 每项各带 `status` / `enhanceStatus`（见「超分」）。
 - `list_tasks` —— 列出服务端最近的**视频相关**任务（`--type` 必填：`replicate | product | breakdown | download`）。图片任务用 `list_images`。
+  - **每行有两个不同的 id。** `taskId` 是**项目** id（`/project/<id>` 链接里的那个）；项目里每条成片各有自己的 `videos[].videoTaskId`。一个项目可以装多条视频（一条脚本一条），所以两者永远不会相同。任何作用于单条视频的操作 —— 首当其冲是 `tiktok publish --video-task-id` —— 取的都是 `videoTaskId`，绝不是 `taskId`。`query_task` 返回同样的一对 id。
 - `character list` —— 列出账号下保存的角色（`id`、`name`、`status`、`type`）。`id` 即 `replicate` / `product_video` 的 `--character-id` 取值；只有 `status: completed` 的角色可用。支持 `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`。免费（自有账号元数据，不扣算力）。
 
-## 付费视频命令的两段式确认
+### 发布到 TikTok —— `clipcat tiktok`
 
-`replicate` 和 `product_video` 会消耗算力，提交固定分**两次调用**。绝不要在同一轮里连发两次。
+名词-动词结构：`clipcat tiktok <connect|connect-status|accounts|creator-info|publish|tasks|task|cancel>`。
+发布不消耗算力 —— 配额算在**已连接账号数**上（免费版 0 个 / 基础版 3 个 / 创作者版及以上不限）。
+只有无水印的成片能发布（TikTok 禁止 API 客户端给创作者内容打标），带水印的会在提交阶段被拒，
+错误码 `watermarked_video`。
+
+- `connect` —— 一次性授权。授权页会在浏览器里打开；没有图形界面时（SSH / 容器）降级为把链接打到 **stderr**，保证 `--json` 仍可解析。回调落在服务端而不是这台机器上，所以这个页面也可以在手机上打开。用 `connect-status --state <state>` 轮询；用户取消会显示为 `denied`，别干等。
+- `accounts` —— 列出已连接账号及其 `openId`；其余每个子命令都要带 `--open-id`。
+- `creator-info` —— **每次直发之前都要先跑一次。** `privacyLevelOptions` 是该账号接受哪些 `--privacy` 取值的唯一依据（私密账号只给 `SELF_ONLY` 一个选项）。它还会返回 `maxVideoPostDurationSec`，以及该账号是否关闭了评论 / 合拍 / 拼接。某个可见性被拒时，来这里读可选项，而不是拿同一个值重试。
+- `publish` —— **和付费视频命令一样是两段式**（见「两段式确认」），但原因不同：它不扣算力，却是唯一一个把内容推到用户**自己的公开 TikTok 账号**上的命令，帖子一旦发出，这里没有任何办法撤回。第一次调用只做校验，返回一份「将要发布什么」的完整清单 —— 账号、视频、发布模式、文案、可见范围、评论/合拍/拼接、AIGC 与品牌内容声明、定时 —— 外加一个 `confirmId`。视频来源三选一：`--video-task-id`（已完成的 Clipcat 视频 —— 取 `list_tasks` / `query_task` 里的 `videos[].videoTaskId`，**不是**项目级的 `taskId`；传项目 id 会以 `errorCode=video_task_is_project_id` 失败，错误信息里会指明正确的 id）、`--asset-id`（素材库）、`--video <路径>`（本地文件，先上传，计入存储配额）。
+  - `--mode direct`（默认）立即发布，**必须带 `--privacy`**。`--mode draft` 只把视频投递到 TikTok 的草稿箱 —— 这种模式下 `--title`、`--privacy`、`--allow-*`、`--brand-*`、`--aigc`、`--cover-ts-ms` 全部会被忽略，由用户在 TikTok App 里自己填。
+  - 互动开关（`--allow-comment` / `--allow-duet` / `--allow-stitch`）**默认全关**，这是 TikTok UX 规范的要求；账号自己关掉的项，服务端会强制保持关闭。
+  - `--brand-content`（付费合作）不能和 `SELF_ONLY` 同时使用。
+  - `--schedule` 定时发布（仅限直发，允许 5 分钟到 30 天之后）。**时区偏移必填** —— `2027-03-01T20:00:00+08:00` 表示北京时间（UTC+8）20:00，`2027-03-01T12:00:00Z` 是同一时刻的 UTC 写法；不带偏移的 `2027-03-01T20:00:00` 会被拒。用户说的基本都是自己时区的墙上时间，所以直接给他说的时间补上偏移，别在脑子里换算成 `Z`。这种情况下 `--wait` 无效 —— 任务以 `SCHEDULED` 返回，用 `cancel --task-id <id>` 取消。
+  - 和生成命令一样是异步的：上传在服务端跑，任务一建好命令就返回。`--wait` 会阻塞并每 15 秒轮询一次，所以更推荐提交后跨轮次用 `task --task-id <id>` 查，避免工具调用超时。
+- `tasks` / `task --task-id <id>` / `cancel --task-id <id>` —— 列出发布任务、查看某一个、取消尚未发出的定时任务。
+
+## 两段式确认
+
+有三个命令的提交固定分**两次调用**，且绝不要在同一轮里连发两次：`replicate` 和
+`product_video` 是因为消耗算力，`tiktok publish` 是因为它会发到用户自己的公开账号、
+且发出后无法撤回。
 
 **第一段 —— 照常提交。** 按平常的写法把完整命令发出去。服务端跑完全部校验，但
 **不扣费、不建任务**，返回 `data.confirmationRequired: true`，附带 `confirmId` 和参数快照
@@ -279,10 +301,10 @@ clipcat product_video --confirm <confirmId>
 clipcat product_video --confirm cfm_7QK2M8      # 或：clipcat replicate --confirm cfm_7QK2M8
 ```
 
-`--confirm` 不能与任何**生成参数**同时使用 —— 服务端提交的是它在第一段存下的参数快照，
+`--confirm` 不能与任何**业务参数**同时使用 —— 服务端提交的是它在第一段存下的参数快照，
 带了也不会生效（CLI 本地直接拒绝这种组合，而不是让你误以为改动生效了）。通道类参数
-（`--output` / `--api-key` / `--base-url` / `--poll`）不受限。要改任何参数，回到第一段用新
-参数重发，让用户确认新清单。
+（`--output` / `--api-key` / `--base-url` / `--poll`，以及 `tiktok publish` 上的 `--wait` /
+`--timeout`）不受限。要改任何参数，回到第一段用新参数重发，让用户确认新清单。
 
 完整示例（Seedance 2、默认 480p、8 秒、TikTok 链接）：
 
@@ -294,6 +316,30 @@ clipcat replicate --url "https://www.tiktok.com/@u/video/123" \
 # → 把清单摆给用户，等到同意后：
 clipcat replicate --confirm cfm_7QK2M8
 ```
+
+### `tiktok publish` —— 同一套协议，不同的清单
+
+三段流程完全一样，变的是让用户确认的内容。`data.confirmationType` 是 `tiktok_publish`
+（两个生成命令是 `video`），`confirmation` 快照里装的是账号、视频（来源、标题、时长）、
+发布模式、文案、可见范围、评论 / 合拍 / 拼接、AIGC 与品牌自有 / 品牌合作声明、定时时间和
+封面帧 —— 外加两份服务端替你算好的清单：
+
+- `forcedOff` —— 用户要开、但该账号在自己的 TikTok 设置里已经关掉的互动项。它们**会以关闭状态发出**。要如实说明，不要重试。
+- `ignoredInDraft` —— 传了、但在 `--mode draft` 下不会发送的设置（TikTok 那边由 App 填）。这些值**不会生效**。
+
+```bash
+clipcat tiktok publish --open-id _000abc... --video-task-id 4211 \
+  --privacy PUBLIC_TO_EVERYONE --title "New drop" --allow-comment
+# → confirmationRequired，confirmId cfm_7QK2M8，外加完整的发布清单
+# → 摆给用户，明确说这会发到他自己的公开账号，等到同意后：
+clipcat tiktok publish --confirm cfm_7QK2M8
+```
+
+确认成功会返回 `taskId`；**没有 `taskId` 就等于什么都没发** —— 要如实报告为失败，绝不能说成
+已发布。低于 1.0.43 的 CLI 根本发不了：服务端会带着明确的「run `clipcat update`」提示拒绝，
+因为那些版本会把确认清单读成已创建的任务，打印出一个根本不存在的发布任务。第一段之前仍然
+值得先跑 `creator-info`：它是该账号接受哪些 `--privacy` 取值的唯一依据，而且当 `--video`
+指向一个较大的本地文件时，能省掉一次注定被拒的上传。
 
 两个可选项，都与确认流程相互独立：
 

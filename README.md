@@ -1,6 +1,6 @@
 # Clipcat Skill — AI Selling Videos for TikTok Shop
 
-**Turn any AI agent into a TikTok Shop video producer.** Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells, generate a ready-to-shoot viral selling prompt from the library of real high-GMV AI selling videos, replicate a winning video with your own product, turn product photos into AI selling / UGC / talking-head videos, generate e-commerce images from a text prompt, and download TikTok or Douyin videos — all from one CLI.
+**Turn any AI agent into a TikTok Shop video producer.** Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells, generate a ready-to-shoot viral selling prompt from the library of real high-GMV AI selling videos, replicate a winning video with your own product, turn product photos into AI selling / UGC / talking-head videos, generate e-commerce images from a text prompt, publish the finished video to your own TikTok account, and download TikTok or Douyin videos — all from one CLI.
 
 Works with **any AI agent that can run shell commands** — Claude Code, Codex, WorkBuddy, OpenClaw, Cursor, or your own. It ships as a single cross-platform `clipcat` CLI plus a `SKILL.md` manifest: the agent reads the manifest, runs `clipcat` commands and parses the JSON output.
 
@@ -28,6 +28,7 @@ OpenClaw auto-installs the skill from the manifest; any other agent installs the
 - **AI Image Generation**: Generate AI images from text prompts using GPT Image 2 / GPT Image 2.5 (Flare / Sunburst), with optional reference images (up to 5)
 - **Super-Resolution**: Upscale a generated video to 720p, 1080p or 2K with `--enhance`
 - **Reusable Characters**: Keep the same on-screen character across videos via `--character-id`
+- **Publish to TikTok**: Push a finished video to your own connected TikTok account — post it now, schedule it up to 30 days ahead, or drop it into the drafts inbox and finish it in the app (publishing costs no credits)
 - **Video Download**: Download TikTok or Douyin videos through the Clipcat API
 
 ## Installation
@@ -69,6 +70,7 @@ Once installed, you can ask your agent to:
 - "Replicate this TikTok video with my product images"
 - "Generate a product video from these images"
 - "Generate an AI image of a model holding my product"
+- "Publish this video to my TikTok account tomorrow at 8pm"
 - "Analyze this video and extract the script"
 - "Show me this TikTok user's recent videos with engagement stats"
 - "Download this TikTok video"
@@ -78,6 +80,8 @@ Once installed, you can ask your agent to:
 
 - Video generation tasks are asynchronous and may take several minutes
 - Before a video task consumes credits, the agent submits once for free to get a confirmation checklist (model / duration / resolution / full prompt / credits), shows it to you, and waits for your explicit yes before confirming it
+- Publishing to TikTok needs a one-time account authorization (`clipcat tiktok connect`) and costs no credits — your plan caps how many accounts you can connect, and only watermark-free videos can be published
+- Nothing goes live on your account until you approve it: the agent submits once for free to get the full post checklist (account / caption / who can view / comments / schedule) and waits for your explicit yes
 - Do not retry tasks manually; Clipcat already includes retry handling
 - Preserve complete TikTok or Douyin URLs, including signed parameters when present
 
@@ -187,6 +191,16 @@ https://www.tiktok.com/@username/video/111222333
 ```
 
 Synchronous operation, returns direct video URL immediately.
+
+### Example 6: Publish to TikTok
+
+```
+Publish video task 4211 to my TikTok account @mystore.
+Caption "New drop, link in bio", public, allow comments,
+and schedule it for tomorrow 8pm Beijing time.
+```
+
+The agent connects the account once via `clipcat tiktok connect`, checks what the account allows with `creator-info`, then shows you the full post checklist and waits for your yes before anything goes live. Use `--mode draft` instead to send the video to TikTok's drafts inbox and finish the post in the app.
 
 ## Tips
 

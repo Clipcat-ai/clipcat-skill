@@ -1,6 +1,6 @@
 # Clipcat Skill —— TikTok Shop 带货视频 AI 技能
 
-**把任意 AI Agent 变成 TikTok Shop 视频制作人。** 搜索 TikTok 爆款视频，调研 TikTok Shop 商品、店铺、达人和直播间，拆解爆款视频为什么能卖，一键生成可直接出片的爆款带货提示词，用自己的商品复刻爆款，把商品图生成 AI 带货 / UGC / 真人口播视频，用文字提示生成电商图片，下载 TikTok 或抖音视频——全部通过一个 CLI 完成。
+**把任意 AI Agent 变成 TikTok Shop 视频制作人。** 搜索 TikTok 爆款视频，调研 TikTok Shop 商品、店铺、达人和直播间，拆解爆款视频为什么能卖，一键生成可直接出片的爆款带货提示词，用自己的商品复刻爆款，把商品图生成 AI 带货 / UGC / 真人口播视频，用文字提示生成电商图片，把成片发布到自己的 TikTok 账号，下载 TikTok 或抖音视频——全部通过一个 CLI 完成。
 
 **任何能执行 shell 命令的 AI Agent 都能用**——Claude Code、Codex、WorkBuddy、OpenClaw、Cursor，或你自研的 Agent。它以一个跨平台的 `clipcat` CLI 加一份 `SKILL.md` 清单的形式提供：Agent 读取清单、执行 `clipcat` 命令并解析 JSON 输出。
 
@@ -28,6 +28,7 @@ OpenClaw 会依据清单自动安装该 Skill；其他 Agent 则手动安装 CLI
 - **AI 图片生成**：基于 GPT Image 2 / GPT Image 2.5（Flare / Sunburst）模型，根据文本提示生成 AI 图片，并可选上传参考图（最多 5 张）
 - **超分**：用 `--enhance` 把成片提升到 720p、1080p 或 2K
 - **可复用角色**：通过 `--character-id` 让多条视频里的出镜角色保持一致
+- **发布到 TikTok**：把成片直接发到自己已连接的 TikTok 账号 —— 立即发布、最长定时 30 天后发布，或投递到草稿箱在 App 里补完（发布不消耗算力）
 - **视频下载**：通过 Clipcat API 下载 TikTok 或抖音视频
 
 ## 安装
@@ -69,6 +70,7 @@ clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 - “用我的商品图片复刻这个 TikTok 视频”
 - “用这些图片生成一个商品视频”
 - “生成一张模特手持我商品的 AI 图片”
+- “把这条视频明天晚上 8 点发到我的 TikTok 账号”
 - “分析这个视频并提取脚本”
 - “展示这个 TikTok 用户最近的视频及互动数据”
 - “下载这个 TikTok 视频”
@@ -78,6 +80,8 @@ clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
 
 - 视频生成任务是异步执行的，通常需要几分钟
 - 视频任务真正扣算力前，Agent 会先免费提交一次拿到确认清单（模型/时长/分辨率/完整提示词/算力），摆给你看，等你明确同意后才确认提交
+- 发布到 TikTok 需要一次性授权账号（`clipcat tiktok connect`），本身不消耗算力 —— 套餐限制的是可连接的账号数量，且只有无水印的成片能发布
+- 在你点头之前不会有任何内容发到你的账号：Agent 会先免费提交一次拿到完整的发布清单（账号 / 文案 / 可见范围 / 评论开关 / 定时），摆给你看，等你明确同意后才真正发出
 - 不要手动重复提交任务，Clipcat 已内置重试处理
 - 请保留完整的 TikTok 或抖音链接，尤其是带签名参数的 URL
 
@@ -182,6 +186,16 @@ https://www.tiktok.com/@username/video/111222333
 ```
 
 该操作为同步执行，会立即返回视频直链 URL。
+
+### 示例 6：发布到 TikTok
+
+```text
+把视频任务 4211 发到我的 TikTok 账号 @mystore，
+文案写“New drop, link in bio”，公开可见，允许评论，
+定时到明天晚上 8 点（北京时间）发布。
+```
+
+Agent 会先用 `clipcat tiktok connect` 完成一次性授权，用 `creator-info` 确认该账号允许哪些设置，然后把完整的发布清单摆给你看，等你同意后才真正发出。也可以改用 `--mode draft` 只把视频投递到 TikTok 草稿箱，在 App 里补完文案再发。
 
 ## 使用建议
 
