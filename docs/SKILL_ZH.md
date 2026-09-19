@@ -53,6 +53,7 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 - 分析视频（脚本、场景、音乐）
 - 下载 TikTok/抖音视频
 - 把成片发布到你自己的 TikTok 账号（直发或投递到草稿箱）
+- 把一段 Agent 指令设成定时任务，每天或每周固定几天自动执行
 - 查询异步任务状态
 
 ## 默认 agent 工作流
@@ -60,8 +61,8 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 1. 先用 `clipcat -h` 查看所有命令。
 2. 使用任何命令前，先 `clipcat <子命令> -h` 查看参数。
 3. 默认使用 JSON 输出。
-4. `replicate` / `product_video` / `tiktok publish` 提交分**两次调用**：第一次不扣费、
-   不创建任何东西，返回确认清单 + `confirmId`；把清单摆给用户、等到明确同意后，再
+4. `replicate` / `product_video` / `generate` / `tiktok publish` 提交分**两次调用**：第一次
+   不扣费、不创建任何东西，返回确认清单 + `confirmId`；把清单摆给用户、等到明确同意后，再
    `--confirm <confirmId>`（见「两段式确认」）。
 5. 若任何命令在 stderr 打出更新提示（`⬆ clipcat X is available … Run: clipcat
    update`），执行一次 `clipcat update` 再继续。已是最新时它会自动跳过，可放心运行。
@@ -248,18 +249,46 @@ clipcat product_video --confirm <confirmId>
 
 ### 视频生成与工具
 
+**如何在三条视频命令里选**：**没有特别要求就默认走 agent 模式**（`replicate` / `product_video`）——
+「拿爆款视频用我的商品重拍」选 `replicate`，「给几张商品图让 agent 写脚本」选 `product_video`。
+这两条会替用户把脚本和分镜写出来，用户只给商品图和一句诉求就能出片。
+
+`generate`（裸调）把 prompt 与素材**原样**发给模型 —— 不做 AI 编剧、不做分镜、不做商品图合成，
+**产出的好坏完全取决于调用方写的 prompt 和参数**：画面、运镜、节奏、口播都得自己写清楚，模型
+支持哪些分辨率 / 时长 / 素材形态也得自己对着 `clipcat models --raw` 挑准。所以它只在这两种
+情况下选：用户已经拿着确切的指令和素材，或者用户明确表示不要 agent 改写他的想法。拿不准时问一句
+「要我按你的描述直接生成，还是让 agent 帮你写脚本？」，不要默认替用户选裸调。
+
+- `generate` —— 裸调视频生成：`--prompt` 与素材原样发给模型。**先跑 `clipcat models --raw`** ——
+  哪些模型支持、每个模型当前吃得下什么，只有那张表说了算。两种素材形态，由 flag 自动推导：参考图
+  （`--image` 本地 / `--image-url` URL 或 `clipcat://` 引用，可选 `--character-id`、可选 `--ref-video`、
+  可选 `--ref-audio`）或首尾帧（`--first-frame(-url)` 加可选 `--last-frame(-url)`；此形态不支持角色、
+  参考视频与参考音频）。
+  另有 `--resolution`、`--duration`、`--size`（`9:16` / `16:9`；`clipcat models --raw` 的
+  `Ratios` 列里列了 `adaptive` 的模型才可传 `adaptive` 自适应画幅）、`--enhance`、`--dry-run`、
+  `--expected-credits`。**同样走两段式确认**（`--confirm <confirmId>`）。这里的 `--character-id` **只收数字 id**（不收 `@sora` 用户名、不收图片 URL）。
+  `--ref-audio` **只收 `clipcat://` 引用** —— 音频没有上传 flag：用户在站内上传，再用
+  `clipcat asset list --type audio` 拿引用。多数模型压根不收音频（看 `clipcat models --raw` 的
+  `raw.maxAudios`）；音频不能单独提交，至少要配一张参考图或一个参考视频；时长由服务端自己探，
+  加了音频要重新 `--dry-run` 报价。参考文件与参考网页链接仍只开 web，没有对应 flag。
+- `models --raw` —— 裸调能力表：逐模型给出图片形态、张数区间、帧槽位、参考视频上限、prompt 上限、
+  角色支持、`Ratios` 列（该模型接受的画幅，`adaptive` 只出现在支持它的模型上），以及各组合的实时算力。
+  RefVideo 列里带 `+output ≤Ns` 的模型，参考视频秒数与 `--duration` 共用这条预算，超了会被拒单。
+  **这些上限随当时启用的渠道变化 —— 读表，别背。** 如果它报「本账号
+  尚未开放裸调」，改用 `replicate` / `product_video`。
 - `quote` —— 返回某一次具体生成（`--model` + `--resolution` + `--duration`，社媒复刻再带 `--url`/`--social`，超分再带 `--enhance`）的精确算力：服务端把算术全做完，直接回 `totalCredits`（已含超分费）以及 `enhanceCredits` / `enhanceBlocked`。它是可选的事前预估，**不是**确认环节 —— 用于和用户横向比模型，或给 `--expected-credits` 提供数值；真正要摆给用户看的清单由提交本身返回（见「两段式确认」和「超分」）。
 - `models` —— 浏览所有可用视频模型及其算力（离散看 `prices`、range 看 `creditsPerSecond`）、图片模型及每张算力（`imageModels`）和你的余额。用户还没选模型、或报了不可用模型时用它。
-- `replicate` —— 用你的商品图复刻爆款视频（自动识别 URL 类型）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；支持 `--model`、`--duration`、`--size`（仅 `9:16` 或 `16:9`）、`--lang`（**必填**，无默认值）、`--resolution`、`--enhance`（超分，见下）、`--character-id`、`--expected-credits`。**两段式提交**，用 `--confirm`（见下）。
+- `replicate` —— 用你的商品图复刻爆款视频；参考视频用 `--url`（TikTok/抖音链接、直链视频 URL，或上一轮上传回带的 `clipcat://` 引用，自动识别类型）或 `--video`（本地文件）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；支持 `--model`、`--duration`、`--size`（仅 `9:16` 或 `16:9`）、`--lang`（**必填**，无默认值）、`--resolution`、`--enhance`（超分，见下）、`--character-id`、`--expected-credits`。**两段式提交**，用 `--confirm`（见下）。
 - `product_video` —— 仅用商品图生成视频（无参考视频）；图片用 `--image`（本地）或 `--image-url`（URL）；本地文件和 URL 可混用；`--size` 仅接受 `9:16` 或 `16:9`；`--lang` **必填**（无默认值 —— 它是成片的口播 / 字幕语言，要与用户确认）；支持 `--enhance`（超分，见下）、`--expected-credits`。**两段式提交**，用 `--confirm`（见下）。
 - `image` —— 用 **GPT Image** 系列模型从文本提示词生成 AI 图片；可选用 `--image`（本地文件）或 `--image-url`（URL）提供最多 5 张参考图。用 `--aspect-ratio` 选 `1:1`（默认）/ `16:9` / `9:16`。**尺寸提示（9:16/16:9/1:1、portrait/landscape/square、竖版/横版/方图、banner、wallpaper）必须同时出现在 `--prompt` 和 `--aspect-ratio` 中** —— `--aspect-ratio` 设定画布，提示词里的尺寸词锚定构图。不要臆造用户没要求的尺寸。`--model` 选图片模型：`gptimage2` | `gptimage25flare`（GPT Image 2.5 Flare）| `gptimage25sunburst`（GPT Image 2.5 Sunburst）| `nanobana2`（Nano Banana Pro）——每张算力是服务端配置，读 `clipcat models` 的 `imageModels` 段。**用户没指定模型就不要传 `--model`**（不传即走服务端默认，具体是哪个由后台配置决定，不一定是 `gptimage2`），**提交前要告诉用户每张多少算力**。
 - `list_images` —— 列出服务端的图片生成任务；支持 `--status` / `--limit` / `--page` 筛选
 - `breakdown` —— 分析视频（脚本、场景、音乐）；之前分析过的会立即返回缓存结果
 - `download` —— 下载 TikTok/抖音视频（返回签名 URL）；缓存结果立即返回
-- `query_task` —— 按 ID 和类型查询任务状态（`--type replicate | product | breakdown | download | image`）。省略 `--task-id` 则恢复本地最近一个任务。开启超分时，`videos[]` 每项各带 `status` / `enhanceStatus`（见「超分」）。
-- `list_tasks` —— 列出服务端最近的**视频相关**任务（`--type` 必填：`replicate | product | breakdown | download`）。图片任务用 `list_images`。
+- `query_task` —— 按 ID 和类型查询任务状态（`--type replicate | product | raw | breakdown | download | image`）。省略 `--task-id` 则恢复本地最近一个任务。开启超分时，`videos[]` 每项各带 `status` / `enhanceStatus`（见「超分」）。
+- `list_tasks` —— 列出服务端最近的**视频相关**任务（`--type` 必填：`replicate | product | raw | breakdown | download`）。图片任务用 `list_images`。
   - **每行有两个不同的 id。** `taskId` 是**项目** id（`/project/<id>` 链接里的那个）；项目里每条成片各有自己的 `videos[].videoTaskId`。一个项目可以装多条视频（一条脚本一条），所以两者永远不会相同。任何作用于单条视频的操作 —— 首当其冲是 `tiktok publish --video-task-id` —— 取的都是 `videoTaskId`，绝不是 `taskId`。`query_task` 返回同样的一对 id。
-- `character list` —— 列出账号下保存的角色（`id`、`name`、`status`、`type`）。`id` 即 `replicate` / `product_video` 的 `--character-id` 取值；只有 `status: completed` 的角色可用。支持 `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`。免费（自有账号元数据，不扣算力）。
+- `character list` —— 列出账号下保存的角色（`id`、`name`、`status`、`type`）。`id` 即 `replicate` / `product_video` / `generate` 的 `--character-id` 取值；只有 `status: completed` 的角色可用。支持 `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`。免费（自有账号元数据，不扣算力）。
+- `asset list` —— 列出账号下的素材（`type`、`name`、时长、大小）及其 **`clipcat://` 引用**。该引用即 `--image-url` / `--first-frame-url` / `--ref-video` / `--ref-audio` 的取值，必须逐字照抄，不要臆造或凭记忆重拼。用户在站内上传的东西只能这么找到引用 —— 音频尤其如此（它没有上传 flag）。支持 `--type image|video|audio|document` / `--q <名字>` / `--limit` / `--page`。免费（自有账号元数据，不扣算力）。
 
 ### 发布到 TikTok —— `clipcat tiktok`
 
@@ -279,11 +308,25 @@ clipcat product_video --confirm <confirmId>
   - 和生成命令一样是异步的：上传在服务端跑，任务一建好命令就返回。`--wait` 会阻塞并每 15 秒轮询一次，所以更推荐提交后跨轮次用 `task --task-id <id>` 查，避免工具调用超时。
 - `tasks` / `task --task-id <id>` / `cancel --task-id <id>` —— 列出发布任务、查看某一个、取消尚未发出的定时任务。
 
+### 定时任务 —— `clipcat schedule`
+
+名词-动词：`clipcat schedule <list|show|create|update|enable|disable|delete|run>`。
+定时任务是一段保存下来的指令，Clipcat Agent 按 `--timezone`（IANA，如 `Asia/Shanghai`）里的
+`--at`（24 小时制 `HH:mm`）自动执行，每天或按 `--days`（`mon,wed,fri` / `weekdays` / `weekends`）。
+每次执行在网站上生成一个新会话，并发邮件（`--notify none` 关闭）。
+
+- **计费**：管理命令免费。每次执行（到点或 `run`）按一轮普通 Agent 对话计费，且无人确认即可提交最多 3 个生成任务。仅限付费会员；每账号最多 100 条（停用的也算）。
+- `create` 必填 `--title`、`--prompt`（或 `--prompt-file -`）、`--at`、`--timezone`。时区要问用户，不要猜。执行时没有当前对话的上下文：prompt 要写成能独立执行的完整指令，`clipcat://` 引用逐字照抄。建之前把 prompt、时间、星期、时区与用户确认。
+- `update --id` 只改传了的 flag；只给 `--at` 或只给 `--days` 时另一半保持不变（`--days daily` = 每天）。它不负责启停 —— 用 `enable` / `disable`。
+- 只支持 Agent 模式：网站上建的一键成片 / 视频生成类任务在这里看不到，按 id 操作回 `not_found`。
+- `delete` 不可恢复、`run` 立刻花钱 —— 先拿到用户明确同意。`run` 立即返回，之后用 `show --id` 看 `lastStatus`、`lastResultUrl`。报 `schedule_running` 说明上一轮还在跑，不要循环重试。
+- `nextRunAt` / `lastRunAt` 是 UTC 时间。
+
 ## 两段式确认
 
-有三个命令的提交固定分**两次调用**，且绝不要在同一轮里连发两次：`replicate` 和
-`product_video` 是因为消耗算力，`tiktok publish` 是因为它会发到用户自己的公开账号、
-且发出后无法撤回。
+有四个命令的提交固定分**两次调用**，且绝不要在同一轮里连发两次：`replicate`、
+`product_video` 和 `generate` 是因为消耗算力，`tiktok publish` 是因为它会发到用户自己的
+公开账号、且发出后无法撤回。**算力绝不要自己算**，一律让服务端返回。
 
 **第一段 —— 照常提交。** 按平常的写法把完整命令发出去。服务端跑完全部校验，但
 **不扣费、不建任务**，返回 `data.confirmationRequired: true`，附带 `confirmId` 和参数快照
@@ -298,7 +341,7 @@ clipcat product_video --confirm <confirmId>
 **第三段 —— 只有拿到明确同意后：**
 
 ```bash
-clipcat product_video --confirm cfm_7QK2M8      # 或：clipcat replicate --confirm cfm_7QK2M8
+clipcat product_video --confirm cfm_7QK2M8   # 或 clipcat replicate / clipcat generate --confirm ...
 ```
 
 `--confirm` 不能与任何**业务参数**同时使用 —— 服务端提交的是它在第一段存下的参数快照，
@@ -341,11 +384,13 @@ clipcat tiktok publish --confirm cfm_7QK2M8
 值得先跑 `creator-info`：它是该账号接受哪些 `--privacy` 取值的唯一依据，而且当 `--video`
 指向一个较大的本地文件时，能省掉一次注定被拒的上传。
 
-两个可选项，都与确认流程相互独立：
+三个可选项，都与确认流程相互独立：
 
 - `clipcat quote` 可以在第一段之前预估算力（同一套参数；社媒链接带 `--url` 计入下载费，
   超分带 `--enhance`），适合和用户横向比模型。**绝不要自己算算力** —— 让 `quote` 或第一段
-  返回的清单给数。
+  返回的清单给数。裸调预估用 `clipcat generate --dry-run`（`quote` 不覆盖裸调计价）。
+- 裸调的 `--dry-run` 除了报价，还会把素材上传好并回带 `clipcat://` 引用：第一段照抄这些
+  引用就不必重传。它**不是**确认环节，不产生 `confirmId`。
 - 第一段可以带 `--expected-credits <n>` 作为价格上限：仅当实扣**高于**你传的值才会被拒
   （实扣更低 —— 缓存命中、促销 —— 直接放行）；被拒时会返回当前算力，重新确认后再提交。
 
@@ -354,12 +399,38 @@ clipcat tiktok publish --confirm cfm_7QK2M8
 付费专享模型（如 `seedance2`、`happyhorse10`）需付费套餐；`clipcat quote` 会标记
 （`premiumBlocked`），免费用户提交会被服务端拒绝。
 
+### 裸调生成（`generate`）用 `--dry-run` 报价，不用 `quote`
+
+`clipcat quote` 不覆盖 `generate`。改成：把准备提交的命令原样写好、加上 `--dry-run` —— 它会跑完
+整套校验、把素材上传/解析好，返回**与正式提交完全同一套计算**得出的 `totalCredits`（两者共用同
+一段服务端代码，不可能漂），且不建任务、不扣一分算力。响应还会回带每个素材的 `clipcat://` 引用，
+第二趟原样填回去就不会重复上传：
+
+```bash
+clipcat models --raw
+clipcat generate --model seedance2 --resolution 720p --duration 10 \
+  --prompt "一只猫在喝咖啡，电影感" --image ./cat.jpg --dry-run
+# → TOTAL: 410 credits ... image ref: clipcat://<key>
+# 与用户确认 410 算力后，用回带的引用提交同一条命令：
+clipcat generate --model seedance2 --resolution 720p --duration 10 \
+  --prompt "一只猫在喝咖啡，电影感" --image-url clipcat://<key> \
+  --expected-credits 410
+```
+
+参考视频（`--ref-video`）由**服务端**上传后探测时长 —— 部分模型会按参考秒数重新定价（能力表里的
+`repricedByReferenceVideo`），所以加了或换了参考视频必须重新 `--dry-run` 并与用户重新确认总额。
+
+参考音频（`--ref-audio`）**压根没有上传通路**：只收 `clipcat asset list --type audio` 给出的
+`clipcat://` 引用，时长同样由服务端探测、部分模型会计进价格，加了就要重新 `--dry-run`。
+音频不能单独提交，至少要配一张参考图或一个参考视频。
+
 ## 超分（`--enhance`）
 
-`replicate` 和 `product_video` 支持 `--enhance 720p|1080p|2k`，对成片做超分（画质提升）。规则：
+`replicate`、`product_video` 和 `generate` 支持 `--enhance 720p|1080p|2k`，对成片做超分（画质提升）。规则：
 
-- **目标档位必须严格高于生成分辨率**：480p → 720p / 1080p / 2k，720p → 1080p / 2k，
-  1080p → 2k，2k → 无可选。CLI 只做非空枚举校验，档位阶梯由服务端强校验。
+- **目标档位必须严格高于生成分辨率**（`replicate` / `product_video`）：480p → 720p / 1080p / 2k，
+  720p → 1080p / 2k，1080p → 2k，2k → 无可选。（`generate` 只要求是合法输出档位、不与生成分辨率
+  比高低，但往低档超分同样扣费，别这么用。）CLI 只做非空枚举校验，档位阶梯由服务端强校验。
 - **仅付费套餐可用。** 免费用户提交会被拒；`clipcat quote --enhance` 会标记
   `enhanceBlocked: true`（需升级会员）。
 - **算力** = ceil(视频时长秒 / 10) × 档位单价（`720p`=10、`1080p`=20、`2k`=30 每 10 秒）。
@@ -389,13 +460,15 @@ clipcat product_video --confirm <confirmId>
 
 ## clipcat:// 资产引用
 
-之前轮次出现的 `clipcat://...` 字符串是稳定的资产引用。把它们**原样**传给任意 `--image-url` / `--character-id` 参数 —— 绝不要加 `https://` 前缀或做任何修改。详见子命令 `-h`。
+之前轮次出现的 `clipcat://...` 字符串是稳定的资产引用。把它们**原样**传给任意 `--image-url` / `--first-frame-url` / `--ref-video` / `--ref-audio` / `--character-id` / `replicate --url` 参数 —— 绝不要加 `https://` 前缀或做任何修改。详见子命令 `-h`。
+
+手上没有引用时：`clipcat asset list` 会列出账号下每个素材的引用（音频用 `--type audio`，它压根没有上传 flag）。用户在站内上传的东西只能这么查。
 
 保存的角色，其 `--character-id` 从 `clipcat character list` 的 `id` 列取 —— 不要臆造 id。
 
 ## 异步任务规则
 
-`replicate`、`product_video`、`image`、`breakdown` 都是异步的。这四个命令
+`replicate`、`product_video`、`generate`、`image`、`breakdown` 都是异步的。这几个命令
 **提交后立即返回**任务 ID —— 它们不会阻塞。
 
 典型耗时：`image` 约 3 分钟，`breakdown` 几分钟，`product_video` /
@@ -408,8 +481,8 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
    调用都立即返回当前状态。省略 `--task-id` 则恢复最近一个任务。跨轮次重复
    调用（建议节奏：`image` 约 30 秒，`breakdown` / `product_video` / `replicate`
    约 1-2 分钟），直到 `status` 为 `completed` 或 `failed`。
-3. 用 `clipcat list_tasks --type <replicate|product|breakdown|download>`
-   查看服务端某类型的任务。
+3. 用 `clipcat list_tasks --type <replicate|product|raw|breakdown|download>`
+   查看服务端某类型的任务（`generate` 提交的任务类型是 `raw`）。
 
 ## query_task：自动恢复
 
@@ -418,6 +491,9 @@ agent 框架都有工具调用超时（通常 60 秒），会在任务完成前�
 ## 可用模型
 
 试用模型所有用户可用；标准模型需付费套餐。
+
+> 下表只适用于 `replicate` / `product_video`。**`generate`（裸调生成）另有一套模型与档位**，
+> 且随启用渠道实时收窄 —— 必须跑 `clipcat models --raw` 现读，不要拿这张表去推。
 
 | 模型 ID              | 时长                  | 分辨率            | 备注                                                              |
 | -------------------- | --------------------- | ----------------- | ----------------------------------------------------------------- |
@@ -471,7 +547,8 @@ ISO 3166-1 alpha-2，大写：`US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` 
 - 用户要带货视频的提示词 / 创意 / 脚本时：先跑 `clipcat prompt search`，把最接近的那条
   已验证爆款改写成用户商品的提示词，并引用它的 `detail_url`。凭空写等于把「爆款」这两个字
   唯一的依据丢掉了。
-- 两段式命令（`replicate`、`product_video`、`tiktok publish`）：先提交一次拿到清单 + `confirmId`（不扣费、不创建任何东西），把返回的内容展示给用户 —— 生成命令是各项参数 / 完整 prompt / `totalCredits`，发布命令是账号 / 文案 / 可见范围 / 定时 —— **在对话里等到明确同意**，再在后续一轮执行 `--confirm <confirmId>`。绝不自行代替用户确认，也绝不把两次调用塞进同一轮。绝不自己算算力 —— 让清单（或 `clipcat quote`）返回。`tiktok publish` 要如实说明它会发到用户自己的公开账号、且发出后无法撤回；确认后没返回 `taskId` 要当作失败，绝不能说成已发布。
+- 两段式命令（`replicate`、`product_video`、`generate`、`tiktok publish`）：先提交一次拿到清单 + `confirmId`（不扣费、不创建任何东西），把返回的内容展示给用户 —— 生成命令是各项参数 / 完整 prompt / `totalCredits`，发布命令是账号 / 文案 / 可见范围 / 定时 —— **在对话里等到明确同意**，再在后续一轮执行 `--confirm <confirmId>`。绝不自行代替用户确认，也绝不把两次调用塞进同一轮。绝不自己算算力 —— 让清单（或 `clipcat quote`）返回。`tiktok publish` 要如实说明它会发到用户自己的公开账号、且发出后无法撤回；确认后没返回 `taskId` 要当作失败，绝不能说成已发布。
+- `schedule create` / `delete` / `run`：先与用户确认 —— 定时任务每次执行都会花钱，且不会再问一次。
 - 分辨率：用户没点名档位就不要传 `--resolution`，服务端会套用该模型自己的默认档（高性价比档位 480p，其余 720p），`quote` 同一条规则。绝不静默升到 720p/1080p——更高分辨率会多扣算力。
 - 记录任务 ID；跨轮次重复调用 `query_task` 来跟踪长耗时任务。
 - 保持签名视频 URL 完整 —— 它们含有 `X-Amz-*` 参数，截断后会失效。

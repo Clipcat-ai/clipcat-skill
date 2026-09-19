@@ -1,6 +1,6 @@
 ---
 name: clipcat
-description: All-in-one TikTok Shop selling-video skill for any AI agent (Claude Code, Codex, WorkBuddy, OpenClaw). Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells (script, scenes, hooks, music), search the largest library of real high-GMV AI selling videos and their reverse-engineered prompts and turn the closest match into a ready-to-shoot prompt for your own product, replicate a winning video, turn product photos into AI selling / UGC / talking-head / product-demo videos, generate e-commerce images from a text prompt, upscale results to 1080p or 2K, and download TikTok or Douyin videos. Keywords — AI selling video, TikTok viral replication, TikTok Shop product research, competitor shop analysis, creator and influencer ranking, AI selling video prompt library, product-to-video, UGC video generator, AI product image, TikTok video downloader. Use whenever the user needs TikTok e-commerce data, viral video research, or AI video/image generation.
+description: All-in-one TikTok Shop selling-video skill for any AI agent (Claude Code, Codex, WorkBuddy, OpenClaw). Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells (script, scenes, hooks, music), search the largest library of real high-GMV AI selling videos and their reverse-engineered prompts and adapt the closest match to your own product, replicate a winning video, turn product photos — or your own raw prompt and images — into AI selling / UGC / talking-head / product-demo videos, generate e-commerce images from a text prompt, upscale to 1080p or 2K, and download TikTok or Douyin videos. Keywords — AI selling video, TikTok viral replication, TikTok Shop product research, competitor shop analysis, creator and influencer ranking, AI selling video prompt library, product-to-video, UGC video generator, AI product image, TikTok video downloader. Use whenever the user needs TikTok e-commerce data, viral video research, or AI video/image generation.
 user-invocable: true
 metadata:
   {
@@ -57,10 +57,12 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 - Generate a ready-to-shoot selling-video prompt from the viral prompt library
 - Replicate viral videos with your product
 - Generate product videos from images
+- Generate a video straight from your own prompt and assets, sent to the model verbatim
 - Generate AI images from text prompts using GPT Image 2 / GPT Image 2.5 (Flare / Sunburst), with optional reference images
 - Analyze videos (script, scenes, music)
 - Download TikTok/Douyin videos
 - Publish finished videos to your own TikTok accounts (direct post or drafts inbox)
+- Schedule an Agent prompt to run by itself every day or on chosen weekdays
 - Query async task status
 
 ## Default agent workflow
@@ -68,9 +70,9 @@ Get the key at https://clipcat.ai/workspace?modal=settings&tab=apikeys. Prefer t
 1. Start with `clipcat -h` to see all commands.
 2. Before using any command, run `clipcat <subcommand> -h` to see flags.
 3. Default to JSON output.
-4. `replicate` / `product_video` / `tiktok publish` submit in TWO calls: the first
-   charges nothing, creates nothing and returns a checklist + `confirmId`; you show
-   that checklist to the user, wait for an explicit yes, then run
+4. `replicate` / `product_video` / `generate` / `tiktok publish` submit in TWO calls:
+   the first charges nothing, creates nothing and returns a checklist + `confirmId`; you
+   show that checklist to the user, wait for an explicit yes, then run
    `--confirm <confirmId>` (see "Two-step confirmation").
 5. If any command prints an update notice on stderr (`⬆ clipcat X is
    available … Run: clipcat update`), run `clipcat update` once, then continue.
@@ -294,18 +296,35 @@ clipcat product_video --confirm <confirmId>
 
 ### Video generation & tools
 
+**Which video command**: **default to agent mode unless the user asked otherwise** —
+`replicate` when they want a viral video re-shot with their product, `product_video`
+when they want the script written from product images. Those two do the scripting and
+storyboarding for the user, who only has to bring product images and a one-line ask.
+
+`generate` (raw) sends the prompt and assets to the model VERBATIM — no AI scripting,
+no storyboard, no product-shot compositing — so **the output is only as good as the
+prompt and parameters you write**: framing, camera moves, pacing and voice-over are all
+on you, and the model's supported resolutions / durations / asset modes have to be
+picked off `clipcat models --raw` yourself. Pick it only when the user already has the
+exact instructions and assets, or explicitly does not want an agent rewriting their
+idea. When unsure, ask ("should I generate exactly what you described, or have the
+agent write a script for you?") — never default the user into raw mode.
+
+- `generate` — raw video generation: your `--prompt` and assets go to the model as given. Run `clipcat models --raw` FIRST — it is the only authority on which models support this and what each one accepts right now. Two asset modes, chosen automatically from your flags: reference images (`--image` local / `--image-url` URL or `clipcat://` ref, optional `--character-id`, optional `--ref-video`, optional `--ref-audio`) or frames (`--first-frame(-url)` plus optional `--last-frame(-url)`; no character, no reference video, no reference audio). Also takes `--resolution`, `--duration`, `--size` (`9:16`, `16:9`, or `adaptive` on models whose `Ratios` column in `clipcat models --raw` lists it), `--enhance`, `--dry-run`, `--expected-credits`. **Two-step submit** via `--confirm` (see below). `--character-id` here accepts **a numeric id only** (no `@sora` names, no image URLs). `--ref-audio` takes **only a `clipcat://` reference** — there is no audio upload flag: the user uploads the audio on the website, then `clipcat asset list --type audio` gives you the reference. Most models accept no audio at all (`raw.maxAudios` in `clipcat models --raw`), audio cannot be submitted alone (pair it with a reference image or video), and the server measures its duration itself — re-quote with `--dry-run` after adding one. Reference files and reference web links are still web-only — there are no flags for them.
+- `models --raw` — the raw-generation capability table: per model, the image modes, image count range, frame slots, reference-video limit, prompt cap, character support, the `Ratios` column (the aspect ratios that model accepts — `adaptive` only shows up on models that support it), plus live per-combination credit costs. A model whose RefVideo column shows `+output ≤Ns` spends that budget on reference-video seconds and `--duration` together — go over it and the submission is rejected. **These limits change with the providers enabled at that moment — read the table, never assume.** If it reports raw generation is not open on this account, use `replicate` / `product_video` instead.
 - `quote` — return the exact credit cost of one specific generation (`--model` + `--resolution` + `--duration`, plus `--url`/`--social` for a TikTok/Douyin replicate, plus `--enhance` for super-resolution). Optional cost preview, **not** the confirmation step: the server does all the math and hands back `totalCredits` (already includes the enhance fee) plus `enhanceCredits` / `enhanceBlocked`. Useful for comparing models or for feeding `--expected-credits`; the checklist you actually show the user comes from the submit itself (see "Two-step confirmation" and "Super-resolution").
 - `models` — browse all available video models with their credit costs (discrete → `prices`, range → `creditsPerSecond`), the image models with their per-image credit cost (`imageModels`), and your balance. Use it when the user hasn't picked a model yet, or an unavailable one is reported. **The listing is live and only contains tiers that currently have a provider** — a resolution or duration missing from `resolutions` / `prices` is rejected on submit, so never submit a combination you did not see here.
-- `replicate` — replicate a viral video with your product images. Reference video via **`--url`** (TikTok/Douyin link or direct URL, auto-detects type) **or `--video`** (local video file, max 100MB, uploaded via presigned URL then downscaled server-side; re-replicating the same file reuses the upload; no download surcharge) — provide exactly one. Product images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed. Supports `--model`, `--duration`, `--size` (only `9:16` or `16:9`), `--lang` (**required**, no default), `--resolution`, `--enhance` (super-resolution, see below), `--character-id`, `--expected-credits`. **Two-step submit** via `--confirm` (see below).
+- `replicate` — replicate a viral video with your product images. Reference video via **`--url`** (TikTok/Douyin link, direct URL, or a `clipcat://` reference from an earlier upload — auto-detects type) **or `--video`** (local video file, max 100MB, uploaded via presigned URL then downscaled server-side; re-replicating the same file reuses the upload; no download surcharge) — provide exactly one. Product images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed. Supports `--model`, `--duration`, `--size` (only `9:16` or `16:9`), `--lang` (**required**, no default), `--resolution`, `--enhance` (super-resolution, see below), `--character-id`, `--expected-credits`. **Two-step submit** via `--confirm` (see below).
 - `product_video` — generate video from product images only (no reference video); images via `--image` (local) or `--image-url` (URL); local files and URLs can be mixed; `--size` only accepts `9:16` or `16:9`; `--lang` is **required** (no default — it is the video's spoken/subtitle language, confirm it with the user); supports `--enhance` (super-resolution, see below), `--expected-credits`. **Two-step submit** via `--confirm` (see below).
 - `image` — generate an AI image from a text prompt using the **GPT Image** models; optionally supply up to 5 reference images via `--image` (local file) or `--image-url` (URL). Use `--aspect-ratio` to pick `1:1` (default) / `16:9` / `9:16`. **Dimension hints (9:16/16:9/1:1, portrait/landscape/square, 竖版/横版/方图, banner, wallpaper) must appear in BOTH `--prompt` and `--aspect-ratio`** — `--aspect-ratio` sets canvas, the prompt hint anchors framing. Don't invent dimensions the user didn't ask for. `--model` picks the image model: `gptimage2` | `gptimage25flare` (GPT Image 2.5 Flare) | `gptimage25sunburst` (GPT Image 2.5 Sunburst) | `nanobana2` (Nano Banana Pro) — per-image credits are server config, so read them from the `imageModels` section of `clipcat models`. **Do not pass `--model` unless the user asked for a specific model** (omitting it uses the server default, which is configured server-side and is not necessarily `gptimage2`), and **tell the user the per-image credit cost before submitting**.
 - `list_images` — list image generation tasks from server; supports `--status` / `--limit` / `--page` filters, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`)
 - `breakdown` — analyze a video (script, scenes, music); returns cached result immediately if previously analyzed
 - `download` — download TikTok/Douyin video (returns signed URL); cached results return immediately
-- `query_task` — check status of a task by ID and type (`--type replicate | product | breakdown | download | image`). Omit `--task-id` to resume the latest local task. With `--enhance`, each `videos[]` item carries its own `status` / `enhanceStatus` (see "Super-resolution"). Workspace owners/admins may also query their members' tasks.
-- `list_tasks` — list recent **video-related** tasks from server (`--type` required: `replicate | product | breakdown | download`). Image tasks use `list_images`. `--scope all` / `--scope <member-user-id>` widens to the workspace (owners/admins only; adds `creatorName`), default is your own tasks.
+- `query_task` — check status of a task by ID and type (`--type replicate | product | raw | breakdown | download | image`). Omit `--task-id` to resume the latest local task. With `--enhance`, each `videos[]` item carries its own `status` / `enhanceStatus` (see "Super-resolution"). Workspace owners/admins may also query their members' tasks.
+- `list_tasks` — list recent **video-related** tasks from server (`--type` required: `replicate | product | raw | breakdown | download`). Image tasks use `list_images`. `--scope all` / `--scope <member-user-id>` widens to the workspace (owners/admins only; adds `creatorName`), default is your own tasks.
   - **Two different ids per row.** `taskId` is the **project** id (the one in a `/project/<id>` link); each finished video inside it has its own `videos[].videoTaskId`. A project can hold several videos (one per script), so they never coincide. Anything that acts on one video — `tiktok publish --video-task-id` above all — takes `videoTaskId`, never `taskId`. `query_task` returns the same pair.
-- `character list` — list the characters saved to your account (`id`, `name`, `status`, `type`). The `id` is what you pass to `--character-id` on `replicate` / `product_video`; only `status: completed` characters are usable. Supports `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`). Free (account metadata, no credits).
+- `character list` — list the characters saved to your account (`id`, `name`, `status`, `type`). The `id` is what you pass to `--character-id` on `replicate` / `product_video` / `generate`; only `status: completed` characters are usable. Supports `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`). Free (account metadata, no credits).
+- `asset list` — list the assets saved to your account (`type`, `name`, duration, size) with their **`clipcat://` references**. That reference is what you pass to `--image-url` / `--first-frame-url` / `--ref-video` / `--ref-audio`; copy it character-for-character, never retype or reconstruct one. This is the only way to find a reference for something the user uploaded on the website — in particular audio, which has no upload flag. Supports `--type image|video|audio|document` / `--q <name>` / `--limit` / `--page`, plus `--scope all` / `--scope <member-user-id>` (owners/admins only; adds `creatorName`). Free (account metadata, no credits).
 
 ### Publish to TikTok — `clipcat tiktok`
 
@@ -324,6 +343,21 @@ content); a watermarked one is rejected at submit with `watermarked_video`.
   - `--schedule` queues it for later (direct posts only, 5 min to 30 days ahead). **The timezone offset is mandatory** — `2027-03-01T20:00:00+08:00` is 20:00 Beijing time (UTC+8), `2027-03-01T12:00:00Z` is that same moment in UTC; a bare `2027-03-01T20:00:00` is rejected. Most users say a wall-clock time in their own timezone, so append their offset rather than converting to `Z` in your head. `--wait` is ignored here — the task returns as `SCHEDULED` and `cancel --task-id <id>` calls it off.
   - Async like the generation commands: the upload runs server-side and the command returns as soon as the task is created. `--wait` blocks polling every 15s, so prefer submit → `task --task-id <id>` across turns rather than risking a tool-call timeout.
 - `tasks` / `task --task-id <id>` / `cancel --task-id <id>` — list publish tasks, read one, cancel one that is still scheduled.
+
+### Scheduled tasks — `clipcat schedule`
+
+Noun-verb: `clipcat schedule <list|show|create|update|enable|disable|delete|run>`.
+A schedule is a saved prompt the Clipcat Agent runs by itself at `--at` (24h `HH:mm`) in
+`--timezone` (IANA, e.g. `Asia/Shanghai`), every day or on `--days` (`mon,wed,fri` /
+`weekdays` / `weekends`). Each run lands in a new chat on the website, plus an email
+(`--notify none` turns it off).
+
+- **Cost**: managing is free. Every run — on schedule or via `run` — is billed like a normal Agent chat turn and may submit up to 3 generation tasks with nobody confirming. Paid plans only; at most 100 schedules per account (disabled ones count).
+- `create` needs `--title`, `--prompt` (or `--prompt-file -`), `--at`, `--timezone`. Ask the user for their timezone, never guess it. The run has no memory of this conversation: write the prompt as a complete standalone instruction and paste any `clipcat://` refs verbatim. Confirm prompt, time, days and timezone with the user before creating.
+- `update --id` changes only the flags you pass; `--at` or `--days` alone keeps the other half (`--days daily` = every day). It never turns a schedule on or off — use `enable` / `disable`.
+- Agent mode only: one-click / video-generation schedules made on the website don't appear here and return `not_found`.
+- `delete` is permanent and `run` spends credits right away — get an explicit yes first. `run` returns immediately; follow up with `show --id` (`lastStatus`, `lastResultUrl`). `schedule_running` means a run is already in progress: don't retry in a loop.
+- `nextRunAt` / `lastRunAt` are UTC.
 
 ## Passing prompts (never let the shell mangle them)
 
@@ -375,9 +409,10 @@ video, but the fix is to pass prompts so it cannot happen:
 
 ## Two-step confirmation
 
-Three commands submit in **two calls**, and you must never do both in one turn:
-`replicate` and `product_video` because they consume credits, `tiktok publish`
-because it posts to the user's own public account and cannot be undone.
+Four commands submit in **two calls**, and you must never do both in one turn:
+`replicate`, `product_video` and `generate` because they consume credits, `tiktok publish`
+because it posts to the user's own public account and cannot be undone. **Never compute
+the credits yourself** — let the server return them.
 
 **Step 1 — submit normally.** Run the full command as you always would. The server
 validates everything but **charges nothing and creates no task**; it returns
@@ -395,7 +430,7 @@ is not approval. Never chain step 3 into the same turn.
 **Step 3 — only after an explicit yes:**
 
 ```bash
-clipcat product_video --confirm cfm_7QK2M8      # or: clipcat replicate --confirm cfm_7QK2M8
+clipcat product_video --confirm cfm_7QK2M8   # or clipcat replicate / clipcat generate --confirm ...
 ```
 
 `--confirm` cannot be combined with any **business parameter** — the server submits the
@@ -446,12 +481,16 @@ does not exist. `creator-info` is still worth running before
 step 1: it is the only authority on which `--privacy` values the account accepts, and it
 saves a rejected upload when `--video` points at a large local file.
 
-Optional extras, both independent of the confirmation:
+Optional extras, all independent of the confirmation:
 
 - `clipcat quote` previews the cost before step 1 (same parameters; add `--url` for
   the download surcharge, `--enhance` for super-resolution). Useful to compare models
   with the user. **Never compute credits yourself** — let `quote` or the step-1
-  checklist return them.
+  checklist return them. For raw generation use `clipcat generate --dry-run` instead
+  (`quote` does not cover raw pricing).
+- Raw `--dry-run` also uploads the assets and returns `clipcat://` references — pass
+  those into step 1 to skip re-uploading. It is **not** the confirmation step and
+  returns no `confirmId`.
 - `--expected-credits <n>` on step 1 caps the cost: the server rejects the request
   only if the real cost is **higher** (a cheaper real cost — cache hit, promo — just
   goes through). On a rejection it returns the current cost; re-confirm and resubmit.
@@ -462,20 +501,97 @@ models` to list every available model and its cost.
 Premium models (e.g. `seedance2`, `happyhorse10`) require a paid plan; `clipcat
 quote` flags them (`premiumBlocked`) and the server rejects them for free users.
 
+### Raw generation (`generate`) quotes with `--dry-run`, not `quote`
+
+`clipcat quote` does not cover `generate`. Instead, build the exact command you intend
+to submit and add `--dry-run`: it validates everything, uploads/resolves your assets,
+and returns the same `totalCredits` the submit will charge (the quote and the charge run
+the same server-side calculation, so they cannot drift). It creates no task and spends
+nothing. The response also hands back `clipcat://` references for every asset it
+uploaded — reuse them on the real submit so nothing is uploaded twice:
+
+```bash
+clipcat models --raw
+clipcat generate --model seedance2 --resolution 720p --duration 10 \
+  --prompt "A cat drinking coffee, cinematic" --image ./cat.jpg --dry-run
+# → TOTAL: 410 credits ... image ref: clipcat://<key>
+# confirm 410 credits with the user, then submit the same command with the ref:
+clipcat generate --model seedance2 --resolution 720p --duration 10 \
+  --prompt "A cat drinking coffee, cinematic" --image-url clipcat://<key> \
+  --expected-credits 410
+```
+
+### Pointing the prompt at a specific asset
+
+Some models let the prompt name an individual asset by position. `clipcat models --raw`
+reports this per model as `raw.mention`:
+
+```json
+"mention": { "dialect": "at_en", "kinds": ["image", "video", "audio"],
+             "examples": { "image": "@image1", "video": "@video1", "audio": "@audio1" } }
+```
+
+- **The notation is the same for every model: `@image1` / `@video1` / `@audio1`.** Write
+  that and nothing else. The server translates it into whatever the upstream model wants
+  (`@图片1`, `图1`, `[Image 1]`, `<IMAGE_REF_0>` …) at dispatch time, so a prompt you
+  wrote for one model works verbatim on any other.
+- `kinds` still differs per model — it says which asset **types** that model can have
+  pointed at (Grok's upstream only has a notation for images, Omni has none for audio).
+  Mentioning a type that is not in `kinds` is read as plain text.
+- Matching is case-insensitive (`@Image1` works), but emit the lowercase form.
+- Numbering is **per type**, starting at 1, in the order you pass the assets — local
+  files and `clipcat://` references keep the order you wrote them in, mixed or not. The
+  character image (`--character`) counts as the **last** reference image.
+- Passing the same asset twice is rejected (`media_duplicate`), because the upstream
+  de-duplicates it and every later reference would then be off by one.
+- It is a soft, natural-language hint: nothing validates it. A reference to an asset
+  you did not attach is simply read as plain text — and the credits are still spent.
+- **A model without a `mention` field cannot have its assets pointed at at all** — the
+  upstream never documented a notation for it. Do not mention assets in that prompt.
+- Mentions make the prompt longer once translated (`@image1` → `<IMAGE_REF_0>`), and the
+  length limit applies to the **translated** text. `--dry-run` reports the real length,
+  so trust it over your own character count.
+- Reference frames (`--first-frame` / `--last-frame`) are bound by role, not by number,
+  so they cannot be mentioned.
+
+A reference video (`--ref-video`) is uploaded and its duration is measured **on the
+server** — on some models that duration changes the price (the model row says
+`repricedByReferenceVideo`), so always re-run `--dry-run` after adding or changing one
+and re-confirm the new total.
+
+A reference audio (`--ref-audio`) has **no upload path at all**: pass a `clipcat://`
+reference from `clipcat asset list --type audio`. Its duration is measured server-side
+too, and on some models it also enters the price — re-`--dry-run` after adding one.
+Audio never stands alone: pair it with at least one reference image or reference video.
+
+**The per-clip length limit is per model, not global.** Each model row in
+`clipcat models --raw` carries `maxClipSec` — the longest a *single* reference clip may
+be (Seedance 2.5 takes 30s, every other model 15s). It is separate from
+`maxVideoTotalSec`, which caps the *sum* of all clips. The top-level
+`clipRules.maxClipSec` is merely the widest value across all models (currently 30); it
+exists for the upload step, which happens before a model is picked — **never validate
+against it**, it waves through a 20s clip that a Seedance 2.0 model then rejects on
+submit. Read the model row.
+
 ## Super-resolution (`--enhance`)
 
-`replicate` and `product_video` accept `--enhance 720p|1080p|2k` to upscale the
-finished video. Rules:
+`replicate`, `product_video` and `generate` accept `--enhance 720p|1080p|2k` to upscale
+the finished video. Rules:
 
-- **Tier must be strictly higher than the generated resolution**: 480p → 720p /
-  1080p / 2k, 720p → 1080p / 2k, 1080p → 2k, 2k → no option. The CLI only
+- **Tier must be strictly higher than the generated resolution** on `replicate` /
+  `product_video`: 480p → 720p / 1080p / 2k, 720p → 1080p / 2k, 1080p → 2k, 2k →
+  no option. (`generate` only requires a valid output tier — it does not compare
+  against the generated resolution — but upscaling to a lower tier still costs
+  credits, so pick a higher one.) The CLI only
   enum-checks the value; the server enforces the tier ladder.
 - **Paid plans only.** Free users are rejected on submit; `clipcat quote --enhance`
   flags this as `enhanceBlocked: true` (upgrade needed).
 - **Cost** = ceil(duration_sec / 10) × tier rate (`720p`=10, `1080p`=20, `2k`=30
   credits per 10s). It is **deferred** — charged only after the base video
   succeeds. `quote` returns it as `enhanceCredits`, already folded into
-  `totalCredits`; submit that `totalCredits` via `--expected-credits`.
+  `totalCredits`; submit that `totalCredits` via `--expected-credits`. On `generate`
+  the same figure comes back from `--dry-run` as `enhanceCredits`, already folded into
+  its `totalCredits`.
 - **Status semantics** (`query_task`): once the base video is ready it appears in
   `videos[]` with `status: enhancing` and a usable `videoUrl` (the original), but
   the **task reaches its final completed state only after enhance finishes** (a
@@ -503,17 +619,19 @@ Always inform the user about the extra 10 credits before running with a social `
 
 ## clipcat:// asset references
 
-`clipcat://...` strings seen in earlier turns are stable asset references. Pass them **verbatim** to any `--image-url` / `--character-id` flag — never prepend `https://` or modify them; the server resolves them to a signed URL. A mistyped reference is rejected up front (no credits charged), so never retype one from memory. See subcommand `-h` for details.
+`clipcat://...` strings seen in earlier turns are stable asset references. Pass them **verbatim** to any `--image-url` / `--first-frame-url` / `--last-frame-url` / `--ref-video` / `--ref-audio` / `--character-id` / `replicate --url` flag — never prepend `https://` or modify them; the server resolves them to a signed URL. A mistyped reference is rejected up front (no credits charged), so never retype one from memory. See subcommand `-h` for details.
 
-`--character-id` accepts three forms: a numeric id from `clipcat character list` (never guess ids), `@<sora-username>`, or an image URL / `clipcat://` reference.
+Don't have one? `clipcat asset list` prints the reference for every asset on the account (`--type audio` for audio, which has no upload flag at all). That is the lookup path for anything the user uploaded on the website.
+
+`--character-id` accepts three forms on `replicate` / `product_video`: a numeric id from `clipcat character list` (never guess ids), `@<sora-username>`, or an image URL / `clipcat://` reference. On `generate` only the numeric id is accepted.
 
 ## Async task rules
 
-`replicate`, `product_video`, `image`, and `breakdown` are async. All four
-**submit and return immediately** with a task ID — they never block.
+`replicate`, `product_video`, `generate`, `image`, and `breakdown` are async. All of
+them **submit and return immediately** with a task ID — they never block.
 
 Typical durations: `image` ~3 min, `breakdown` a few minutes, `product_video` /
-`replicate` 10+ min. **Never try to wait synchronously inside a single tool
+`replicate` / `generate` 10+ min. **Never try to wait synchronously inside a single tool
 call** — every realistic agent harness has a tool-call timeout (commonly 60s)
 that will kill the call long before the task is done. Always go submit → return
 → poll across turns.
@@ -524,8 +642,8 @@ that will kill the call long before the task is done. Always go submit → retur
    the latest task. Re-invoke the command across turns (suggested cadence:
    ~30s for `image`, ~1-2 min for `breakdown` / `product_video` / `replicate`)
    until `status` is `completed` or `failed`.
-3. Use `clipcat list_tasks --type <replicate|product|breakdown|download>` to
-   see tasks of a given type from the server.
+3. Use `clipcat list_tasks --type <replicate|product|raw|breakdown|download>` to
+   see tasks of a given type from the server (`raw` = tasks from `generate`).
 
 ## query_task: auto-resume
 
@@ -554,6 +672,14 @@ per-combination credit costs — a model missing there has been retired and is
 rejected on submit, whatever `-h` or this table says. Prefer `mmh3_promo` over
 `minimax_h3` whenever `clipcat models` lists it: same model on a limited-time
 subsidized channel, a fraction of the credits, and free plans may use it.
+
+**For `clipcat generate` (raw generation) this table does not apply** — run `clipcat
+models --raw`. Raw generation supports a subset of these models, its duration tiers are
+narrower (it calls the model directly, with no stitching), and what each model accepts —
+image modes, image count range, frame slots, reference-video limit, prompt cap,
+character support — **changes with the providers enabled at that moment**. Read that
+table every time instead of memorizing limits; submitting something it does not list is
+rejected, and the rejection tells you what the model actually accepts right now.
 
 The tiers in this table are what each model *offers*; `clipcat models` is what is
 *available right now*. Providers get disabled for maintenance, so a listed tier can
@@ -607,7 +733,9 @@ ISO 3166-1 alpha-2, uppercase: `US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID`
 - Asked for a selling-video prompt / idea / script: run `clipcat prompt search` first,
   rewrite the closest proven hit for the user's product, and cite its `detail_url`.
   Writing one from imagination throws away the only thing that makes it a viral prompt.
-- For the two-step commands (`replicate`, `product_video`, `tiktok publish`): submit once to get the checklist + `confirmId` (no charge, nothing created), show the user what came back — parameters / full prompt / `totalCredits` for a generation, account / caption / privacy / schedule for a publish — wait for an **explicit yes in the conversation**, then run `--confirm <confirmId>` in a later turn. Never confirm on your own and never chain the two calls in one turn. Never compute the credits yourself — let the checklist (or `clipcat quote`) return them. For `tiktok publish`, say plainly that it posts to the user's own public account and cannot be taken back, and treat a confirm that returns no `taskId` as a failure, never as a post.
+- For the two-step commands (`replicate`, `product_video`, `generate`, `tiktok publish`): submit once to get the checklist + `confirmId` (no charge, nothing created), show the user what came back — parameters / full prompt / `totalCredits` for a generation, account / caption / privacy / schedule for a publish — wait for an **explicit yes in the conversation**, then run `--confirm <confirmId>` in a later turn. Never confirm on your own and never chain the two calls in one turn. Never compute the credits yourself — let the checklist (or `clipcat quote`) return them. For `tiktok publish`, say plainly that it posts to the user's own public account and cannot be taken back, and treat a confirm that returns no `taskId` as a failure, never as a post.
+- For `generate`: read `clipcat models --raw` first (its limits are the only authority), then the same two-step flow as the other paid video commands — submit once for the checklist + `confirmId`, wait for an explicit yes, then `--confirm <confirmId>`. `--dry-run` is an optional preview that also returns reusable `clipcat://` refs; it is not the confirmation.
+- `schedule create` / `delete` / `run`: confirm with the user first — a schedule spends credits on every run without asking again.
 - Resolution: omit `--resolution` unless the user explicitly asked for a tier — the server applies that model's own default (480p on the value models, 720p on the rest), and `quote` resolves it identically. Never silently upgrade to 720p/1080p — higher resolution costs more credits.
 - Pass any non-trivial prompt via `--prompt-file -` with a quoted heredoc (see "Passing prompts"); verify the `Prompt sent (N chars)` echo after submit.
 - Keep record of task IDs; re-invoke `query_task` across turns to track long-running tasks.
