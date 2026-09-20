@@ -50,6 +50,7 @@ clipcat config --api-key <your-key> --base-url https://clipcat.ai
 - 用你的商品复刻爆款视频
 - 从图片生成产品视频
 - 用 GPT Image 2 / GPT Image 2.5（Flare / Sunburst）从文本提示词生成 AI 图片（可选参考图）
+- 把一段文案合成 mp3 口播（文本转语音，可用克隆音色），可直接当参考音频用
 - 分析视频（脚本、场景、音乐）
 - 下载 TikTok/抖音视频
 - 把成片发布到你自己的 TikTok 账号（直发或投递到草稿箱）
@@ -267,8 +268,8 @@ clipcat product_video --confirm <confirmId>
   另有 `--resolution`、`--duration`、`--size`（`9:16` / `16:9`；`clipcat models --raw` 的
   `Ratios` 列里列了 `adaptive` 的模型才可传 `adaptive` 自适应画幅）、`--enhance`、`--dry-run`、
   `--expected-credits`。**同样走两段式确认**（`--confirm <confirmId>`）。这里的 `--character-id` **只收数字 id**（不收 `@sora` 用户名、不收图片 URL）。
-  `--ref-audio` **只收 `clipcat://` 引用** —— 音频没有上传 flag：用户在站内上传，再用
-  `clipcat asset list --type audio` 拿引用。多数模型压根不收音频（看 `clipcat models --raw` 的
+  `--ref-audio` **只收 `clipcat://` 引用** —— 本地音频先用 `clipcat asset upload <文件>` 上传，
+  把它输出的 `ref` 原样传入（素材库里已有的音频用 `clipcat asset list --type audio` 查）。多数模型压根不收音频（看 `clipcat models --raw` 的
   `raw.maxAudios`）；音频不能单独提交，至少要配一张参考图或一个参考视频；时长由服务端自己探，
   加了音频要重新 `--dry-run` 报价。参考文件与参考网页链接仍只开 web，没有对应 flag。
 - `models --raw` —— 裸调能力表：逐模型给出图片形态、张数区间、帧槽位、参考视频上限、prompt 上限、
@@ -288,7 +289,8 @@ clipcat product_video --confirm <confirmId>
 - `list_tasks` —— 列出服务端最近的**视频相关**任务（`--type` 必填：`replicate | product | raw | breakdown | download`）。图片任务用 `list_images`。
   - **每行有两个不同的 id。** `taskId` 是**项目** id（`/project/<id>` 链接里的那个）；项目里每条成片各有自己的 `videos[].videoTaskId`。一个项目可以装多条视频（一条脚本一条），所以两者永远不会相同。任何作用于单条视频的操作 —— 首当其冲是 `tiktok publish --video-task-id` —— 取的都是 `videoTaskId`，绝不是 `taskId`。`query_task` 返回同样的一对 id。
 - `character list` —— 列出账号下保存的角色（`id`、`name`、`status`、`type`）。`id` 即 `replicate` / `product_video` / `generate` 的 `--character-id` 取值；只有 `status: completed` 的角色可用。支持 `--status` / `--limit` / `--page` / `--sort-by` / `--sort-order`。免费（自有账号元数据，不扣算力）。
-- `asset list` —— 列出账号下的素材（`type`、`name`、时长、大小）及其 **`clipcat://` 引用**。该引用即 `--image-url` / `--first-frame-url` / `--ref-video` / `--ref-audio` 的取值，必须逐字照抄，不要臆造或凭记忆重拼。用户在站内上传的东西只能这么找到引用 —— 音频尤其如此（它没有上传 flag）。支持 `--type image|video|audio|document` / `--q <名字>` / `--limit` / `--page`。免费（自有账号元数据，不扣算力）。
+- `asset upload <文件>` —— 把本地图片（jpg/png/webp，≤10MB）、视频（mp4/mov，≤150MB）或音频（mp3/wav/m4a/aac，≤10MB）上传到素材库，与网站上传同一口径，输出 **`clipcat://` 引用**（音视频附服务端探测的时长）。图片的 `ref` 原样传给 `--image-url` / `--first-frame-url`，mp3/wav 音频的 `ref` 传给 `--ref-audio`（m4a/aac 能传进素材库，但 `--ref-audio` 不收，要先转格式）；视频只存进素材库，`generate --ref-video` 请直接传本地文件。`--name` 设置显示名。免费（占存储配额，不扣算力）。
+- `asset list` —— 列出账号下的素材（`type`、`name`、时长、大小）及其 **`clipcat://` 引用**。该引用即 `--image-url` / `--first-frame-url` / `--ref-audio` 的取值；`--ref-video` 只收 `clipcat://analyse/video/` 开头的引用（`clipcat://assets/` 下的视频会被拒，改传本地文件）。必须逐字照抄，不要臆造或凭记忆重拼。用户在站内上传的东西就这样查引用。支持 `--type image|video|audio|document` / `--q <名字>` / `--limit` / `--page`。免费（自有账号元数据，不扣算力）。
 
 ### 发布到 TikTok —— `clipcat tiktok`
 
@@ -321,6 +323,19 @@ clipcat product_video --confirm <confirmId>
 - 只支持 Agent 模式：网站上建的一键成片 / 视频生成类任务在这里看不到，按 id 操作回 `not_found`。
 - `delete` 不可恢复、`run` 立刻花钱 —— 先拿到用户明确同意。`run` 立即返回，之后用 `show --id` 看 `lastStatus`、`lastResultUrl`。报 `schedule_running` 说明上一轮还在跑，不要循环重试。
 - `nextRunAt` / `lastRunAt` 是 UTC 时间。
+
+### 文本转语音 —— `clipcat tts`
+
+用预置音色或克隆音色把一段文案合成 mp3 口播，同步返回（约 2–10 秒）。mp3 进素材库，返回的 `ref`（`clipcat://…`）
+可原样作为 `clipcat generate --ref-audio` 的参考音频。
+
+- **计费**：约每 100 字符 5 算力（最低 1），各模型同价，成功才扣。克隆免费。以 `--dry-run` / `tts voices` 为准 —— 合成前先报价告诉用户。
+- **模型**（`--model`，通常不传）：默认 `seed-tts-2.0`，只有预置音色，唯一返回词级时间戳。克隆音色需 `cosyvoice-v3.5-plus`（克隆默认）或 `fish-s2.1-pro`。传了模型不支持的参数会被拒，不扣费。
+- `tts voices [--language en] [--model M]` —— 模型表（预置 / 克隆 / 支持的参数 / 是否可用）、推荐音色 id、`--language` 可选值、价格。免费。未列出的音色 id 不传 `--model` 时按 seed-tts-2.0 处理。
+- `tts --voice <id|clone_<id>> --text "…"`（长文本或带引号用 `--text-file - <<'EOF' … EOF`）。单次最多 1000 字符 —— 更长的按句 / 按镜头拆成多次。可选 `--language`（文本必须含该语种；seed-tts-2.0 + `en` / `zh-cn` 还会返回 `words` 时间戳）、`--instruction`（语气，字符同样计费）、`--speed` / `--volume`（-50..100，0 为正常）。
+- `--out <文件>` 同时存到本地（不加 `--force` 绝不覆盖）。保存失败时音频已扣费且在素材库：复用 `ref` / `audioUrl`，不要重跑。
+- `tts clone --audio <本地文件 | clipcat://ref> [--start S] [--duration D] [--name N] [--transcript T] [--dry-run]` —— 免费，返回 `voice: clone_<id>`。样本 10–60 秒、单人清晰人声；音频或视频均可（mp3 wav m4a aac ogg flac mp4 mov webm，≤20MB，视频自动抽音轨）。更大的视频先 `clipcat asset upload <file>`（≤150MB），把它打印的 `clipcat://` 引用传进来；已在素材库里的用 `clipcat asset list --type audio|video` 找。其它 URL 先下载。只克隆用户有权使用的声音。
+- `tts clones [--q 名称] [--page N] [--limit N] [--scope mine|all|<userId>]` —— 用户的克隆音色列表。免费。
 
 ## 两段式确认
 
@@ -420,8 +435,8 @@ clipcat generate --model seedance2 --resolution 720p --duration 10 \
 参考视频（`--ref-video`）由**服务端**上传后探测时长 —— 部分模型会按参考秒数重新定价（能力表里的
 `repricedByReferenceVideo`），所以加了或换了参考视频必须重新 `--dry-run` 并与用户重新确认总额。
 
-参考音频（`--ref-audio`）**压根没有上传通路**：只收 `clipcat asset list --type audio` 给出的
-`clipcat://` 引用，时长同样由服务端探测、部分模型会计进价格，加了就要重新 `--dry-run`。
+参考音频（`--ref-audio`）**只收 `clipcat://` 引用**：本地文件用 `clipcat asset upload <文件>` 上传
+（会输出引用），或取 `clipcat asset list --type audio` 给出的引用；时长同样由服务端探测、部分模型会计进价格，加了就要重新 `--dry-run`。
 音频不能单独提交，至少要配一张参考图或一个参考视频。
 
 ## 超分（`--enhance`）
@@ -462,7 +477,7 @@ clipcat product_video --confirm <confirmId>
 
 之前轮次出现的 `clipcat://...` 字符串是稳定的资产引用。把它们**原样**传给任意 `--image-url` / `--first-frame-url` / `--ref-video` / `--ref-audio` / `--character-id` / `replicate --url` 参数 —— 绝不要加 `https://` 前缀或做任何修改。详见子命令 `-h`。
 
-手上没有引用时：`clipcat asset list` 会列出账号下每个素材的引用（音频用 `--type audio`，它压根没有上传 flag）。用户在站内上传的东西只能这么查。
+手上没有引用时：本地的图片 / 视频 / 音频用 `clipcat asset upload <文件>` 上传并拿到引用；已在账号里的素材（包括用户在站内上传的）用 `clipcat asset list` 查（音频用 `--type audio`）。
 
 保存的角色，其 `--character-id` 从 `clipcat character list` 的 `id` 列取 —— 不要臆造 id。
 
