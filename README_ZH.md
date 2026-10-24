@@ -85,7 +85,8 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 |---|---|
 | https://github.com/user-attachments/assets/500b630d-e524-4311-81e2-1567c20aaac5 | https://github.com/user-attachments/assets/a8c1bb64-04ea-44a6-af0b-b8b1d4d7f54f |
 
-<table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
+<details>
+<summary><strong>复制提示词</strong></summary>
 
 ```text
 请用 Clipcat Skill 的复刻功能。
@@ -97,7 +98,11 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 先展示完整提示词、生成参数和算力费用，等我确认后再生成。
 ```
 
-</details></td><td width="36%" valign="top"><strong>说明</strong><p>参考原视频的钩子和分镜逻辑，将商品、卖点与口播改写成你的版本。</p><p><a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">查看完整教程</a></p></td></tr></table>
+</details>
+
+**说明**
+
+参考原视频的钩子和分镜逻辑，将商品、卖点与口播改写成你的版本。 [**查看完整教程 →**](https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial)
 
 ### 2. 商品图生视频：打造本土爆款带货视频
 
@@ -109,11 +114,12 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 </tr></table>
 
 
-| 效果视频 — 点击播放 |
-|:---:|
-| https://github.com/user-attachments/assets/fe244249-fad4-444b-b41c-34288dd0b7bc |
+|  | 效果视频 — 点击播放 |  |
+|:---:|:---:|:---:|
+|  | https://github.com/user-attachments/assets/fe244249-fad4-444b-b41c-34288dd0b7bc |  |
 
-<table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
+<details>
+<summary><strong>复制提示词</strong></summary>
 
 ```text
 请用 Clipcat Skill，根据我的商品图生成带货视频。
@@ -124,7 +130,11 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 只使用我提供的真实卖点，先展示提示词和算力费用，确认后再生成。
 ```
 
-</details></td><td width="36%" valign="top"><strong>说明</strong><p>商品信息越完整，人物、场景、演示动作和卖点越明确，生成效果越稳定。</p><p><a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">查看完整教程</a></p></td></tr></table>
+</details>
+
+**说明**
+
+商品信息越完整，人物、场景、演示动作和卖点越明确，生成效果越稳定。 [**查看完整教程 →**](https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial)
 
 ### 3. AI 找 TikTok 爆款灵感后复刻同款
 
@@ -136,11 +146,12 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 </tr></table>
 
 
-| 效果视频 — 点击播放 |
-|:---:|
-| https://github.com/user-attachments/assets/c23f5777-cb22-4d84-9aab-0d11d68d492f |
+|  | 效果视频 — 点击播放 |  |
+|:---:|:---:|:---:|
+|  | https://github.com/user-attachments/assets/c23f5777-cb22-4d84-9aab-0d11d68d492f |  |
 
-<table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
+<details>
+<summary><strong>复制提示词</strong></summary>
 
 ```text
 请用 Clipcat Skill，寻找 {目标市场} 近 7 天与 {商品品类} 相关的热门带货视频。
@@ -151,7 +162,11 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 展示参考链接、完整提示词和生成费用，等我确认。
 ```
 
-</details></td><td width="36%" valign="top"><strong>说明</strong><p>搜索结果必须保留来源和可取得的数据；选择相关参考，而不是把历史指标当作新视频的效果承诺。</p><p><a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">查看完整教程</a></p></td></tr></table>
+</details>
+
+**说明**
+
+搜索结果必须保留来源和可取得的数据；选择相关参考，而不是把历史指标当作新视频的效果承诺。 [**查看完整教程 →**](https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial)
 
 ### 4. 生成固定角色出镜的带货视频
 
@@ -163,11 +178,12 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 </tr></table>
 
 
-| 效果视频 — 点击播放 |
-|:---:|
-| https://github.com/user-attachments/assets/88b922f4-5af2-49b9-9f64-2dcf4110a8d7 |
+|  | 效果视频 — 点击播放 |  |
+|:---:|:---:|:---:|
+|  | https://github.com/user-attachments/assets/88b922f4-5af2-49b9-9f64-2dcf4110a8d7 |  |
 
-<table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
+<details>
+<summary><strong>复制提示词</strong></summary>
 
 ```text
 请用 Clipcat Skill，为我的商品制作固定角色出镜视频。
@@ -179,7 +195,11 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 先核对角色可用性，展示完整参数和费用，等我确认后生成。
 ```
 
-</details></td><td width="36%" valign="top"><strong>说明</strong><p>角色参考用于保持系列风格；实际一致性仍取决于模型和素材质量。</p><p><a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">查看完整教程</a></p></td></tr></table>
+</details>
+
+**说明**
+
+角色参考用于保持系列风格；实际一致性仍取决于模型和素材质量。 [**查看完整教程 →**](https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial)
 
 ### 5. 每天自动找爆款并生成：素材永动机
 
@@ -193,11 +213,12 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 </tr></table>
 
 
-| 效果视频 — 点击播放 |
-|:---:|
-| https://github.com/user-attachments/assets/54c01df5-60f5-4751-bdbe-91fbab41be9b |
+|  | 效果视频 — 点击播放 |  |
+|:---:|:---:|:---:|
+|  | https://github.com/user-attachments/assets/54c01df5-60f5-4751-bdbe-91fbab41be9b |  |
 
-<table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
+<details>
+<summary><strong>复制提示词</strong></summary>
 
 ```text
 为我设置一个 Agent 定时任务，使用 Clipcat Skill 持续准备带货视频。
@@ -209,7 +230,11 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 创建前确认时间、时区、素材、预算和自动生成授权；不要自动发布。
 ```
 
-</details></td><td width="36%" valign="top"><strong>说明</strong><p>自动化需要持久化素材、历史去重、预算与预先授权；自动生成不等于自动发布。</p><p><a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">查看完整教程</a></p></td></tr></table>
+</details>
+
+**说明**
+
+自动化需要持久化素材、历史去重、预算与预先授权；自动生成不等于自动发布。 [**查看完整教程 →**](https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial)
 
 ## 都有哪些能力，能力一览
 
@@ -253,4 +278,4 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 
 给我们点个 Star，即可第一时间收到 GitHub 的所有版本发布通知！
 
-<p align="center"><a href="https://github.com/Clipcat-ai/clipcat-skill"><img src="assets/star-clipcat.gif" alt="点击 GitHub 右上角 Star 关注 Clipcat" width="760" /></a></p>
+<p align="center"><a href="https://github.com/Clipcat-ai/clipcat-skill"><img src="assets/star-clipcat-zh.webp" alt="点击 GitHub 右上角 Star 支持 Clipcat" width="100%" /></a></p>

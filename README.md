@@ -85,7 +85,8 @@ The same workflow transfers across products and creative styles: Clipcat first i
 |---|---|
 | https://github.com/user-attachments/assets/500b630d-e524-4311-81e2-1567c20aaac5 | https://github.com/user-attachments/assets/a8c1bb64-04ea-44a6-af0b-b8b1d4d7f54f |
 
-<table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
+<details>
+<summary><strong>Copy-ready prompt</strong></summary>
 
 ```text
 Use the Clipcat Skill to create a product-specific version of this proven reference.
@@ -97,7 +98,11 @@ Duration: {SECONDS}; model: {MODEL_ID}; voiceover language: {LANGUAGE}.
 Show the full prompt, settings, and credit cost. Wait for my approval.
 ```
 
-</details></td><td width="36%" valign="top"><strong>Notes</strong><p>Preserve the proven hook and shot logic while adapting the product, claims, and voiceover.</p><p><a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Read the full tutorial</a></p></td></tr></table>
+</details>
+
+**Notes**
+
+Preserve the proven hook and shot logic while adapting the product, claims, and voiceover. [**Read the full tutorial →**](https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial)
 
 ### 2. Product-to-Video: Create Native, High-Converting UGC
 
@@ -109,11 +114,12 @@ Upload product photos and a brief to create native-feeling demos, talking-head e
 </tr></table>
 
 
-| Generated result — click to play |
-|:---:|
-| https://github.com/user-attachments/assets/d90b1d54-6168-404e-908d-699420dd0563 |
+|  | Generated result — click to play |  |
+|:---:|:---:|:---:|
+|  | https://github.com/user-attachments/assets/d90b1d54-6168-404e-908d-699420dd0563 |  |
 
-<table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
+<details>
+<summary><strong>Copy-ready prompt</strong></summary>
 
 ```text
 Use the Clipcat Skill to create a selling video from my product photos.
@@ -124,7 +130,11 @@ Model: {MODEL_ID}; voiceover language: {LANGUAGE}.
 Use only the claims I provide. Show the prompt and credit cost before generating.
 ```
 
-</details></td><td width="36%" valign="top"><strong>Notes</strong><p>Clear product facts, presenter direction, setting, demo actions, and selling points lead to more reliable outputs.</p><p><a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Read the full tutorial</a></p></td></tr></table>
+</details>
+
+**Notes**
+
+Clear product facts, presenter direction, setting, demo actions, and selling points lead to more reliable outputs. [**Read the full tutorial →**](https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial)
 
 ### 3. Discover a TikTok Winner, Then Replicate the Format
 
@@ -136,11 +146,12 @@ Connect discovery, selection, structural analysis, and replication in one workfl
 </tr></table>
 
 
-| Generated result — click to play |
-|:---:|
-| https://github.com/user-attachments/assets/a5f6c5be-1ee1-4627-95ed-93028f866e5e |
+|  | Generated result — click to play |  |
+|:---:|:---:|:---:|
+|  | https://github.com/user-attachments/assets/a5f6c5be-1ee1-4627-95ed-93028f866e5e |  |
 
-<table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
+<details>
+<summary><strong>Copy-ready prompt</strong></summary>
 
 ```text
 Use the Clipcat Skill to find popular selling videos for {PRODUCT_CATEGORY} in {TARGET_MARKET} from the last 7 days.
@@ -151,7 +162,11 @@ Duration: {SECONDS}; model: {MODEL_ID}; voiceover language: {LANGUAGE}.
 Show the reference URL, full prompt, and generation cost. Wait for approval.
 ```
 
-</details></td><td width="36%" valign="top"><strong>Notes</strong><p>Keep the sources and available metrics. Choose a relevant reference without treating historical performance as a promise.</p><p><a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Read the full tutorial</a></p></td></tr></table>
+</details>
+
+**Notes**
+
+Keep the sources and available metrics. Choose a relevant reference without treating historical performance as a promise. [**Read the full tutorial →**](https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial)
 
 ### 4. Generate Selling Videos with a Consistent Character
 
@@ -163,11 +178,12 @@ Use a saved character reference or accessible portrait so a series can retain th
 </tr></table>
 
 
-| Generated result — click to play |
-|:---:|
-| https://github.com/user-attachments/assets/28b3f3a0-8f55-42ab-96d5-0e3a724b3cd3 |
+|  | Generated result — click to play |  |
+|:---:|:---:|:---:|
+|  | https://github.com/user-attachments/assets/28b3f3a0-8f55-42ab-96d5-0e3a724b3cd3 |  |
 
-<table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
+<details>
+<summary><strong>Copy-ready prompt</strong></summary>
 
 ```text
 Use the Clipcat Skill to make a product video with my saved character.
@@ -179,7 +195,11 @@ Duration: {SECONDS}; model: {MODEL_ID_WITH_CHARACTER_SUPPORT}; voiceover: {LANGU
 Check character availability, show the settings and cost, and wait for approval.
 ```
 
-</details></td><td width="36%" valign="top"><strong>Notes</strong><p>Character references guide series consistency; results still depend on the model and source assets.</p><p><a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Read the full tutorial</a></p></td></tr></table>
+</details>
+
+**Notes**
+
+Character references guide series consistency; results still depend on the model and source assets. [**Read the full tutorial →**](https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial)
 
 ### 5. Daily Automation: Keep New Winning Creatives Coming
 
@@ -193,11 +213,12 @@ Set up the workflow once to discover references, deduplicate them, generate outp
 </tr></table>
 
 
-| Generated result — click to play |
-|:---:|
-| https://github.com/user-attachments/assets/a5e0bb94-60bf-4cbc-bb00-f11efb237f7b |
+|  | Generated result — click to play |  |
+|:---:|:---:|:---:|
+|  | https://github.com/user-attachments/assets/a5e0bb94-60bf-4cbc-bb00-f11efb237f7b |  |
 
-<table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
+<details>
+<summary><strong>Copy-ready prompt</strong></summary>
 
 ```text
 Set up a recurring Agent task with the Clipcat Skill to keep new selling creatives coming.
@@ -209,7 +230,11 @@ No subtitles. Duration: {SECONDS}; model: {MODEL_ID}; voiceover: {LANGUAGE}; per
 Confirm schedule, timezone, assets, budget, and unattended-generation authorization first. Do not auto-publish.
 ```
 
-</details></td><td width="36%" valign="top"><strong>Notes</strong><p>Automation needs persistent assets, deduplication history, a budget, and prior authorization. Automated generation is not automatic publishing.</p><p><a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Read the full tutorial</a></p></td></tr></table>
+</details>
+
+**Notes**
+
+Automation needs persistent assets, deduplication history, a budget, and prior authorization. Automated generation is not automatic publishing. [**Read the full tutorial →**](https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial)
 
 ## Capabilities at a Glance
 
@@ -253,4 +278,4 @@ Before a video task is created, your agent confirms the requirements and credit 
 
 Give us a Star and be the first to hear about every new GitHub release!
 
-<p align="center"><a href="https://github.com/Clipcat-ai/clipcat-skill"><img src="assets/star-clipcat.gif" alt="Click Star at the top right to follow Clipcat" width="760" /></a></p>
+<p align="center"><a href="https://github.com/Clipcat-ai/clipcat-skill"><img src="assets/star-clipcat-en.webp" alt="Click Star at the top right to support Clipcat" width="100%" /></a></p>
