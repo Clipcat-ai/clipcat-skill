@@ -48,7 +48,7 @@ irm https://clipcat.ai/cli.ps1 | iex
 
 ### 2. Create and configure your API key
 
-[Get your API key in Clipcat](https://clipcat.ai/workspace?modal=settings&tab=apikeys)，then send this command to your agent:
+[Get your API key in Clipcat](https://clipcat.ai/workspace?modal=settings&tab=apikeys), then send this command to your agent:
 
 ```bash
 clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
@@ -76,7 +76,7 @@ Found a strong reference? Give your agent the TikTok link and product photos. Cl
 
 | Original reference — click to play | Replicated product video — click to play |
 |---|---|
-| https://github.com/user-attachments/assets/5f8f5d3d-42d0-4a9e-a27d-cda0ce9ddfe1 | https://github.com/user-attachments/assets/b75fab92-90b2-4aab-ba1c-0bd67d881601 |
+| https://github.com/user-attachments/assets/5f8f5d3d-42d0-4a9e-a27d-cda0ce9ddfe1 | https://github.com/user-attachments/assets/6e548385-acf1-4f06-b0c5-b8a93f498d1a |
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -105,7 +105,7 @@ Upload product photos and a brief to create native-feeling demos, talking-head e
 
 **Generated result — click to play**
 
-https://github.com/user-attachments/assets/fe244249-fad4-444b-b41c-34288dd0b7bc
+https://github.com/user-attachments/assets/d90b1d54-6168-404e-908d-699420dd0563
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -133,7 +133,7 @@ Connect discovery, selection, structural analysis, and replication in one workfl
 
 **Generated result — click to play**
 
-https://github.com/user-attachments/assets/c23f5777-cb22-4d84-9aab-0d11d68d492f
+https://github.com/user-attachments/assets/a5f6c5be-1ee1-4627-95ed-93028f866e5e
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -161,7 +161,7 @@ Use a saved character reference or accessible portrait so a series can retain th
 
 **Generated result — click to play**
 
-https://github.com/user-attachments/assets/88b922f4-5af2-49b9-9f64-2dcf4110a8d7
+https://github.com/user-attachments/assets/28b3f3a0-8f55-42ab-96d5-0e3a724b3cd3
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -192,7 +192,7 @@ Set up the workflow once to discover references, deduplicate them, generate outp
 
 **Generated result — click to play**
 
-https://github.com/user-attachments/assets/54c01df5-60f5-4751-bdbe-91fbab41be9b
+https://github.com/user-attachments/assets/a5e0bb94-60bf-4cbc-bb00-f11efb237f7b
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
