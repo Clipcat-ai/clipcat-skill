@@ -32,9 +32,11 @@ Four core capabilities — from finding proven inspiration to creating, publishi
 
 ## Quick start
 
-You need an AI agent that can run shell commands and a Clipcat account with an API key.
+You need an agent such as Codex, WorkBuddy, or Claude, plus a Clipcat account and API key.
 
-### 1. Install the Clipcat CLI
+### 1. Install once
+
+Send the appropriate command to your agent. Use the command that matches your computer’s operating system.
 
 macOS / Linux / Git Bash:
 

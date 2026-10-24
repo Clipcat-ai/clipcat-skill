@@ -32,9 +32,11 @@ Clipcat 是首个专注电商带货方向的爆款复刻 Skill。从发现爆款
 
 ## 快速开始
 
-你需要一个能执行 shell 命令的 AI Agent，以及 Clipcat 账号和 API Key。
+你需要一个 Agent（如 Codex、WorkBuddy、Claude 等），以及 Clipcat 账号和 API Key。
 
-### 1. 安装 Clipcat CLI
+### 1. 只安装一次
+
+把指令交给你的 Agent。注意：不同电脑系统需要使用不同的安装指令。
 
 macOS / Linux / Git Bash:
 
