@@ -2,7 +2,7 @@
 
 <p align="center"><strong>Find the format. Make it yours. Let your agent do the production.</strong></p>
 
-<p align="center"><img src="assets/readme-hero-en.png" alt="Clipcat Skill — Your AI Agent, Now a TikTok Shop Video Producer" width="100%" /></p>
+<p align="center"><img src="assets/readme-hero-en.webp" alt="Clipcat Skill — Your AI Agent, Now a TikTok Shop Video Producer" width="100%" /></p>
 
 <p align="center"><a href="#quick-start">Quick start</a> · <a href="#demo">5 real-world demos</a> · <a href="skills/clipcat/SKILL.md">Command reference</a> · <a href="https://clipcat.ai">Website</a> · <a href="README_ZH.md">简体中文</a></p>
 
@@ -23,21 +23,21 @@ Four core capabilities — from finding winners to creating and publishing consi
 <table>
 <tr>
 <td width="50%" valign="top">
-<img src="assets/why-library-en.png" alt="AI Shoppable Video & Prompt Library" width="100%" />
+<img src="assets/why-library-en.webp" alt="AI Shoppable Video & Prompt Library" width="100%" />
 <p><strong>AI Shoppable Video & Prompt Library</strong><br />The world’s largest free library of AI shoppable videos and prompts, covering high-selling TikTok winners across every market and category. Copy a prompt or replicate the whole format in one click.</p>
 </td>
 <td width="50%" valign="top">
-<img src="assets/why-replication-en.png" alt="Professional Viral Replication" width="100%" />
+<img src="assets/why-replication-en.webp" alt="Professional Viral Replication" width="100%" />
 <p><strong>Professional Viral Replication</strong><br />Replicate winning selling videos from a TikTok or Douyin link, a direct URL, or a local video. Clipcat breaks down the original logic and script, then rebuilds the format around your product.</p>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
-<img src="assets/why-publishing-en.png" alt="Publish to TikTok in One Click" width="100%" />
+<img src="assets/why-publishing-en.webp" alt="Publish to TikTok in One Click" width="100%" />
 <p><strong>Publish to TikTok in One Click</strong><br />Connect and manage multiple TikTok accounts in one place. Publish now, schedule ahead, or send a video to drafts — flexible publishing that helps automate your content workflow.</p>
 </td>
 <td width="50%" valign="top">
-<img src="assets/why-character-en.png" alt="Consistent Characters Across Videos" width="100%" />
+<img src="assets/why-character-en.webp" alt="Consistent Characters Across Videos" width="100%" />
 <p><strong>Consistent Characters Across Videos</strong><br />Use the same character reference in viral replication or product-to-video workflows, so the on-screen character can stay consistent across a content series.</p>
 </td>
 </tr>

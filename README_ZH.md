@@ -2,7 +2,7 @@
 
 <p align="center"><strong>找到爆款灵感，换上你的商品，让 Agent 帮你出片。</strong></p>
 
-<p align="center"><img src="assets/readme-hero-zh.png" alt="Clipcat Skill — 把你的 AI Agent 变成 TikTok 带货视频制作人" width="100%" /></p>
+<p align="center"><img src="assets/readme-hero-zh.webp" alt="Clipcat Skill — 把你的 AI Agent 变成 TikTok 带货视频制作人" width="100%" /></p>
 
 <p align="center"><a href="#快速开始">快速开始</a> · <a href="#demo">5 个实战 Demo</a> · <a href="skills/clipcat/SKILL.md">命令参考</a> · <a href="https://clipcat.ai">官网</a> · <a href="README.md">English</a></p>
 
@@ -23,21 +23,21 @@
 <table>
 <tr>
 <td width="50%" valign="top">
-<img src="assets/why-library-zh.png" alt="AI 带货视频与提示词库" width="100%" />
+<img src="assets/why-library-zh.webp" alt="AI 带货视频与提示词库" width="100%" />
 <p><strong>AI 带货视频与提示词库</strong><br />全球最大的免费 AI 带货视频与提示词库，涵盖 TikTok 所有国家与品类的高销量爆款。提示词可复制，也能一键复刻生成同款。</p>
 </td>
 <td width="50%" valign="top">
-<img src="assets/why-replication-zh.png" alt="专业爆款复刻" width="100%" />
+<img src="assets/why-replication-zh.webp" alt="专业爆款复刻" width="100%" />
 <p><strong>专业爆款复刻</strong><br />一键爆款复刻带货视频，支持 TikTok、抖音链接和本地视频。解析原视频爆款逻辑和脚本，结合你的产品一键生成同款带货视频。</p>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
-<img src="assets/why-publishing-zh.png" alt="直连 TikTok 一键发布" width="100%" />
+<img src="assets/why-publishing-zh.webp" alt="直连 TikTok 一键发布" width="100%" />
 <p><strong>直连 TikTok 一键发布</strong><br />多账号管理，一站式管理全部 TikTok 账号和视频发布。支持立即发布、定时发布与草稿，灵活排期，自动化你的视频内容。</p>
 </td>
 <td width="50%" valign="top">
-<img src="assets/why-character-zh.png" alt="固定角色持续出镜" width="100%" />
+<img src="assets/why-character-zh.webp" alt="固定角色持续出镜" width="100%" />
 <p><strong>固定角色持续出镜</strong><br />无论爆款复刻还是商品图生视频，都能使用固定角色参考，让系列视频中的角色人物保持一致。</p>
 </td>
 </tr>
