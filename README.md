@@ -69,14 +69,21 @@ Found a strong reference? Give your agent the TikTok link and product photos. Cl
 <td width="50%" valign="top"><img src="assets/demo-01-chat-2.webp" alt="Viral Replication: Turn a TikTok Reference into Your Product Video — conversation screenshot 2" width="100%" /></td>
 </tr></table>
 
-<table><tr>
-<td width="50%" valign="top"><img src="assets/demo-01-original.webp" alt="Original reference" width="100%" /></td>
-<td width="50%" valign="top"><img src="assets/demo-01-replication-en.webp" alt="Replicated product video" width="100%" /></td>
-</tr></table>
+#### Replication Example A
 
-| Original reference — click to play | Replicated product video — click to play |
+The left player shows the proven source video. The right player shows the new product version created by Clipcat while preserving the original hook, shot rhythm, and selling structure. Click either player to watch it in place.
+
+| Original video — proven reference | Replicated video — new product version |
 |---|---|
-| https://github.com/user-attachments/assets/5f8f5d3d-42d0-4a9e-a27d-cda0ce9ddfe1 | https://github.com/user-attachments/assets/6e548385-acf1-4f06-b0c5-b8a93f498d1a |
+| https://github.com/user-attachments/assets/a7f8f81c-8a0b-4184-9c4c-e4168bcf1d09 | https://github.com/user-attachments/assets/49015c45-9e5d-4177-b73c-6b2e3a121f85 |
+
+#### Replication Example B
+
+The same workflow transfers across products and creative styles: Clipcat first identifies why the source works, then preserves its core structure while generating a new product-specific version.
+
+| Original video — proven reference | Replicated video — same structure, new content |
+|---|---|
+| https://github.com/user-attachments/assets/500b630d-e524-4311-81e2-1567c20aaac5 | https://github.com/user-attachments/assets/a8c1bb64-04ea-44a6-af0b-b8b1d4d7f54f |
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -101,11 +108,10 @@ Upload product photos and a brief to create native-feeling demos, talking-head e
 <td width="50%" valign="top"><img src="assets/demo-02-chat-2.webp" alt="Product-to-Video: Create Native, High-Converting UGC — conversation screenshot 2" width="100%" /></td>
 </tr></table>
 
-<p align="center"><img src="assets/demo-02-product-to-video-en.webp" alt="Product-to-Video: Create Native, High-Converting UGC" width="360" /></p>
 
-**Generated result — click to play**
-
-https://github.com/user-attachments/assets/d90b1d54-6168-404e-908d-699420dd0563
+| Generated result — click to play |
+|:---:|
+| https://github.com/user-attachments/assets/d90b1d54-6168-404e-908d-699420dd0563 |
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -129,11 +135,10 @@ Connect discovery, selection, structural analysis, and replication in one workfl
 <td width="50%" valign="top"><img src="assets/demo-03-chat-2.webp" alt="Discover a TikTok Winner, Then Replicate the Format — conversation screenshot 2" width="100%" /></td>
 </tr></table>
 
-<p align="center"><img src="assets/demo-03-discover-replicate-en.webp" alt="Discover a TikTok Winner, Then Replicate the Format" width="360" /></p>
 
-**Generated result — click to play**
-
-https://github.com/user-attachments/assets/a5f6c5be-1ee1-4627-95ed-93028f866e5e
+| Generated result — click to play |
+|:---:|
+| https://github.com/user-attachments/assets/a5f6c5be-1ee1-4627-95ed-93028f866e5e |
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -157,11 +162,10 @@ Use a saved character reference or accessible portrait so a series can retain th
 <td width="50%" valign="top"><img src="assets/demo-04-chat-2.webp" alt="Generate Selling Videos with a Consistent Character — conversation screenshot 2" width="100%" /></td>
 </tr></table>
 
-<p align="center"><img src="assets/demo-04-consistent-character-en.webp" alt="Generate Selling Videos with a Consistent Character" width="360" /></p>
 
-**Generated result — click to play**
-
-https://github.com/user-attachments/assets/28b3f3a0-8f55-42ab-96d5-0e3a724b3cd3
+| Generated result — click to play |
+|:---:|
+| https://github.com/user-attachments/assets/28b3f3a0-8f55-42ab-96d5-0e3a724b3cd3 |
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -188,11 +192,10 @@ Set up the workflow once to discover references, deduplicate them, generate outp
 <td width="25%" valign="top"><img src="assets/demo-05-chat-4.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 4" width="100%" /></td>
 </tr></table>
 
-<p align="center"><img src="assets/demo-05-daily-automation-en.webp" alt="Daily Automation: Keep New Winning Creatives Coming" width="360" /></p>
 
-**Generated result — click to play**
-
-https://github.com/user-attachments/assets/a5e0bb94-60bf-4cbc-bb00-f11efb237f7b
+| Generated result — click to play |
+|:---:|
+| https://github.com/user-attachments/assets/a5e0bb94-60bf-4cbc-bb00-f11efb237f7b |
 
 <table><tr><td valign="top"><details open><summary><strong>Copy-ready prompt</strong></summary>
 
@@ -225,6 +228,8 @@ Confirm schedule, timezone, assets, budget, and unattended-generation authorizat
 ## AI Shoppable Video Prompt Library
 
 We also provide free access to the world’s largest library of AI shoppable videos and prompts.
+
+<p align="center"><img src="assets/prompt-library-en.webp" alt="Clipcat AI Shoppable Video and Prompt Library" width="100%" /></p>
 
 It collects high-selling TikTok Shop videos across every active market and major category. Prompts are free to search and copy, and any matching format can be replicated with one click. Every prompt is reverse-engineered from a real TikTok Shop selling video — not written from scratch — and reconstructed shot by shot. Each entry includes the original video, so you can verify the structure directly.
 

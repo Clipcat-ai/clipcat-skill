@@ -69,14 +69,21 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 <td width="50%" valign="top"><img src="assets/demo-01-chat-2.webp" alt="爆款复刻：丢一条 TikTok 链接生成新视频 — 对话截图 2" width="100%" /></td>
 </tr></table>
 
-<table><tr>
-<td width="50%" valign="top"><img src="assets/demo-01-original.webp" alt="原视频" width="100%" /></td>
-<td width="50%" valign="top"><img src="assets/demo-01-replication-zh.webp" alt="复刻后新视频" width="100%" /></td>
-</tr></table>
+#### 复刻案例 A
 
-| 原视频 — 点击播放 | 复刻后新视频 — 点击播放 |
+左侧为原始爆款视频，右侧为 Clipcat 保留原片钩子、分镜节奏与带货结构后，为新商品生成的复刻视频。点击播放器即可直接观看。
+
+| 原视频 — 已验证的爆款参考 | 复刻后视频 — 替换商品后的新版本 |
 |---|---|
-| https://github.com/user-attachments/assets/5f8f5d3d-42d0-4a9e-a27d-cda0ce9ddfe1 | https://github.com/user-attachments/assets/b75fab92-90b2-4aab-ba1c-0bd67d881601 |
+| https://github.com/user-attachments/assets/a7f8f81c-8a0b-4184-9c4c-e4168bcf1d09 | https://github.com/user-attachments/assets/49015c45-9e5d-4177-b73c-6b2e3a121f85 |
+
+#### 复刻案例 B
+
+同一套方法可以迁移到不同商品和内容类型：先分析原视频为什么有效，再在保留核心结构的同时生成新的商品版本。
+
+| 原视频 — 已验证的爆款参考 | 复刻后视频 — 保留结构并生成新内容 |
+|---|---|
+| https://github.com/user-attachments/assets/500b630d-e524-4311-81e2-1567c20aaac5 | https://github.com/user-attachments/assets/a8c1bb64-04ea-44a6-af0b-b8b1d4d7f54f |
 
 <table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
 
@@ -101,11 +108,10 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 <td width="50%" valign="top"><img src="assets/demo-02-chat-2.webp" alt="商品图生视频：打造本土爆款带货视频 — 对话截图 2" width="100%" /></td>
 </tr></table>
 
-<p align="center"><img src="assets/demo-02-product-to-video-zh.webp" alt="商品图生视频：打造本土爆款带货视频" width="360" /></p>
 
-**效果视频 — 点击播放**
-
-https://github.com/user-attachments/assets/fe244249-fad4-444b-b41c-34288dd0b7bc
+| 效果视频 — 点击播放 |
+|:---:|
+| https://github.com/user-attachments/assets/fe244249-fad4-444b-b41c-34288dd0b7bc |
 
 <table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
 
@@ -129,11 +135,10 @@ https://github.com/user-attachments/assets/fe244249-fad4-444b-b41c-34288dd0b7bc
 <td width="50%" valign="top"><img src="assets/demo-03-chat-2.webp" alt="AI 找 TikTok 爆款灵感后复刻同款 — 对话截图 2" width="100%" /></td>
 </tr></table>
 
-<p align="center"><img src="assets/demo-03-discover-replicate-zh.webp" alt="AI 找 TikTok 爆款灵感后复刻同款" width="360" /></p>
 
-**效果视频 — 点击播放**
-
-https://github.com/user-attachments/assets/c23f5777-cb22-4d84-9aab-0d11d68d492f
+| 效果视频 — 点击播放 |
+|:---:|
+| https://github.com/user-attachments/assets/c23f5777-cb22-4d84-9aab-0d11d68d492f |
 
 <table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
 
@@ -157,11 +162,10 @@ https://github.com/user-attachments/assets/c23f5777-cb22-4d84-9aab-0d11d68d492f
 <td width="50%" valign="top"><img src="assets/demo-04-chat-2.webp" alt="生成固定角色出镜的带货视频 — 对话截图 2" width="100%" /></td>
 </tr></table>
 
-<p align="center"><img src="assets/demo-04-consistent-character-zh.webp" alt="生成固定角色出镜的带货视频" width="360" /></p>
 
-**效果视频 — 点击播放**
-
-https://github.com/user-attachments/assets/88b922f4-5af2-49b9-9f64-2dcf4110a8d7
+| 效果视频 — 点击播放 |
+|:---:|
+| https://github.com/user-attachments/assets/88b922f4-5af2-49b9-9f64-2dcf4110a8d7 |
 
 <table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
 
@@ -188,11 +192,10 @@ https://github.com/user-attachments/assets/88b922f4-5af2-49b9-9f64-2dcf4110a8d7
 <td width="25%" valign="top"><img src="assets/demo-05-chat-4.webp" alt="每天自动找爆款并生成：素材永动机 — 对话截图 4" width="100%" /></td>
 </tr></table>
 
-<p align="center"><img src="assets/demo-05-daily-automation-zh.webp" alt="每天自动找爆款并生成：素材永动机" width="360" /></p>
 
-**效果视频 — 点击播放**
-
-https://github.com/user-attachments/assets/54c01df5-60f5-4751-bdbe-91fbab41be9b
+| 效果视频 — 点击播放 |
+|:---:|
+| https://github.com/user-attachments/assets/54c01df5-60f5-4751-bdbe-91fbab41be9b |
 
 <table><tr><td valign="top"><details open><summary><strong>复制提示词</strong></summary>
 
@@ -225,6 +228,8 @@ https://github.com/user-attachments/assets/54c01df5-60f5-4751-bdbe-91fbab41be9b
 ## AI 带货视频提示词库
 
 我们同时免费开放了全球最大的 AI 带货视频与提示词库。
+
+<p align="center"><img src="assets/prompt-library-zh.webp" alt="Clipcat AI 带货视频与提示词库" width="100%" /></p>
 
 收录 TikTok 全国家、全品类的高销量爆款视频，提示词支持免费查询、免费复制，还能一键复刻生成同款。所有提示词都来自真实的 TikTok Shop 带货视频反推，不是凭空编写，而是按照原视频逐镜头还原；每条都附原视频链接，可直接对照验证。
 
