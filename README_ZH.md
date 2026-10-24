@@ -276,6 +276,6 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 
 ## 关注我们
 
-给我们点个 Star，即可第一时间收到 GitHub 的所有版本发布通知！
+如果 Clipcat 帮你把“找爆款、做爆款视频”这件事变简单了，请给我们一个 ★。Star 不能当饭吃——但会鼓励我们继续开源更多 TikTok、跨境电商的好项目，帮助你们更快在海外电商实现 10X 增长。一次点击，三秒钟，真实的信号。
 
 <p align="center"><a href="https://github.com/Clipcat-ai/clipcat-skill"><img src="assets/star-clipcat-zh.webp" alt="点击 GitHub 右上角 Star 支持 Clipcat" width="100%" /></a></p>

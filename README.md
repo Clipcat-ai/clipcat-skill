@@ -276,6 +276,6 @@ Before a video task is created, your agent confirms the requirements and credit 
 
 ## Follow Clipcat
 
-Give us a Star and be the first to hear about every new GitHub release!
+If Clipcat has made finding winners and creating winning product videos easier, please give us a ★. A Star won’t pay the bills—but it will encourage us to keep open-sourcing more useful projects for TikTok and cross-border ecommerce, helping you reach 10× growth in global commerce faster. One click. Three seconds. A real signal.
 
 <p align="center"><a href="https://github.com/Clipcat-ai/clipcat-skill"><img src="assets/star-clipcat-en.webp" alt="Click Star at the top right to support Clipcat" width="100%" /></a></p>
