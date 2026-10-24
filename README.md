@@ -11,6 +11,8 @@
   <a href="skills/clipcat/SKILL.md"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent%20Skill-TikTok%20Shop%20Growth-167B80?style=flat" /></a>
 </p>
 
+<p align="center"><strong>⭐ Help more people discover Clipcat and grow the community with us. <a href="https://github.com/Clipcat-ai/clipcat-skill">Star the repository!</a></strong></p>
+
 Clipcat is the first Agent Skill dedicated to replicating winning ecommerce videos. It closes the loop from discovering proven formats → creating new winners through replication or product-to-video → publishing → analyzing performance and iterating. Turn Codex, WorkBuddy, Claude, OpenClaw, and other agents into capable TikTok Shop operators — and grow your TikTok business with far less manual work.
 
 ## Why Clipcat

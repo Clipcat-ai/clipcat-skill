@@ -11,6 +11,8 @@
   <a href="skills/clipcat/SKILL.md"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent%20Skill-TikTok%20Shop%20Growth-167B80?style=flat" /></a>
 </p>
 
+<p align="center"><strong>⭐ 让更多人发现 Clipcat，一起壮大社区。<a href="https://github.com/Clipcat-ai/clipcat-skill">给仓库点个 Star！</a></strong></p>
+
 Clipcat 是首个专注电商带货方向的爆款复刻 Skill。从发现爆款 → 生成爆款视频（爆款复刻 / 商品生视频）→ 发布视频 → 数据分析迭代爆款，形成完整增长闭环。让你的 Codex、WorkBuddy、Claude、OpenClaw 等 Agent 变身专业 TikTok 操盘手，助力 TikTok 业务高效增长。
 
 ## 为什么用 Clipcat
