@@ -65,8 +65,8 @@ All five examples come from the Clipcat × Codex tutorial. Each follows the same
 Found a strong reference? Give your agent the TikTok link and product photos. Clipcat reconstructs the script and shot logic around your product.
 
 <table><tr>
-<td width="50%" valign="top"><img src="assets/demo-01-chat-1.webp" alt="Viral Replication: Turn a TikTok Reference into Your Product Video — conversation screenshot 1" width="100%" /></td>
-<td width="50%" valign="top"><img src="assets/demo-01-chat-2.webp" alt="Viral Replication: Turn a TikTok Reference into Your Product Video — conversation screenshot 2" width="100%" /></td>
+<td width="50%" valign="top"><img src="assets/demo-en-chat-00.webp" alt="Viral Replication: Turn a TikTok Reference into Your Product Video — conversation screenshot 1" width="100%" /></td>
+<td width="50%" valign="top"><img src="assets/demo-en-chat-01.webp" alt="Viral Replication: Turn a TikTok Reference into Your Product Video — conversation screenshot 2" width="100%" /></td>
 </tr></table>
 
 #### Replication Example A
@@ -109,8 +109,8 @@ Preserve the proven hook and shot logic while adapting the product, claims, and 
 Upload product photos and a brief to create native-feeling demos, talking-head explainers, OOTD clips, reviews, and other TikTok Shop UGC.
 
 <table><tr>
-<td width="50%" valign="top"><img src="assets/demo-02-chat-1.webp" alt="Product-to-Video: Create Native, High-Converting UGC — conversation screenshot 1" width="100%" /></td>
-<td width="50%" valign="top"><img src="assets/demo-02-chat-2.webp" alt="Product-to-Video: Create Native, High-Converting UGC — conversation screenshot 2" width="100%" /></td>
+<td width="50%" valign="top"><img src="assets/demo-en-chat-02.webp" alt="Product-to-Video: Create Native, High-Converting UGC — conversation screenshot 1" width="100%" /></td>
+<td width="50%" valign="top"><img src="assets/demo-en-chat-03.webp" alt="Product-to-Video: Create Native, High-Converting UGC — conversation screenshot 2" width="100%" /></td>
 </tr></table>
 
 
@@ -141,8 +141,8 @@ Clear product facts, presenter direction, setting, demo actions, and selling poi
 Connect discovery, selection, structural analysis, and replication in one workflow.
 
 <table><tr>
-<td width="50%" valign="top"><img src="assets/demo-03-chat-1.webp" alt="Discover a TikTok Winner, Then Replicate the Format — conversation screenshot 1" width="100%" /></td>
-<td width="50%" valign="top"><img src="assets/demo-03-chat-2.webp" alt="Discover a TikTok Winner, Then Replicate the Format — conversation screenshot 2" width="100%" /></td>
+<td width="50%" valign="top"><img src="assets/demo-en-chat-04.webp" alt="Discover a TikTok Winner, Then Replicate the Format — conversation screenshot 1" width="100%" /></td>
+<td width="50%" valign="top"><img src="assets/demo-en-chat-05.webp" alt="Discover a TikTok Winner, Then Replicate the Format — conversation screenshot 2" width="100%" /></td>
 </tr></table>
 
 
@@ -173,8 +173,8 @@ Keep the sources and available metrics. Choose a relevant reference without trea
 Use a saved character reference or accessible portrait so a series can retain the same on-screen identity.
 
 <table><tr>
-<td width="50%" valign="top"><img src="assets/demo-04-chat-1.webp" alt="Generate Selling Videos with a Consistent Character — conversation screenshot 1" width="100%" /></td>
-<td width="50%" valign="top"><img src="assets/demo-04-chat-2.webp" alt="Generate Selling Videos with a Consistent Character — conversation screenshot 2" width="100%" /></td>
+<td width="50%" valign="top"><img src="assets/demo-en-chat-06.webp" alt="Generate Selling Videos with a Consistent Character — conversation screenshot 1" width="100%" /></td>
+<td width="50%" valign="top"><img src="assets/demo-en-chat-07.webp" alt="Generate Selling Videos with a Consistent Character — conversation screenshot 2" width="100%" /></td>
 </tr></table>
 
 
@@ -206,10 +206,10 @@ Character references guide series consistency; results still depend on the model
 Set up the workflow once to discover references, deduplicate them, generate outputs, log results, and send new creatives for review.
 
 <table><tr>
-<td width="25%" valign="top"><img src="assets/demo-05-chat-1.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 1" width="100%" /></td>
-<td width="25%" valign="top"><img src="assets/demo-05-chat-2.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 2" width="100%" /></td>
-<td width="25%" valign="top"><img src="assets/demo-05-chat-3.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 3" width="100%" /></td>
-<td width="25%" valign="top"><img src="assets/demo-05-chat-4.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 4" width="100%" /></td>
+<td width="25%" valign="top"><img src="assets/demo-en-chat-08.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 1" width="100%" /></td>
+<td width="25%" valign="top"><img src="assets/demo-en-chat-09.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 2" width="100%" /></td>
+<td width="25%" valign="top"><img src="assets/demo-en-chat-10.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 3" width="100%" /></td>
+<td width="25%" valign="top"><img src="assets/demo-en-chat-11.webp" alt="Daily Automation: Keep New Winning Creatives Coming — conversation screenshot 4" width="100%" /></td>
 </tr></table>
 
 
