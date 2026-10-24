@@ -1,227 +1,242 @@
-# Clipcat Skill —— TikTok Shop 带货视频 AI 技能
+<h1 align="center">Clipcat Skill — 把你的 AI Agent 变成 TikTok 带货视频制作人</h1>
 
-**把任意 AI Agent 变成 TikTok Shop 视频制作人。** 搜索 TikTok 爆款视频，调研 TikTok Shop 商品、店铺、达人和直播间，拆解爆款视频为什么能卖，一键生成可直接出片的爆款带货提示词，用自己的商品复刻爆款，把商品图生成 AI 带货 / UGC / 真人口播视频，用文字提示生成电商图片，把成片发布到自己的 TikTok 账号，下载 TikTok 或抖音视频——全部通过一个 CLI 完成。
+<p align="center"><strong>找到爆款灵感，换上你的商品，让 Agent 帮你出片。</strong></p>
 
-**任何能执行 shell 命令的 AI Agent 都能用**——Claude Code、Codex、WorkBuddy、OpenClaw、Cursor，或你自研的 Agent。它以一个跨平台的 `clipcat` CLI 加一份 `SKILL.md` 清单的形式提供：Agent 读取清单、执行 `clipcat` 命令并解析 JSON 输出。
+<p align="center"><img src="assets/readme-hero-zh.png" alt="Clipcat Skill — 把你的 AI Agent 变成 TikTok 带货视频制作人" width="100%" /></p>
 
-最新指南和示例请查看：[https://clipcat.ai](https://clipcat.ai)
+<p align="center"><a href="#快速开始">快速开始</a> · <a href="#demo">5 个实战 Demo</a> · <a href="skills/clipcat/SKILL.md">命令参考</a> · <a href="https://clipcat.ai">官网</a> · <a href="README.md">English</a></p>
 
-English: [README.md](README.md)
+<p align="center">
+  <a href="https://github.com/Clipcat-ai/clipcat-skill"><img alt="GitHub Stars — Star Clipcat" src="https://img.shields.io/github/stars/Clipcat-ai/clipcat-skill?style=flat&amp;label=Star%20Clipcat&amp;color=E3B341" /></a>
+  <a href="skills/clipcat/SKILL.md"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent%20Skill-Shell%20%2B%20JSON-167B80?style=flat" /></a>
+  <a href="#demo"><img alt="TikTok Shop Video Creation" src="https://img.shields.io/badge/TikTok%20Shop-Video%20Creation-167B80?style=flat" /></a>
+</p>
 
-## 工作原理
+一张商品图，一条参考视频，或一句创意。用 Clipcat 把找灵感、复刻、生成和审核发布衔接起来。
 
-Clipcat 本质上只是一个小巧的 CLI 二进制 + 一份 `SKILL.md` 技能清单，任何能执行 shell 命令的 Agent 都能驱动它：
+> **现在给 Clipcat 点个 Star。** 收藏下来，下次上新就能找到，也让更多创作者看见这个项目。
 
-- Agent 读取 `SKILL.md` 了解可用命令与约定。
-- 调用 `clipcat <命令>` 并解析其 JSON 输出（默认格式）。
-- 异步任务（视频/图片生成）提交后立即返回，由 Agent 跨轮次轮询。
+## 为什么用 Clipcat
 
-OpenClaw 会依据清单自动安装该 Skill；其他 Agent 则手动安装 CLI（见下文）。无论哪种方式，底层运行的都是同一个 `clipcat` 二进制。
+四个核心能力，从找爆款到稳定出片与发布。
 
-## 核心能力
+<table>
+<tr>
+<td width="50%" valign="top">
+<img src="assets/why-library-zh.png" alt="AI 带货视频与提示词库" width="100%" />
+<p><strong>AI 带货视频与提示词库</strong><br />全球最大的免费 AI 带货视频与提示词库，涵盖 TikTok 所有国家与品类的高销量爆款。提示词可复制，也能一键复刻生成同款。</p>
+</td>
+<td width="50%" valign="top">
+<img src="assets/why-replication-zh.png" alt="专业爆款复刻" width="100%" />
+<p><strong>专业爆款复刻</strong><br />一键爆款复刻带货视频，支持 TikTok、抖音链接和本地视频。解析原视频爆款逻辑和脚本，结合你的产品一键生成同款带货视频。</p>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="assets/why-publishing-zh.png" alt="直连 TikTok 一键发布" width="100%" />
+<p><strong>直连 TikTok 一键发布</strong><br />多账号管理，一站式管理全部 TikTok 账号和视频发布。支持立即发布、定时发布与草稿，灵活排期，自动化你的视频内容。</p>
+</td>
+<td width="50%" valign="top">
+<img src="assets/why-character-zh.png" alt="固定角色持续出镜" width="100%" />
+<p><strong>固定角色持续出镜</strong><br />无论爆款复刻还是商品图生视频，都能使用固定角色参考，让系列视频中的角色人物保持一致。</p>
+</td>
+</tr>
+</table>
 
-- **TikTok 电商数据情报**：覆盖达人、商品、店铺、视频、直播、关键词/图片搜索 6 大实体域，支持榜单、多维筛选发现、趋势、详情、评价、评论与跨实体关系查询（Agent 通过 `clipcat <实体> -h` 选择具体命令）
-- **爆款带货提示词生成器**：检索全球最大的真实 AI 带货视频与提示词库（覆盖 TikTok 全部国家与品类、真正卖爆的高销量 AI 带货视频），匹配与你需求相关的内容，一键生成可直接出片的爆款带货视频提示词，并附上它逆向自哪支真实视频
-- **视频分析**：提取 TikTok 或抖音视频中的脚本、分镜、钩子和音乐信息
-- **爆款复刻**：基于已验证的爆款结构，结合你的商品素材进行复刻生成——参考视频可以是 TikTok/抖音链接、直链视频 URL，或本地视频文件（最大 100MB）
-- **商品生视频**：将商品图片生成 UGC 风格的 TikTok 视频
-- **AI 图片生成**：基于 GPT Image 2 / GPT Image 2.5（Flare / Sunburst）模型，根据文本提示生成 AI 图片，并可选上传参考图（最多 5 张）
-- **超分**：用 `--enhance` 把成片提升到 720p、1080p 或 2K
-- **可复用角色**：通过 `--character-id` 让多条视频里的出镜角色保持一致
-- **发布到 TikTok**：把成片直接发到自己已连接的 TikTok 账号 —— 立即发布、最长定时 30 天后发布，或投递到草稿箱在 App 里补完（发布不消耗算力）
-- **视频下载**：通过 Clipcat API 下载 TikTok 或抖音视频
+## 快速开始
 
-## 安装
+你需要一个能执行 shell 命令的 AI Agent，以及 Clipcat 账号和 API Key。安装 Skill 不代表生成与数据查询免费。
 
-### 1. 安装 CLI
-
-**OpenClaw**：依据 Skill 清单自动安装，无需手动操作。
-
-**其他 Agent / 手动安装**：安装 CLI 二进制：
+### 1. 给 Agent 安装 Skill
 
 ```bash
-# 安装 clipcat CLI
+npx skills add Clipcat-ai/clipcat-skill -g --skill clipcat
+```
+
+按提示选择使用的 Agent。首次使用时，Skill 会引导 Agent 检查 CLI，缺失时再安装。
+
+<details>
+<summary>手动配置 CLI</summary>
+
+macOS / Linux / Git Bash:
+
+```bash
 curl -fsSL https://clipcat.ai/cli | bash
 ```
 
-### 2. 获取 API Key
+Windows PowerShell:
 
-注册或登录后，在个人中心生成 API Key：
+```powershell
+irm https://clipcat.ai/cli.ps1 | iex
+```
 
-[生成 API Key](https://clipcat.ai/workspace?modal=settings&tab=apikeys)
+</details>
 
-### 3. 配置 API Key
+### 2. 获取并配置 API Key
 
-在 Agent 运行的机器上配置一次即可：
+[在 Clipcat 中生成 API Key](https://clipcat.ai/workspace?modal=settings&tab=apikeys)，然后配置：
 
 ```bash
-clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
+clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 ```
 
-通过环境变量管理密钥的 Agent 也可改为设置 `CLIPCAT_API_KEY`（例如 OpenClaw：`openclaw env set CLIPCAT_API_KEY your_api_key_here`）。
+将 `YOUR_API_KEY` 替换成自己的密钥。不要提交到仓库、截图、提示词或 Issue。
 
-## 使用方式
+### 3. 选一个 Demo，换成你的商品
 
-安装完成后，你可以直接让你的 Agent 帮你：
+从[下面五个 Demo](#demo)选择场景，上传商品图，再展开对应提示词。
 
-- “搜索本周关于 lip gloss 的 TikTok 爆款视频”
-- “搜索 TikTok Shop 里热门宠物产品，并展示竞品店铺”
-- “我卖的是便携榨汁机，去爆款库里找几条美国市场的真人测评，改写成我的带货视频提示词”
-- “用我的商品图片复刻这个 TikTok 视频”
-- “用这些图片生成一个商品视频”
-- “生成一张模特手持我商品的 AI 图片”
-- “把这条视频明天晚上 8 点发到我的 TikTok 账号”
-- “分析这个视频并提取脚本”
-- “展示这个 TikTok 用户最近的视频及互动数据”
-- “下载这个 TikTok 视频”
-- “拉取这个商品链接对应的 TikTok Shop 商品详情和评论亮点”
+## Demo
 
-## 重要说明
+五个用例来自 [Clipcat × Codex 实战教程](https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial). 图片和视频已下载到仓库 `assets/`。点击封面播放仓库内视频，展开提示词改成你的商品。
 
-- 视频生成任务是异步执行的，通常需要几分钟
-- 视频任务真正扣算力前，Agent 会先免费提交一次拿到确认清单（模型/时长/分辨率/完整提示词/算力），摆给你看，等你明确同意后才确认提交
-- 发布到 TikTok 需要一次性授权账号（`clipcat tiktok connect`），本身不消耗算力 —— 套餐限制的是可连接的账号数量，且只有无水印的成片能发布
-- 在你点头之前不会有任何内容发到你的账号：Agent 会先免费提交一次拿到完整的发布清单（账号 / 文案 / 可见范围 / 评论开关 / 定时），摆给你看，等你明确同意后才真正发出
-- 不要手动重复提交任务，Clipcat 已内置重试处理
-- 请保留完整的 TikTok 或抖音链接，尤其是带签名参数的 URL
+模型与价格以 `clipcat models` 为准，博客截图中的历史参数不作为当前报价。
 
-## 爆款库里有什么
+### 1. 爆款复刻：把参考视频变成你的商品视频
 
-`clipcat prompt search` 不是凭空写脚本，而是从一个真实、可检索的「真的卖爆过的 AI 带货视频库」里检索匹配：
+把 TikTok 链接和商品图交给 Agent，参考原片的钩子与分镜，改写口播并生成你的商品版本。
 
-| 资产                        | 能给你什么                                                                   |
-| --------------------------- | ---------------------------------------------------------------------------- |
-| **5000+ 真实爆款 AI 带货视频** | 每一条都真的在 TikTok Shop 卖爆过 —— 不是 demo，不是概念                      |
-| **15 个市场在线**           | 美英及其余各大 TikTok Shop 市场，提示词按你的目标地区精准匹配                 |
-| **30 个一级品类在线**       | 美妆、家居、数码、食品……按你产品的品类匹配                                    |
-| **提示词可复制**            | 每条爆款都附带产出它的原始提示词，可复制，也能一键复刻同款                    |
-| **真实销量背书**            | 每条都带原视频真实的 GMV / 销量 / 播放，基于真赢过的视频来做                  |
-| **每日更新**                | 天天有新爆款进来 —— 美国市场日更，其余市场周更                                |
-| **语义检索**                | 描述你想要的效果（如「暖光居家 手持特写 真人出镜」）即可检索到对应爆款        |
+<p align="center"><a href="assets/demo-01-replication-zh.mp4"><img src="assets/demo-01-replication-zh.webp" alt="爆款复刻：把参考视频变成你的商品视频 — 点击播放" width="360" /></a></p>
 
-因为每条提示词都基于一个真的卖爆过的视频，`clipcat prompt search` 给你的是一条**建立在验证过的爆款之上、可直接出片**的提示词，而不是靠猜。每条结果都会带上原视频链接与公开详情页，随时能看清这条提示词逆向自哪支视频。
+<p align="center"><a href="assets/demo-01-replication-zh.mp4"><strong>▶ 播放 Demo 视频</strong></a> · <a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">完整教程</a></p>
 
-## 支持模型
-
-试用模型所有用户可用；标准模型需付费套餐。
-
-| 模型 ID              | 时长                | 分辨率            | 备注                                          |
-| -------------------- | ------------------- | ----------------- | --------------------------------------------- |
-| `grok_imagine`       | 10s, 15s            | 480p, 720p        | **试用**，默认。xAI Grok Imagine 1.5，仅 9:16  |
-| `veo3.1fast`         | 8s, 16s, 24s        | 720p              | **试用**。Google Veo 3.1 Fast，质量与成本均衡  |
-| `omini_flash`        | 10s, 20s            | 720p, 1080p       | **试用**。Gemini Omni Flash，Google 最新模型   |
-| `seedance2_mini`     | 4-15s（任意整数）   | 480p, 720p        | **试用**。Seedance 2 Mini，高性价比档（免费用户仅 480p） |
-| `mmh3_promo`         | 10s, 15s            | 480p, 720p, 2K    | **试用**。MiniMax H3 补贴渠道，免费用户可用    |
-| `seedance2`          | 4-15s（任意整数）   | 480p, 720p, 1080p | 付费。字节 Seedance 2，顶级质量                |
-| `seedance2_5`        | 4-30s（任意整数）   | 480p, 720p        | 付费。字节 Seedance 2.5，最长 30s              |
-| `seedance2_fast`     | 4-15s（任意整数）   | 480p, 720p        | 付费。字节 Seedance 2 Fast，快速版本           |
-| `wan30`              | 5-30s（任意整数）   | 480p, 720p, 1080p | 付费。阿里 Wan 3.0，最长 30s                   |
-| `minimax_h3`         | 10s, 15s            | 768p, 2K          | 付费。MiniMax H3                               |
-| `happyhorse10`       | 3-15s（任意整数）   | 720p, 1080p       | 付费。阿里 HappyHorse 1.1                      |
-
-表格列的是各模型「能提供」的档位；实时可用列表、每个「分辨率 × 时长」组合的精确算力和你的余额，请以 `clipcat models` 为准 —— 它也是「模型是否还在架」的唯一权威，`-h` 在两次发版之间必然滞后。`clipcat models` 里有 `mmh3_promo` 时优先用它而不是 `minimax_h3`：同一个模型走补贴渠道，算力只要一小部分。
-
-## 支持语言
-
-英语、中文、法语、德语、马来语、越南语、泰语、日语、韩语、印尼语、菲律宾语、西班牙语
-
-## 支持地区
-
-`US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` `MY` `PH` `SG` `TH` `VN`
-
-电商数据接口返回的所有金额字段，无论查询哪个地区，均已换算为美元。
-
-## 使用示例
-
-### 示例 0：生成爆款带货提示词
-
-```
-我卖的是便携榨汁机（图片：/path/to/juicer.jpg），目标市场美国。
-去爆款提示词库里找几条相关的真实爆款，挑最合适的一条改写成我的带货视频提示词，
-告诉我它来自哪支视频，我确认后再生成 8 秒视频。
-```
-
-Agent 会先用 `clipcat prompt search` 检索库里逆向自真实高 GMV 视频的结构化提示词，保留原视频的钩子、分镜节奏与口播语气，把商品和卖点换成你的，并附上原视频详情页链接；确认后再进入生成。
-
-### 示例 1：搜索 TikTok 爆款视频
+<details>
+<summary>复制这个场景的提示词</summary>
 
 ```text
-Search for viral TikTok videos about lip gloss in the US market this week.
-Show me the top 10 results sorted by likes.
+使用 Clipcat Skill 的复刻功能。
+参考 TikTok 链接：{完整视频链接}
+我的商品图：{商品图片或路径}
+参考原片的钩子、镜头顺序和画面节奏，只将商品改为我的商品。
+原片有口播时，按我的商品卖点改写；没有口播则不添加。不要字幕。
+时长：{目标秒数}；模型：{模型 ID}；口播语言：{语言}。
+先展示完整提示词、生成参数和算力费用，等我确认后再生成。
 ```
 
-会返回按热度排序的相关爆款视频列表，包含核心指标和源链接，便于进一步分析。
+</details>
 
-### 示例 2：复刻 TikTok 视频
+### 2. 商品图生视频：一张图，开拍你的带货创意
+
+输入商品图和生成要求，生成真人演示、UGC 或口播风格的 TikTok 带货视频。
+
+<p align="center"><a href="assets/demo-02-product-to-video-zh.mp4"><img src="assets/demo-02-product-to-video-zh.webp" alt="商品图生视频：一张图，开拍你的带货创意 — 点击播放" width="360" /></a></p>
+
+<p align="center"><a href="assets/demo-02-product-to-video-zh.mp4"><strong>▶ 播放 Demo 视频</strong></a> · <a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">完整教程</a></p>
+
+<details>
+<summary>复制这个场景的提示词</summary>
 
 ```text
-Please use Clipcat’s replication feature to fully replicate the original video’s script and visuals, replacing only the original product with my product. If there is voiceover in the original video, please adapt it to match my product; if there is no voiceover, then no voiceover is needed. The replicated video should not include subtitles. The duration of the new script must be controlled within 15 seconds. Please use the model seedance2.0, and the voiceover language should be English.
-This is the TikTok link to replicate:https://www.tiktok.com/@username/video/123456789
+使用 Clipcat Skill，根据我的商品图生成带货视频。
+商品图：{商品图片或路径}
+创意要求：{人物、场景、演示动作和商品卖点}
+目标市场：{市场}；时长：{目标秒数}；比例：{9:16 或 16:9}。
+模型：{模型 ID}；口播语言：{语言}。
+只使用我提供的真实卖点，先展示提示词和算力费用，确认后再生成。
 ```
 
-Agent 会先展示参数，并等待你确认后再提交任务。
+</details>
 
-### 示例 3：从零生成商品视频
+### 3. AI 找爆款再复刻：从灵感到成片
+
+先找近期相关爆款，筛选参考、分析结构，再把商品替换成你的产品生成新版本。
+
+<p align="center"><a href="assets/demo-03-discover-replicate-zh.mp4"><img src="assets/demo-03-discover-replicate-zh.webp" alt="AI 找爆款再复刻：从灵感到成片 — 点击播放" width="360" /></a></p>
+
+<p align="center"><a href="assets/demo-03-discover-replicate-zh.mp4"><strong>▶ 播放 Demo 视频</strong></a> · <a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">完整教程</a></p>
+
+<details>
+<summary>复制这个场景的提示词</summary>
 
 ```text
-Create a 10-second OOTD video featuring a British girl showcasing my product.
-Product image: /path/to/dress.jpg
-Use veo3.1fast model, 9:16 aspect ratio, English language.
+使用 Clipcat Skill，寻找 {目标市场} 近 7 天与 {商品品类} 相关的热门带货视频。
+我的商品图：{商品图片或路径}
+先说明查询费用，展示来源和可取得的指标，并挑选最适合我的商品的参考。
+参考它的钩子和分镜节奏，将商品与口播改写为我的内容，不要字幕。
+时长：{目标秒数}；模型：{模型 ID}；口播语言：{语言}。
+展示参考链接、完整提示词和生成费用，等我确认。
 ```
 
-### 示例 4：分析视频
+</details>
+
+### 4. 固定角色出镜：建立统一账号人设
+
+指定可用角色参考与商品图，让系列带货视频使用统一的角色形象。
+
+<p align="center"><a href="assets/demo-04-consistent-character-zh.mp4"><img src="assets/demo-04-consistent-character-zh.webp" alt="固定角色出镜：建立统一账号人设 — 点击播放" width="360" /></a></p>
+
+<p align="center"><a href="assets/demo-04-consistent-character-zh.mp4"><strong>▶ 播放 Demo 视频</strong></a> · <a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">完整教程</a></p>
+
+<details>
+<summary>复制这个场景的提示词</summary>
 
 ```text
-Analyze this video and extract the script, scenes, and music information:
-https://www.tiktok.com/@username/video/987654321
+使用 Clipcat Skill，为我的商品制作固定角色出镜视频。
+出镜角色：{已保存且可用的角色 ID 或角色图片链接}
+商品图：{商品图片或路径}；参考 TikTok 链接：{完整视频链接}
+参考原片的脚本结构和节奏，商品与口播改写为我的内容。
+原片有人物出镜时，新片使用我的角色参考；不要字幕。
+时长：{目标秒数}；模型：{支持角色参考的模型 ID}；口播语言：{语言}。
+先核对角色可用性，展示完整参数和费用，等我确认后生成。
 ```
 
-会返回结构化数据，包括逐镜头拆解、画面描述、口播内容和背景音乐信息。
+</details>
 
-### 示例 5：下载 TikTok 视频
+### 5. 每日自动化：持续准备新素材
+
+用定时任务持续寻找参考、去重、生成并记录结果，让你从反复做素材转向审核素材。
+
+<p align="center"><a href="assets/demo-05-daily-automation-zh.mp4"><img src="assets/demo-05-daily-automation-zh.webp" alt="每日自动化：持续准备新素材 — 点击播放" width="360" /></a></p>
+
+<p align="center"><a href="assets/demo-05-daily-automation-zh.mp4"><strong>▶ 播放 Demo 视频</strong></a> · <a href="https://clipcat.ai/zh/blog/codex-tiktok-shopping-video-tutorial">完整教程</a></p>
+
+<details>
+<summary>复制这个场景的提示词</summary>
 
 ```text
-Download this TikTok video:
-https://www.tiktok.com/@username/video/111222333
+为我设置一个 Agent 定时任务，使用 Clipcat Skill 持续准备带货视频。
+时间：{每日时间}；时区：{IANA 时区}；市场：{目标市场}。
+商品品类：{关键词}；商品图：{可持续访问的素材引用}。
+寻找近 7 天相关带货视频，与历史参考记录去重，再挑选适合我的参考。
+生成时替换成我的商品，按真实卖点改写口播，不要字幕。
+时长：{目标秒数}；模型：{模型 ID}；口播语言：{语言}；单次费用上限：{预算}。
+创建前确认时间、时区、素材、预算和自动生成授权；不要自动发布。
 ```
 
-该操作为同步执行，会立即返回视频直链 URL。
+</details>
 
-### 示例 6：发布到 TikTok
+自动化需要持久化素材、历史记录、明确预算与预先授权；自动生成不等于自动发布。
 
-```text
-把视频任务 4211 发到我的 TikTok 账号 @mystore，
-文案写“New drop, link in bio”，公开可见，允许评论，
-定时到明天晚上 8 点（北京时间）发布。
+> **这些 Demo 有一个能帮到你？现在点个 Star，把 Clipcat 留在你的工具箱里。**
+
+## 还能做什么
+
+- 带货视频与商品数据调研
+- 带来源的提示词检索
+- TikTok / 抖音视频分析
+- 商品图生视频与爆款复刻
+- AI 图片、角色复用与视频超分
+- TikTok 立即发布、定时发布和草稿
+- TikTok / 抖音视频下载
+
+完整命令、实时模型与价格：
+
+```bash
+clipcat models
 ```
 
-Agent 会先用 `clipcat tiktok connect` 完成一次性授权，用 `creator-info` 确认该账号允许哪些设置，然后把完整的发布清单摆给你看，等你同意后才真正发出。也可以改用 `--mode draft` 只把视频投递到 TikTok 草稿箱，在 App 里补完文案再发。
+## 模型、费用与控制
 
-## 使用建议
+视频和图片生成、视频工具及数据查询可能消耗算力。交互式视频任务会先展示模型、提示词和费用，等你确认后才创建。发布 TikTok 需要单独确认账号、文案、可见范围和排期。历史播放、销量或 GMV 是参考，不是新视频的效果承诺。
 
-- 始终提供完整的 TikTok/抖音链接
-- Prompt 越具体，结果通常越好
-- 视频生成需要时间，请等待任务完成
-- 带签名参数的视频链接请完整保留
-- 根据时长和质量需求选择合适模型
+## 一起把 Clipcat 做得更好
 
-## 仓库结构
+遇到问题或有工作流案例？[提交 Issue](https://github.com/Clipcat-ai/clipcat-skill/issues)。分享日志前请移除 API Key 与账号私密信息。
 
-本仓库遵循 Agent Skills 规范——每个 skill 一个目录，放在 `skills/` 下，各自包含一份 `SKILL.md` 清单：
+## 用一个 Star，支持更多这样的工作流
 
-```
-clipcat-skill/
-├── README.md                  # 英文说明
-├── README_ZH.md               # 本文件
-├── docs/
-│   └── SKILL_ZH.md            # 技能清单的中文翻译
-└── skills/
-    └── clipcat/
-        └── SKILL.md           # Agent 实际加载的技能清单
-```
+**如果 Clipcat 帮你找到带货角度或做出商品视频，现在就在 GitHub 右上角点 Star。** 它方便你下次找到 Clipcat，也让更多商家、创作者和 Agent 开发者发现这个项目。
 
-## 相关链接
+[ **打开仓库，给 Clipcat Star** ](https://github.com/Clipcat-ai/clipcat-skill)
 
-- 官网：https://clipcat.ai
-- OpenClaw 一键安装：https://clipcat.ai/tiktok/openclaw
-- 命令参考：[`skills/clipcat/SKILL.md`](skills/clipcat/SKILL.md)
+需要更新通知时，请使用 GitHub **Watch**；Star 用于收藏与表达认可，不等同于订阅通知。

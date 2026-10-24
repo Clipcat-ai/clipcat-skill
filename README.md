@@ -1,232 +1,242 @@
-# Clipcat Skill — AI Selling Videos for TikTok Shop
+<h1 align="center">Clipcat Skill — Your AI Agent, Now a TikTok Shop Video Producer</h1>
 
-**Turn any AI agent into a TikTok Shop video producer.** Find viral TikTok videos, research TikTok Shop products, shops, creators and live rooms, break down why a video sells, generate a ready-to-shoot viral selling prompt from the library of real high-GMV AI selling videos, replicate a winning video with your own product, turn product photos into AI selling / UGC / talking-head videos, generate e-commerce images from a text prompt, publish the finished video to your own TikTok account, and download TikTok or Douyin videos — all from one CLI.
+<p align="center"><strong>Find the format. Make it yours. Let your agent do the production.</strong></p>
 
-Works with **any AI agent that can run shell commands** — Claude Code, Codex, WorkBuddy, OpenClaw, Cursor, or your own. It ships as a single cross-platform `clipcat` CLI plus a `SKILL.md` manifest: the agent reads the manifest, runs `clipcat` commands and parses the JSON output.
+<p align="center"><img src="assets/readme-hero-en.png" alt="Clipcat Skill — Your AI Agent, Now a TikTok Shop Video Producer" width="100%" /></p>
 
-For the latest guide and examples, see: [https://clipcat.ai](https://clipcat.ai)
+<p align="center"><a href="#quick-start">Quick start</a> · <a href="#demo">5 real-world demos</a> · <a href="skills/clipcat/SKILL.md">Command reference</a> · <a href="https://clipcat.ai">Website</a> · <a href="README_ZH.md">简体中文</a></p>
 
-中文文档：[README_ZH.md](README_ZH.md)
+<p align="center">
+  <a href="https://github.com/Clipcat-ai/clipcat-skill"><img alt="GitHub Stars — Star Clipcat" src="https://img.shields.io/github/stars/Clipcat-ai/clipcat-skill?style=flat&amp;label=Star%20Clipcat&amp;color=E3B341" /></a>
+  <a href="skills/clipcat/SKILL.md"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent%20Skill-Shell%20%2B%20JSON-167B80?style=flat" /></a>
+  <a href="#demo"><img alt="TikTok Shop Video Creation" src="https://img.shields.io/badge/TikTok%20Shop-Video%20Creation-167B80?style=flat" /></a>
+</p>
 
-## How It Works
+A product photo, a reference video, or a creative brief. Connect discovery, replication, generation, and approved publishing with Clipcat.
 
-Clipcat is just a small CLI binary and a `SKILL.md` skill manifest, so any agent that can run shell commands can drive it:
+> **Star Clipcat now.** Keep it ready for your next launch and help other creators discover the project.
 
-- The agent reads `SKILL.md` to learn the available commands and conventions.
-- It runs `clipcat <command>` and parses the JSON output (default).
-- Async tasks (video / image generation) submit immediately and are polled across turns.
+## Why Clipcat
 
-OpenClaw auto-installs the skill from the manifest; any other agent installs the CLI manually (see below). Either way the runtime is the same `clipcat` binary.
+Four core capabilities — from finding winners to creating and publishing consistently.
 
-## Core Capabilities
+<table>
+<tr>
+<td width="50%" valign="top">
+<img src="assets/why-library-en.png" alt="AI Shoppable Video & Prompt Library" width="100%" />
+<p><strong>AI Shoppable Video & Prompt Library</strong><br />The world’s largest free library of AI shoppable videos and prompts, covering high-selling TikTok winners across every market and category. Copy a prompt or replicate the whole format in one click.</p>
+</td>
+<td width="50%" valign="top">
+<img src="assets/why-replication-en.png" alt="Professional Viral Replication" width="100%" />
+<p><strong>Professional Viral Replication</strong><br />Replicate winning selling videos from a TikTok or Douyin link, a direct URL, or a local video. Clipcat breaks down the original logic and script, then rebuilds the format around your product.</p>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="assets/why-publishing-en.png" alt="Publish to TikTok in One Click" width="100%" />
+<p><strong>Publish to TikTok in One Click</strong><br />Connect and manage multiple TikTok accounts in one place. Publish now, schedule ahead, or send a video to drafts — flexible publishing that helps automate your content workflow.</p>
+</td>
+<td width="50%" valign="top">
+<img src="assets/why-character-en.png" alt="Consistent Characters Across Videos" width="100%" />
+<p><strong>Consistent Characters Across Videos</strong><br />Use the same character reference in viral replication or product-to-video workflows, so the on-screen character can stay consistent across a content series.</p>
+</td>
+</tr>
+</table>
 
-- **TikTok E-commerce Data Intelligence**: Query 6 entity domains — creators, products, shops, videos, lives, and keyword/image search — covering leaderboards, multi-filter discovery, trends, detail, reviews, comments, and cross-entity relationships (the agent picks the exact command via `clipcat <entity> -h`)
-- **Viral Selling-Prompt Generator**: Search the largest library of real AI selling videos and their reverse-engineered prompts (every TikTok market and category, entries that actually drove sales), match the ones relevant to your product, and turn the closest one into a ready-to-shoot selling-video prompt — cited back to the real video it came from
-- **Video Analysis**: Extract scripts, scenes, hooks, and music from TikTok or Douyin videos
-- **Viral Replication**: Recreate proven viral structures with your own product assets — reference a TikTok/Douyin link, a direct video URL, or a local video file (up to 100MB)
-- **Product to Video**: Turn product images into UGC-style TikTok videos
-- **AI Image Generation**: Generate AI images from text prompts using GPT Image 2 / GPT Image 2.5 (Flare / Sunburst), with optional reference images (up to 5)
-- **Super-Resolution**: Upscale a generated video to 720p, 1080p or 2K with `--enhance`
-- **Reusable Characters**: Keep the same on-screen character across videos via `--character-id`
-- **Publish to TikTok**: Push a finished video to your own connected TikTok account — post it now, schedule it up to 30 days ahead, or drop it into the drafts inbox and finish it in the app (publishing costs no credits)
-- **Video Download**: Download TikTok or Douyin videos through the Clipcat API
+## Quick start
 
-## Installation
+You need an AI agent that can run shell commands and a Clipcat account with an API key. Installing the Skill does not make generation or data queries free.
 
-### 1. Install the CLI
-
-**OpenClaw** — auto-installed from the skill manifest; no manual step needed.
-
-**Any other agent / manual** — install the CLI binary:
+### 1. Add the Skill to your agent
 
 ```bash
-# Install the clipcat CLI
+npx skills add Clipcat-ai/clipcat-skill -g --skill clipcat
+```
+
+Select your agent when prompted. On first use, the Skill guides the agent to check for the CLI and install it if missing.
+
+<details>
+<summary>Manual CLI setup</summary>
+
+macOS / Linux / Git Bash:
+
+```bash
 curl -fsSL https://clipcat.ai/cli | bash
 ```
 
-### 2. Get Your API Key
+Windows PowerShell:
 
-Sign up or log in, then generate an API key in your personal center:
+```powershell
+irm https://clipcat.ai/cli.ps1 | iex
+```
 
-[Generate API Key](https://clipcat.ai/workspace?modal=settings&tab=apikeys)
+</details>
 
-### 3. Configure Your API Key
+### 2. Create and configure your API key
 
-Configure the key once on the machine the agent runs on:
+[Get your API key in Clipcat](https://clipcat.ai/workspace?modal=settings&tab=apikeys), then configure it:
 
 ```bash
-clipcat config --api-key your_api_key_here --base-url https://clipcat.ai
+clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 ```
 
-Agents that manage secrets via environment variables can instead set `CLIPCAT_API_KEY` (e.g. OpenClaw: `openclaw env set CLIPCAT_API_KEY your_api_key_here`).
+Replace `YOUR_API_KEY` with your key. Do not commit it or include it in screenshots, prompts, or issues.
 
-## Usage
+### 3. Pick a demo and make it yours
 
-Once installed, you can ask your agent to:
+Pick one of the [five demos below](#demo), attach your product photos, and expand its copy-ready prompt.
 
-- "Search viral TikTok videos about lip gloss this week"
-- "Search TikTok Shop for trending pet products and show me competitor shops"
-- "I sell a portable blender — find matching viral selling videos and write me a ready-to-shoot prompt"
-- "Replicate this TikTok video with my product images"
-- "Generate a product video from these images"
-- "Generate an AI image of a model holding my product"
-- "Publish this video to my TikTok account tomorrow at 8pm"
-- "Analyze this video and extract the script"
-- "Show me this TikTok user's recent videos with engagement stats"
-- "Download this TikTok video"
-- "Fetch TikTok Shop product detail and review highlights for this product URL"
+## Demo
 
-## Important Notes
+These five use cases come from the [Clipcat × Codex tutorial](https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial). Images and videos are stored in `assets/`. Click a cover to play the repository video, then expand the prompt to adapt it.
 
-- Video generation tasks are asynchronous and may take several minutes
-- Before a video task consumes credits, the agent submits once for free to get a confirmation checklist (model / duration / resolution / full prompt / credits), shows it to you, and waits for your explicit yes before confirming it
-- Publishing to TikTok needs a one-time account authorization (`clipcat tiktok connect`) and costs no credits — your plan caps how many accounts you can connect, and only watermark-free videos can be published
-- Nothing goes live on your account until you approve it: the agent submits once for free to get the full post checklist (account / caption / who can view / comments / schedule) and waits for your explicit yes
-- Do not retry tasks manually; Clipcat already includes retry handling
-- Preserve complete TikTok or Douyin URLs, including signed parameters when present
+Use `clipcat models` for current models and pricing; historical tutorial settings are not a live quote.
 
-## What's Inside the Viral Library
+### 1. Viral Replication — Make the Reference Your Product Video
 
-`clipcat prompt search` doesn't invent a script — it retrieves from a real, searchable
-library of AI selling videos that actually sold on TikTok Shop:
+Give your agent a TikTok link and product photos. Adapt the original hook and shot structure, rewrite the voiceover, and create a version for your product.
 
-| Asset | What it gives you |
-| ----- | ----------------- |
-| **5000+ real AI viral selling videos** | Every one actually sold on TikTok Shop — not demos, not concepts |
-| **15 markets online** | US, UK, and every other TikTok Shop market, so prompts match your target region |
-| **30 primary categories online** | Beauty, home, electronics, food… matched to your product's category |
-| **Copy-ready prompts** | Each viral video ships with the exact prompt that produced it — copy it, or replicate the video in one step |
-| **Real sales proof** | Every entry carries the original video's real GMV / sales / views, so you build on what already won |
-| **Updated daily** | New winners land every day — the US market is ingested daily, the other markets weekly |
-| **Semantic search** | Describe the effect you want ("cozy home, handheld close-up, real person on camera") and retrieve the matching winners |
+<p align="center"><a href="assets/demo-01-replication-en.mp4"><img src="assets/demo-01-replication-en.webp" alt="Viral Replication — Make the Reference Your Product Video — click to watch" width="360" /></a></p>
 
-Because every prompt is grounded in a video that already sold, `clipcat prompt search`
-gives you a ready-to-shoot prompt built on a proven best-seller — not a guess. Each hit
-comes back with the source video and its public detail page, so you can always see what
-the prompt was reverse-engineered from.
+<p align="center"><a href="assets/demo-01-replication-en.mp4"><strong>▶ Play demo video</strong></a> · <a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Full tutorial</a></p>
 
-## Supported Models
+<details>
+<summary>Copy the prompt for this workflow</summary>
 
-Trial models are open to all users; standard models require a paid plan.
-
-| Model ID             | Duration            | Resolution        | Notes                                                     |
-| -------------------- | ------------------- | ----------------- | --------------------------------------------------------- |
-| `grok_imagine`       | 10s, 15s            | 480p, 720p        | **Trial**, default. xAI Grok Imagine 1.5, 9:16 only       |
-| `veo3.1fast`         | 8s, 16s, 24s        | 720p              | **Trial**. Google Veo 3.1 Fast, balanced quality and cost |
-| `omini_flash`        | 10s, 20s            | 720p, 1080p       | **Trial**. Gemini Omni Flash, Google's newest model       |
-| `seedance2_mini`     | 4-15s (any integer) | 480p, 720p        | **Trial**. Seedance 2 Mini, value tier (free plans: 480p) |
-| `mmh3_promo`         | 10s, 15s            | 480p, 720p, 2K    | **Trial**. Subsidized MiniMax H3, open to free plans      |
-| `seedance2`          | 4-15s (any integer) | 480p, 720p, 1080p | Paid. ByteDance Seedance 2, top quality                   |
-| `seedance2_5`        | 4-30s (any integer) | 480p, 720p        | Paid. ByteDance Seedance 2.5, clips up to 30s             |
-| `seedance2_fast`     | 4-15s (any integer) | 480p, 720p        | Paid. ByteDance Seedance 2 Fast, fast variant             |
-| `wan30`              | 5-30s (any integer) | 480p, 720p, 1080p | Paid. Alibaba Wan 3.0, clips up to 30s                    |
-| `minimax_h3`         | 10s, 15s            | 768p, 2K          | Paid. MiniMax H3                                          |
-| `happyhorse10`       | 3-15s (any integer) | 720p, 1080p       | Paid. Alibaba HappyHorse 1.1                              |
-
-The table is what each model *offers*; run `clipcat models` for the live listing with the exact per-combination credit cost and your balance — it is the authority on which models still exist, and `-h` lags behind it between releases. Prefer `mmh3_promo` over `minimax_h3` whenever it is listed: same model, subsidized channel, a fraction of the credits.
-
-## Supported Languages
-
-English, Chinese, French, German, Malay, Vietnamese, Thai, Japanese, Korean, Indonesian, Filipino, Spanish
-
-## Supported Regions
-
-`US` `GB` `DE` `ES` `FR` `IT` `JP` `MX` `BR` `ID` `MY` `PH` `SG` `TH` `VN`
-
-All monetary values in e-commerce data responses are USD-converted regardless of region.
-
-## Usage Examples
-
-### Example 0: Generate a Viral Selling Prompt
-
-```
-I sell a portable blender (image: /path/to/juicer.jpg), target market US.
-Search the viral prompt library for relevant proven videos, rewrite the best match
-into a selling-video prompt for my product, tell me which video it came from,
-and generate an 8s video once I approve.
+```text
+Use the Clipcat Skill to create a product-specific version of this reference.
+TikTok reference: {COMPLETE_VIDEO_URL}
+My product photos: {PRODUCT_IMAGES_OR_PATHS}
+Use the original hook, shot order, and pacing; replace the product with mine.
+Adapt any existing voiceover to my product. If there is none, do not add it. No subtitles.
+Duration: {SECONDS}; model: {MODEL_ID}; voiceover language: {LANGUAGE}.
+Show the full prompt, settings, and credit cost. Wait for my approval.
 ```
 
-The agent runs `clipcat prompt search` over prompts reverse-engineered from real high-GMV videos, keeps the original hook, shot pacing and voiceover tone, swaps in your product and selling points, and cites the source video's page before spending any credits.
+</details>
 
-### Example 1: Search for Viral TikTok Videos
+### 2. Product-to-Video — Start with a Photo
 
-```
-Search for viral TikTok videos about lip gloss in the US market this week.
-Show me the top 10 results sorted by likes.
-```
+Turn product photos and a creative brief into an on-camera demo, UGC-style video, or talking-head selling clip.
 
-Returns a ranked list of relevant viral videos, including core metrics and source links for further analysis.
+<p align="center"><a href="assets/demo-02-product-to-video-en.mp4"><img src="assets/demo-02-product-to-video-en.webp" alt="Product-to-Video — Start with a Photo — click to watch" width="360" /></a></p>
 
-### Example 2: Replicate a TikTok Video
+<p align="center"><a href="assets/demo-02-product-to-video-en.mp4"><strong>▶ Play demo video</strong></a> · <a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Full tutorial</a></p>
 
-```
-Please use Clipcat’s replication feature to fully replicate the original video’s script and visuals, replacing only the original product with my product. If there is voiceover in the original video, please adapt it to match my product; if there is no voiceover, then no voiceover is needed. The replicated video should not include subtitles. The duration of the new script must be controlled within 15 seconds. Please use the model seedance2.0, and the voiceover language should be English.
-This is the TikTok link to replicate:https://www.tiktok.com/@username/video/123456789
-```
+<details>
+<summary>Copy the prompt for this workflow</summary>
 
-The agent will display the parameters and wait for confirmation before submitting the task.
-
-### Example 3: Generate Product Video from Scratch
-
-```
-Create a 10-second OOTD video featuring a British girl showcasing my product.
-Product image: /path/to/dress.jpg
-Use veo3.1fast model, 9:16 aspect ratio, English language.
+```text
+Use the Clipcat Skill to create a selling video from my product photos.
+Product photos: {PRODUCT_IMAGES_OR_PATHS}
+Creative brief: {PRESENTER, SETTING, DEMO ACTIONS, AND SELLING_POINTS}
+Market: {MARKET}; duration: {SECONDS}; aspect ratio: {9:16 OR 16:9}.
+Model: {MODEL_ID}; voiceover language: {LANGUAGE}.
+Use only the claims I provide. Show the prompt and credit cost before generating.
 ```
 
-### Example 4: Analyze a Video
+</details>
 
-```
-Analyze this video and extract the script, scenes, and music information:
-https://www.tiktok.com/@username/video/987654321
-```
+### 3. Discover and Replicate — From Inspiration to Output
 
-Returns structured data including scene-by-scene breakdown, visual descriptions, voiceover content, and background music.
+Find recent selling-video references, select a relevant winner, analyze the structure, and create a new version with your product.
 
-### Example 5: Download a TikTok Video
+<p align="center"><a href="assets/demo-03-discover-replicate-en.mp4"><img src="assets/demo-03-discover-replicate-en.webp" alt="Discover and Replicate — From Inspiration to Output — click to watch" width="360" /></a></p>
 
-```
-Download this TikTok video:
-https://www.tiktok.com/@username/video/111222333
-```
+<p align="center"><a href="assets/demo-03-discover-replicate-en.mp4"><strong>▶ Play demo video</strong></a> · <a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Full tutorial</a></p>
 
-Synchronous operation, returns direct video URL immediately.
+<details>
+<summary>Copy the prompt for this workflow</summary>
 
-### Example 6: Publish to TikTok
-
-```
-Publish video task 4211 to my TikTok account @mystore.
-Caption "New drop, link in bio", public, allow comments,
-and schedule it for tomorrow 8pm Beijing time.
+```text
+Use the Clipcat Skill to find popular selling videos for {PRODUCT_CATEGORY} in {TARGET_MARKET} from the last 7 days.
+My product photos: {PRODUCT_IMAGES_OR_PATHS}
+Explain query costs first. Show sources and available metrics, then select a relevant reference.
+Use its hook and pacing; adapt the product and voiceover to mine. No subtitles.
+Duration: {SECONDS}; model: {MODEL_ID}; voiceover language: {LANGUAGE}.
+Show the reference URL, full prompt, and generation cost. Wait for approval.
 ```
 
-The agent connects the account once via `clipcat tiktok connect`, checks what the account allows with `creator-info`, then shows you the full post checklist and waits for your yes before anything goes live. Use `--mode draft` instead to send the video to TikTok's drafts inbox and finish the post in the app.
+</details>
 
-## Tips
+### 4. Consistent Characters — Build a Recognizable Series
 
-- Always provide complete TikTok/Douyin URLs
-- Be specific with prompts for better results
-- Wait for task completion - video generation takes time
-- Preserve complete video URLs with all signed parameters
-- Choose appropriate models based on duration and quality needs
+Pair a saved character reference with product images so a content series can keep a consistent on-screen identity.
 
-## Repository Structure
+<p align="center"><a href="assets/demo-04-consistent-character-en.mp4"><img src="assets/demo-04-consistent-character-en.webp" alt="Consistent Characters — Build a Recognizable Series — click to watch" width="360" /></a></p>
 
-This repo follows the Agent Skills convention — one skill per directory under `skills/`, each containing a `SKILL.md` manifest:
+<p align="center"><a href="assets/demo-04-consistent-character-en.mp4"><strong>▶ Play demo video</strong></a> · <a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Full tutorial</a></p>
 
-```
-clipcat-skill/
-├── README.md                  # this file
-├── README_ZH.md               # Chinese version
-├── docs/
-│   └── SKILL_ZH.md            # Chinese translation of the skill manifest
-└── skills/
-    └── clipcat/
-        └── SKILL.md           # the skill manifest agents load
+<details>
+<summary>Copy the prompt for this workflow</summary>
+
+```text
+Use the Clipcat Skill to make a product video with my saved character.
+Character: {AVAILABLE_CHARACTER_ID_OR_CHARACTER_IMAGE_URL}
+Product photos: {PRODUCT_IMAGES_OR_PATHS}; TikTok reference: {COMPLETE_VIDEO_URL}
+Use the reference structure and pacing; adapt the product and voiceover to mine.
+If the reference has an on-screen presenter, use my character reference. No subtitles.
+Duration: {SECONDS}; model: {MODEL_ID_WITH_CHARACTER_SUPPORT}; voiceover: {LANGUAGE}.
+Check character availability, show the settings and cost, and wait for approval.
 ```
 
-## Links
+</details>
 
-- Homepage: https://clipcat.ai
-- OpenClaw one-click install: https://clipcat.ai/tiktok/openclaw
-- Command reference: [`skills/clipcat/SKILL.md`](skills/clipcat/SKILL.md)
+### 5. Daily Automation — Keep New Creatives Coming
+
+Use a scheduled workflow to discover references, deduplicate them, generate outputs, and log results for review.
+
+<p align="center"><a href="assets/demo-05-daily-automation-en.mp4"><img src="assets/demo-05-daily-automation-en.webp" alt="Daily Automation — Keep New Creatives Coming — click to watch" width="360" /></a></p>
+
+<p align="center"><a href="assets/demo-05-daily-automation-en.mp4"><strong>▶ Play demo video</strong></a> · <a href="https://clipcat.ai/en/blog/codex-tiktok-shopping-video-tutorial">Full tutorial</a></p>
+
+<details>
+<summary>Copy the prompt for this workflow</summary>
+
+```text
+Set up a recurring Agent task using the Clipcat Skill to prepare selling videos.
+Time: {DAILY_TIME}; timezone: {IANA_TIMEZONE}; market: {TARGET_MARKET}.
+Category: {KEYWORDS}; product photos: {PERSISTENT_ASSET_REFERENCES}.
+Find relevant videos from the last 7 days and deduplicate against saved reference history.
+Choose a reference, replace the product, and adapt the voiceover to my verified claims.
+No subtitles. Duration: {SECONDS}; model: {MODEL_ID}; voiceover: {LANGUAGE}; per-run limit: {BUDGET}.
+Confirm schedule, timezone, assets, budget, and unattended-generation authorization first. Do not auto-publish.
+```
+
+</details>
+
+Automation needs persistent assets, history, an explicit budget, and prior authorization. Automated generation is not automatic publishing.
+
+> **Found a demo you would use? Star this repo now and keep Clipcat in your toolkit.**
+
+## What you can do
+
+- Selling-video and product research
+- Source-linked prompt discovery
+- TikTok and Douyin video analysis
+- Product-to-video and viral replication
+- AI images, reusable characters, and enhancement
+- TikTok direct posts, scheduled posts, and drafts
+- TikTok and Douyin video downloads
+
+For current commands, models, and pricing:
+
+```bash
+clipcat models
+```
+
+## Models, credits, and control
+
+Video and image generation, video tools, and data queries may consume credits. Interactive video tasks first show the model, prompt, and cost, then wait for approval. TikTok publishing separately confirms the account, caption, visibility, and schedule. Past views, sales, or GMV are context — not a promise for a new video.
+
+## Help improve Clipcat
+
+Found a confusing command or a workflow worth sharing? [Open an issue](https://github.com/Clipcat-ai/clipcat-skill/issues). Remove API keys and private account details before sharing logs.
+
+## Star Clipcat. Help more creators find it.
+
+**If Clipcat helped you find a selling angle or create a product video, click Star at the top right now.** It helps you find Clipcat again and helps more sellers, creators, and agent builders discover the project.
+
+[ **Open the repo and Star Clipcat** ](https://github.com/Clipcat-ai/clipcat-skill)
+
+Use GitHub **Watch** for update notifications. A Star is a bookmark and signal of appreciation, not a notification subscription.
