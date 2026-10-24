@@ -148,7 +148,7 @@ Connect discovery, selection, structural analysis, and replication in one workfl
 </tr></table>
 
 
-|  | Generated result — click to play |  |
+|  | Replicated after automatically finding a winning reference video |  |
 |:---:|:---:|:---:|
 |  | https://github.com/user-attachments/assets/a5f6c5be-1ee1-4627-95ed-93028f866e5e |  |
 
@@ -180,7 +180,7 @@ Use a saved character reference or accessible portrait so a series can retain th
 </tr></table>
 
 
-|  | Generated result — click to play |  |
+|  | Shoppable video with a consistent on-screen character |  |
 |:---:|:---:|:---:|
 |  | https://github.com/user-attachments/assets/28b3f3a0-8f55-42ab-96d5-0e3a724b3cd3 |  |
 
@@ -215,7 +215,7 @@ Set up the workflow once to discover references, deduplicate them, generate outp
 </tr></table>
 
 
-|  | Generated result — click to play |  |
+|  | Automatically find daily winners and replicate them: your always-on creative engine |  |
 |:---:|:---:|:---:|
 |  | https://github.com/user-attachments/assets/a5e0bb94-60bf-4cbc-bb00-f11efb237f7b |  |
 

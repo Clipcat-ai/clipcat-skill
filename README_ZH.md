@@ -148,7 +148,7 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 </tr></table>
 
 
-|  | 效果视频 — 点击播放 |  |
+|  | 自动找爆款参考视频后做的同款 |  |
 |:---:|:---:|:---:|
 |  | https://github.com/user-attachments/assets/c23f5777-cb22-4d84-9aab-0d11d68d492f |  |
 
@@ -180,7 +180,7 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 </tr></table>
 
 
-|  | 效果视频 — 点击播放 |  |
+|  | 生成固定角色出镜的带货视频 |  |
 |:---:|:---:|:---:|
 |  | https://github.com/user-attachments/assets/88b922f4-5af2-49b9-9f64-2dcf4110a8d7 |  |
 
@@ -215,7 +215,7 @@ clipcat config --api-key YOUR_API_KEY --base-url https://clipcat.ai
 </tr></table>
 
 
-|  | 效果视频 — 点击播放 |  |
+|  | 每天自动找爆款并生成同款：素材永动机 |  |
 |:---:|:---:|:---:|
 |  | https://github.com/user-attachments/assets/54c01df5-60f5-4751-bdbe-91fbab41be9b |  |
 
